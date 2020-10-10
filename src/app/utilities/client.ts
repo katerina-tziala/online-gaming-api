@@ -1,6 +1,7 @@
 import * as WebSocket from "ws";
 
 import { UserData } from "../interfaces/user-data.interface";
+import { MessageOutType } from "../messages/message-types.enum";
 import { MessageOut } from "../messages/message.interface";
 import { generateId } from "./app-utils";
 
@@ -85,14 +86,12 @@ export class Client {
         }
     }
 
-    // sendFailedLogin(error) {
-    //     this.send({
-    //         type: OutputMessageType.LoginFailed,
-    //         data: {
-    //             error
-    //         }
-    //     });
-    // }
+    public sendUsernameInUse(): void {
+        this.sendMessage({
+            type: MessageOutType.UsernameInUse,
+            data: {}
+        });
+    }
 
 
 

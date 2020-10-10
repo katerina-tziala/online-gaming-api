@@ -1,4 +1,5 @@
 import { CONFIG } from "../../config/config";
+import { MessageOutType } from "../messages/message-types.enum";
 import { Client } from "../utilities/client";
 
 import { Session } from "./session";
@@ -25,16 +26,16 @@ export class MainSession extends Session {
     public broadcastSession(): void {
         const clients = this.clientsList;
         clients.forEach(client => {
+            // TODO: check interfaces
             client.sendMessage({
-                type: "broadcasr",
+                type: MessageOutType.Broadcast,
                 data: {
-                    client: client.details,
+                    user: client.details,
                     peers: this.getPeersDetailsOfClient(client)
                 }
             });
+
         });
-
     }
-
 
 }

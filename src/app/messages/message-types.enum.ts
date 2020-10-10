@@ -4,8 +4,6 @@ export enum MessageInType {
 }
 
 export enum MessageOutType {
-  // Up = 1,
-  // Down,
-  // Left,
-  // Right
+  Broadcast = "broadcast",
+  UsernameInUse = "username-in-use",
 }

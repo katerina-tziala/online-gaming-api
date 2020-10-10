@@ -1,10 +1,4 @@
-import { MessageInType } from "./message-types.enum";
-
-// export interface Message {
-//   // type: string;
-//   data: string;
-// }
-
+import { MessageInType, MessageOutType } from "./message-types.enum";
 
 export interface MessageIn {
   type: MessageInType;
@@ -12,12 +6,7 @@ export interface MessageIn {
 }
 
 export interface MessageOut {
-  type: string;
+  type: MessageOutType;
   data: any;
 }
-
-// export interface MessageOut extends Message {
-//   sd: string;
-// }
-
 

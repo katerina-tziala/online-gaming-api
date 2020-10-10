@@ -2,15 +2,12 @@
 import { IncomingMessage, Server } from "http";
 import * as WebSocket from "ws";
 
-
 import { ConnectionGuard } from './utilities/connection-guard';
 import { Client } from "./utilities/client";
 import { MessageIn } from "./messages/message.interface";
 import { MessageInType } from "./messages/message-types.enum";
 import { UserData } from "./interfaces/user-data.interface";
 import { MainSession } from "./session/session-main";
-
-
 
 export class OnlineGamingAPI {
     private WebSocketServer: WebSocket.Server;
@@ -25,7 +22,7 @@ export class OnlineGamingAPI {
         this._session = session;
     }
 
-    get session() {
+    get session(): MainSession {
         if (!this._session) {
             this.session = new MainSession();
         }
@@ -45,7 +42,6 @@ export class OnlineGamingAPI {
                 this.disconnect(client);
             });
         });
-
     }
 
     messageHandler(client: Client, msg: MessageIn): void {
@@ -64,25 +60,23 @@ export class OnlineGamingAPI {
 
     }
 
-    loginClient(client: Client, data: UserData) {
+    loginClient(client: Client, data: UserData): void {
         const usernamesInUse = this.session.usernamesInUse;
         client.update(data);
         if (usernamesInUse.includes(client.username)) {
-            // client.sendFailedLogin(ErrorType.UsernameNotAvailable);
+            client.sendUsernameInUse();
         } else {
             this.session.addClient(client);
         }
     }
 
-
-    disconnect(client: Client) {
+    disconnect(client: Client): void {
         // TODO: terminate games
         // TODO:  handle invitations
-        // const invitationsToReject = client.getInvitationsToReject();
         console.log("disconnect");
-        console.log(client);
-        // if (client) {
-        //     this.appSession.removeClient(client);
-        // }
+        // console.log(client);
+        if (client) {
+            this.session.removeClient(client);
+        }
     }
 }
