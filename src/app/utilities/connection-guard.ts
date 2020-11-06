@@ -8,6 +8,8 @@ export class ConnectionGuard {
     }
 
     private static originIsAllowed(headers: IncomingHttpHeaders): boolean {
+        console.log(headers.origin, CONFIG.ALLOWED_HOST);
+
         const origin = headers.origin;
         return origin === CONFIG.ALLOWED_HOST;
     }

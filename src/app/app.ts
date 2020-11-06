@@ -47,11 +47,11 @@ export class OnlineGamingAPI {
     messageHandler(client: Client, msg: MessageIn): void {
         console.log("message");
         console.log("-------------------------");
-        // console.log(msg);
+        console.log(msg);
         if (client && msg) {
             switch (msg.type) {
-                case MessageInType.Login:
-                    this.loginClient(client, msg.data);
+                case MessageInType.Join:
+                    this.joinClientToOnlineGaming(client, msg.data);
                     break;
 
 
@@ -60,7 +60,7 @@ export class OnlineGamingAPI {
 
     }
 
-    loginClient(client: Client, data: UserData): void {
+    joinClientToOnlineGaming(client: Client, data: UserData): void {
         const usernamesInUse = this.session.usernamesInUse;
         client.update(data);
         if (usernamesInUse.includes(client.username)) {

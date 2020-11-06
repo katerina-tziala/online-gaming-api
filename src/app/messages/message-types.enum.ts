@@ -1,5 +1,5 @@
 export enum MessageInType {
-  Login = "login",
+  Join = "join",
 
 }
 
