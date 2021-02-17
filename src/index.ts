@@ -25,7 +25,7 @@ server.on(
 
     const gamingHost = "gamingHost";
     const client = new Client(conn, gamingHost);
-    conn.on("message", (msg: string) =>  messageHandler(client, JSON.parse(msg)));
+    conn.on("message", (msg: string) => messageHandler(client, JSON.parse(msg)));
 
     conn.on("close", () => disconnect(client));
   }
@@ -54,7 +54,7 @@ function getGamingHost(hostId: string): GamingHost {
 function messageHandler(client: Client, msg: MessageIn): void {
   if (!client || !msg) {
     console.log("error on message");
-    throw Error("error on message");
+    // throw Error("error on message");
   }
 
   const host = getGamingHost(client.origin);
@@ -73,15 +73,13 @@ function messageHandler(client: Client, msg: MessageIn): void {
 
 function disconnect(client: Client): void {
   console.log("disconnect");
+  console.log(client.details);
 
   const host = getGamingHost(client.origin);
-  // console.log(client.conn);
-
   const destroyHost = host.removeClient(client);
   if (destroyHost) {
     GamingHosts.delete(host.id);
   }
-  console.log("destroyHost", destroyHost);
-
-//   console.log("_GamingHosts", GamingHosts);
+  // console.log("destroyHost", destroyHost);
+  // console.log("_GamingHosts", GamingHosts);
 }
