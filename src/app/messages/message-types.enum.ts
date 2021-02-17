@@ -4,6 +4,7 @@ export enum MessageInType {
 }
 
 export enum MessageOutType {
-  Broadcast = "broadcast",
+  User = "user-update",
+  Peers = "peers-update",
   UsernameInUse = "username-in-use",
 }

@@ -9,9 +9,32 @@ import { GamingHost } from "./app/utilities/gaming-host";
 import { Client } from "./app/utilities/client";
 import { MessageIn } from "./app/messages/message.interface";
 import { MessageInType } from "./app/messages/message-types.enum";
+// const appServer = express().use(cors());
+// const server = http.createServer(appServer);
+//
+// server.listen(CONFIG.PORT, () => {
+//     const api = new OnlineGamingAPI(parseInt(CONFIG.PORT, 10));
+//     console.log(`Server is listening on port ${CONFIG.PORT} :)`);
+// });
+// const API = new OnlineGamingAPI(parseInt(CONFIG.PORT, 10));
+// API.init();
+// const _GamingHosts = new Map();
+// // private set gamingHost(host: GamingHost) {
+// //     this._GamingHosts.set(host.id, host);
+// //   }
 
+// //   private getGamingHost(hostId: string): GamingHost {
+// //     if (!hostId) {
+// //       throw Error("no host id");
+// //     }
+// //     const selectedHost = this._GamingHosts.get(hostId);
+// //     if (!selectedHost) {
+// //       this.gamingHost = new GamingHost(hostId);
+// //     }
+// //     return this._GamingHosts.get(hostId);
+// //   }
 const server = new WebSocket.Server({ port: CONFIG.PORT });
-console.log(`Server is listening on port ${CONFIG.PORT} ${server.path}:)`);
+console.log(`Server is listening on port ${CONFIG.PORT} :)`);
 
 const GamingHosts = new Map();
 
@@ -80,5 +103,5 @@ function disconnect(client: Client): void {
   }
   console.log("destroyHost", destroyHost);
 
-//   console.log("_GamingHosts", GamingHosts);
+  console.log("_GamingHosts", GamingHosts);
 }

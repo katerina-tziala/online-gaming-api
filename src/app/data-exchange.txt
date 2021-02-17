@@ -1,0 +1,6 @@
+{
+  "type": "join",
+  "data": {
+    "username": "kater"
+  }
+}

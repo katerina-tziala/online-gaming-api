@@ -3,7 +3,7 @@ dotenv.config();
 
 export const CONFIG = {
     SOCKET_PROTOCOL: "json",
-    PORT: process.env.PORT,
+    PORT: parseInt(process.env.PORT, 10),
     APP_PROTOCOL: process.env.APP_PROTOCOL,
     ALLOWED_HOST: process.env.ALLOWED_HOST,
     ID_GENERATION: {

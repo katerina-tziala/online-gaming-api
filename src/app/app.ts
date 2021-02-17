@@ -1,82 +1,103 @@
-
 import { IncomingMessage, Server } from "http";
 import * as WebSocket from "ws";
 
-import { ConnectionGuard } from './utilities/connection-guard';
+import { ConnectionGuard } from "./utilities/connection-guard";
 import { Client } from "./utilities/client";
 import { MessageIn } from "./messages/message.interface";
 import { MessageInType } from "./messages/message-types.enum";
 import { UserData } from "./interfaces/user-data.interface";
 import { MainSession } from "./session/session-main";
-
+import { GamingHost } from "./utilities/gaming-host";
 export class OnlineGamingAPI {
-    private WebSocketServer: WebSocket.Server;
-    private _session: MainSession;
+  private WebSocketServer: WebSocket.Server;
+  private _session: MainSession;
+  private _GamingHosts = new Map();
 
-    constructor(server: Server) {
-        this.WebSocketServer = new WebSocket.Server({ server });
-        this.init();
+  constructor(port: number) {
+    // this.WebSocketServer = new WebSocket.Server({ server });
+    this.WebSocketServer = new WebSocket.Server({ port: 9000 });
+  }
+
+  private set gamingHost(host: GamingHost) {
+    this._GamingHosts.set(host.id, host);
+  }
+
+  private getGamingHost(hostId: string): GamingHost {
+    if (!hostId) {
+      throw Error("no host id");
+    }
+    const selectedHost = this._GamingHosts.get(hostId);
+    if (!selectedHost) {
+      this.gamingHost = new GamingHost(hostId);
+    }
+    return this._GamingHosts.get(hostId);
+  }
+
+  init(): void {
+    let client: Client;
+    this.WebSocketServer.on(
+      "connection",
+      (conn: WebSocket, connectionMessage: IncomingMessage) => {
+        // console.log(connectionMessage.headers);
+        // ws://localhost:9000
+        // const gamingHost = connectionMessage.headers.origin;
+        const gamingHost = "gamingHost";
+        // console.log("gamingHost", connectionMessage.headers.origin);
+
+        client = new Client(conn, gamingHost);
+        conn.on("message", (msg: string) =>
+          this.messageHandler(client, JSON.parse(msg))
+        );
+
+        // console.log(this.gamingHosts);
+        // let client: Client;
+        // if (ConnectionGuard.authenticatedClient(connectionMessage.headers)) {
+        //     client = new Client(conn);
+        //     conn.on("message", (msg: string) => this.messageHandler(client, JSON.parse(msg)));
+        // } else {
+        //     this.WebSocketServer.close();
+        // }
+        conn.on("close", () => this.disconnect(client));
+      }
+    );
+    this.WebSocketServer.on("error", (event) => {
+      console.log("websocket error");
+      console.log(event);
+    });
+  }
+
+  private messageHandler(client: Client, msg: MessageIn): void {
+    if (!client || !msg) {
+      console.log("error on message");
+      throw Error("error on message");
     }
 
-    set session(session: MainSession) {
-        this._session = session;
-    }
-
-    get session(): MainSession {
-        if (!this._session) {
-            this.session = new MainSession();
-        }
-        return this._session;
-    }
-
-    init(): void {
-        this.WebSocketServer.on("connection", (conn: WebSocket, connectionMessage: IncomingMessage) => {
-            let client: Client;
-            if (ConnectionGuard.authenticatedClient(connectionMessage.headers)) {
-                client = new Client(conn);
-                conn.on("message", (msg: string) => this.messageHandler(client, JSON.parse(msg)));
-            } else {
-                this.WebSocketServer.close();
-            }
-            conn.on("close", () => {
-                this.disconnect(client);
-            });
-        });
-    }
-
-    messageHandler(client: Client, msg: MessageIn): void {
+    const host = this.getGamingHost(client.origin);
+    switch (msg.type) {
+      case MessageInType.Join:
+        host.joinClient(client, msg.data);
+        break;
+      default:
         console.log("message");
         console.log("-------------------------");
         console.log(msg);
-        if (client && msg) {
-            switch (msg.type) {
-                case MessageInType.Join:
-                    this.joinClientToOnlineGaming(client, msg.data);
-                    break;
-
-
-            }
-        }
-
+        console.log(client.details);
+        break;
     }
+  }
 
-    joinClientToOnlineGaming(client: Client, data: UserData): void {
-        const usernamesInUse = this.session.usernamesInUse;
-        client.update(data);
-        if (usernamesInUse.includes(client.username)) {
-            client.sendUsernameInUse();
-        } else {
-            this.session.addClient(client);
-        }
-    }
+  private disconnect(client: Client): void {
+    console.log("disconnect");
 
-    disconnect(client: Client): void {
-        // TODO: terminate games
-        // TODO:  handle invitations
-        console.log("disconnect");
-        // console.log(client);
-        if (client) {
-            this.session.removeClient(client);
-        }
+    const host = this.getGamingHost(client.origin);
+    // console.log(client.conn);
+
+    const destroyHost = host.removeClient(client);
+    if (destroyHost) {
+      this._GamingHosts.delete(host.id);
     }
+    // console.log("destroyHost", destroyHost);
+
+    // console.log("_GamingHosts", this._GamingHosts);
+  }
 }
