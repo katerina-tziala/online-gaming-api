@@ -11,7 +11,7 @@ import { MessageIn } from "./app/messages/message.interface";
 import { MessageInType } from "./app/messages/message-types.enum";
 
 const server = new WebSocket.Server({ port: CONFIG.PORT });
-console.log(`Server is listening on port ${CONFIG.PORT} ${server.path}:)`);
+console.log(`Server is listening on port ${CONFIG.PORT}:)`);
 
 const GamingHosts = new Map();
 
@@ -19,7 +19,10 @@ server.on(
   "connection",
   (conn: WebSocket, connectionMessage: IncomingMessage) => {
     // console.log("Connection established", connectionMessage);
-    // const client = createClient(conn);
+
+    const clientOrigin = connectionMessage.headers.origin;
+    console.log("clientOrigin:", clientOrigin);
+
     const gamingHost = "gamingHost";
     const client = new Client(conn, gamingHost);
     conn.on("message", (msg: string) =>  messageHandler(client, JSON.parse(msg)));
