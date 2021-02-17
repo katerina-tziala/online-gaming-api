@@ -25,7 +25,9 @@ server.on(
 
     const gamingHost = "gamingHost";
     const client = new Client(conn, gamingHost);
-    conn.on("message", (msg: string) => messageHandler(client, JSON.parse(msg)));
+    conn.on("message", (msg: string) =>
+      messageHandler(client, JSON.parse(msg))
+    );
 
     conn.on("close", () => disconnect(client));
   }
@@ -62,6 +64,10 @@ function messageHandler(client: Client, msg: MessageIn): void {
     case MessageInType.Join:
       host.joinClient(client, msg.data);
       break;
+    case MessageInType.PrivateMessage:
+      host.sendPrivateMessage(client, msg.data);
+      break;
+
     default:
       console.log("message");
       console.log("-------------------------");

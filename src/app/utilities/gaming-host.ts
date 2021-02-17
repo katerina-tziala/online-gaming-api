@@ -44,8 +44,31 @@ export class GamingHost {
       return false;
     }
 
-
     this.mainSession.removeClient(client);
     return !this.mainSession.hasClients;
   }
+
+  public sendPrivateMessage(sender: Client, data: any): void {
+    // TODO: terminate games
+    // TODO:  handle invitations
+    if (sender.connected) {
+        const recipient = this.mainSession.getClientById(data.recipientId);
+
+        console.log("sendPrivateMessage");
+        console.log(sender.details);
+        console.log(data);
+        if (recipient) {
+            console.log(recipient.details);
+        } else {
+            console.log("no recipient");
+
+        }
+    }
+  }
+
+
+
+
+
+
 }

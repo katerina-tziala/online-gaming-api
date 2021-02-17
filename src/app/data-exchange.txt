@@ -1,6 +1,15 @@
 {
   "type": "join",
   "data": {
-    "username": "kater"
+    "username": "kater",
+    "id": "kater"
+  }
+}
+
+{
+  "type": "private-message",
+  "data": {
+    "recipientId": "",
+    "message": {}
   }
 }

@@ -60,6 +60,10 @@ export class Session {
     }
   }
 
+  public getClientById(clientId: string): Client {
+    return this.clientsMap.get(clientId);
+  }
+
   public addInClients(client: Client): void {
     this.removeFromClients(client);
     this.clientsMap.set(client.id, client);
