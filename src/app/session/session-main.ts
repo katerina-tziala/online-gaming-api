@@ -10,14 +10,6 @@ export class MainSession extends Session {
     this.id = CONFIG.APP_PROTOCOL;
   }
 
-  private notifyAddedClient(client: Client): void {
-    const data = {
-      user: client.details,
-      peers: this.getPeersDetailsOfClient(client),
-    };
-    client.sendUserUpdate(data);
-  }
-
   private broadcastSession(excludingClientsIds: string[] = []): void {
     const clientsToReceiveBroadcast = this.clientsList.filter(
       (client) => !excludingClientsIds.includes(client.id)
@@ -31,7 +23,7 @@ export class MainSession extends Session {
   //
   public addClient(client: Client): void {
     this.addInClients(client);
-    this.notifyAddedClient(client);
+    client.sendUserUpdate(this.getPeersDetailsOfClient(client));
     this.broadcastSession([client.id]);
 
     // console.log("connected clients");

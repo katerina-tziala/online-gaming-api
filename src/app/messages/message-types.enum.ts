@@ -7,5 +7,6 @@ export enum MessageInType {
 export enum MessageOutType {
   User = "user-update",
   Peers = "peers-update",
-  UsernameInUse = "username-in-use"
+  UsernameInUse = "username-in-use",
+  Error = "error"
 }

@@ -107,15 +107,20 @@ export class Client {
 
   public sendUsernameInUse(): void {
     this.sendMessage({
-      type: MessageOutType.UsernameInUse,
-      data: {},
+      type: MessageOutType.Error,
+      data: {
+          errorType: MessageOutType.UsernameInUse
+      },
     });
   }
 
-  public sendUserUpdate(data: {}): void {
+  public sendUserUpdate(peers: UserData[]): void {
     this.sendMessage({
       type: MessageOutType.User,
-      data,
+      data: {
+        user: this.details,
+        peers,
+      },
     });
   }
 
@@ -127,4 +132,6 @@ export class Client {
         }
     });
   }
+
+
 }
