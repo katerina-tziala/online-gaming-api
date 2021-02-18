@@ -11,6 +11,7 @@ export enum MessageOutType {
   Error = "error",
   MessageFailed = "message-failed",
   PrivateMessage = "private-message",
+  GameInvitation = "game-invitation",
 }
 
 export enum MessageErrorType {

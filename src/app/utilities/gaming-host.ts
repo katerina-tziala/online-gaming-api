@@ -65,10 +65,16 @@ export class GamingHost {
   }
 
   private checkSenderAndGetRecipient(sender: Client, data: any): Client {
+    if (sender.id === data.recipientId) {
+      console.log("cannot send message to self");
+      return;
+    }
+
     if (!this.clientJoined(sender)) {
       sender.sendUsernameRequired(data);
       return;
     }
+
     const recipient = this.mainSession.getClientById(data.recipientId);
     if (!recipient) {
       sender.sendRecipientNotConnected(data);
@@ -119,11 +125,23 @@ export class GamingHost {
   }
 
   public inviteAndOpenRoom(sender: Client, data: any): void {
+    if (sender.gameRoomId) {
+      console.log("sender already in room");
+      return;
+    }
+
     const recipient = this.checkSenderAndGetRecipient(sender, data);
     if (recipient) {
-      console.log("inviteAndOpenRoom");
+      const gameRoom = new GameRoomSession(this.id, data.allowedPlayers, data.roomType);
+      gameRoom.properties = data.message;
+      gameRoom.addClient(sender);
+      this.mainSession.broadcastSession([sender.id]);
 
-      console.log(data);
+      const invitation = {
+        sender: sender.details,
+        message: gameRoom.details
+      };
+      recipient.sendInvitation(invitation);
     }
   }
 

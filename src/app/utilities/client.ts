@@ -12,6 +12,7 @@ export class Client {
   private _username: string;
   private _gameRoomId: string;
   private _properties: {};
+  private invitations: {}[] = [];
 
   constructor(conn: WebSocket, origin: string) {
     this.conn = conn;
@@ -156,6 +157,15 @@ export class Client {
     this.sendMessage({
       type: MessageOutType.PrivateMessage,
       data: message
+    });
+  }
+
+  public sendInvitation(invitation: {}): void {
+    this.invitations.push(invitation);
+
+    this.sendMessage({
+      type: MessageOutType.GameInvitation,
+      data: invitation
     });
   }
 

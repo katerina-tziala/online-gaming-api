@@ -8,10 +8,11 @@ export class MainSession extends Session {
     super();
   }
 
-  private broadcastSession(excludingClientsIds: string[] = []): void {
-    const clientsToReceiveBroadcast = this.clientsList.filter(
+  public broadcastSession(excludingClientsIds: string[] = []): void {
+    let clientsToReceiveBroadcast = this.clientsList.filter(
       (client) => !excludingClientsIds.includes(client.id)
     );
+    clientsToReceiveBroadcast = clientsToReceiveBroadcast.filter(client => !!client.gameRoomId);
     clientsToReceiveBroadcast.forEach((client) => {
       const clientPeers = this.getPeersDetailsOfClient(client);
       client.sendPeersNotification(clientPeers);

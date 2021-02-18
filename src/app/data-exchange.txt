@@ -30,6 +30,8 @@ MESSAGES IN:
   "type": "invite-and-open-room",
   "data": {
     "recipientId": "",
+    "allowedPlayers": 2,
+    "roomType": "default"
     "message": {}
   }
 }

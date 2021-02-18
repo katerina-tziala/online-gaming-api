@@ -44,12 +44,6 @@ export class Session {
     return getArrayFromMap(this.clientsMap);
   }
 
-  // public get usernamesInUse(): string[] {
-  //   return this.hasClients
-  //     ? this.clientsList.map((client) => client.username)
-  //     : [];
-  // }
-
   public clientExists(client: Client): boolean {
     return this.clientsMap.has(client.id);
   }
