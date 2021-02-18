@@ -24,7 +24,7 @@ export class GameRoomSession extends Session {
     const gameDetails = {
       id: this.id,
       roomType: this.roomType,
-      url: this._url,
+      entryURL: this._url,
     };
     return { ...gameDetails, ...this.properties };
   }

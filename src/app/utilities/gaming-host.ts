@@ -131,18 +131,20 @@ export class GamingHost {
     }
 
     const recipient = this.checkSenderAndGetRecipient(sender, data);
-    if (recipient) {
-      const gameRoom = new GameRoomSession(this.id, data.allowedPlayers, data.roomType);
-      gameRoom.properties = data.message;
-      gameRoom.addClient(sender);
-      this.mainSession.broadcastSession([sender.id]);
-
-      const invitation = {
-        sender: sender.details,
-        message: gameRoom.details
-      };
-      recipient.sendInvitation(invitation);
+    if (!recipient) {
+      return;
     }
+
+    const gameRoom = new GameRoomSession(this.id, data.allowedPlayers, data.roomType);
+    gameRoom.properties = data.message;
+    gameRoom.addClient(sender);
+    this.mainSession.broadcastSession([sender.id]);
+
+    const invitation = {
+      sender: sender.details,
+      game: gameRoom.details,
+    };
+    recipient.sendInvitation(invitation);
   }
 
   public removeClient(client: Client): boolean {

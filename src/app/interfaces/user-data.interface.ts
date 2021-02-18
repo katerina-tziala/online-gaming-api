@@ -4,4 +4,5 @@ export interface UserData {
   gameRoomId: string;
   origin: string;
   properties?: {};
+  invitations?: {}[];
 }

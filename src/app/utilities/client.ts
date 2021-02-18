@@ -77,6 +77,7 @@ export class Client {
       gameRoomId: this.gameRoomId,
       origin: this.origin,
       properties: this.properties,
+      invitations: this.invitations,
     };
   }
 
