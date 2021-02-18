@@ -2,7 +2,7 @@ export enum MessageInType {
   Join = "join",
   UserUpdate = "user-update",
   PrivateMessage = "private-message",
-
+  InviteAndOpenRoom = "invite-and-open-room",
 }
 
 export enum MessageOutType {

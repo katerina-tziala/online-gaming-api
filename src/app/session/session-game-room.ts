@@ -7,7 +7,6 @@ export class GameRoomSession extends Session {
 
     constructor() {
         super();
-
     }
 
 

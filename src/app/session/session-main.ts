@@ -1,13 +1,11 @@
 import { CONFIG } from "../../config/config";
 import { MessageOutType } from "../messages/message-types.enum";
 import { Client } from "../utilities/client";
-
 import { Session } from "./session";
 
 export class MainSession extends Session {
   constructor() {
     super();
-    this.id = CONFIG.APP_PROTOCOL;
   }
 
   private broadcastSession(excludingClientsIds: string[] = []): void {

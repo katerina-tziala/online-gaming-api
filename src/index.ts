@@ -70,7 +70,9 @@ function messageHandler(client: Client, msg: MessageIn): void {
     case MessageInType.PrivateMessage:
       host.sendPrivateMessage(client, msg.data);
       break;
-
+    case MessageInType.InviteAndOpenRoom:
+      host.inviteAndOpenRoom(client, msg.data);
+      break;
     default:
       console.log("message");
       console.log("-------------------------");

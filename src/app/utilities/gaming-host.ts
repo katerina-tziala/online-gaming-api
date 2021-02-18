@@ -3,6 +3,7 @@ import * as WebSocket from "ws";
 import { UserData } from "../interfaces/user-data.interface";
 import { MessageOutType } from "../messages/message-types.enum";
 import { MessageOut } from "../messages/message.interface";
+import { GameRoomSession } from "../session/session-game-room";
 import { MainSession } from "../session/session-main";
 import { generateId } from "./app-utils";
 import { Client } from "./client";
@@ -10,6 +11,7 @@ import { Client } from "./client";
 export class GamingHost {
   public id: string;
   private _MainSession: MainSession;
+  private _GameRooms = new Map();
 
   constructor(id: string) {
     this.id = id;
@@ -24,6 +26,14 @@ export class GamingHost {
       this.mainSession = new MainSession();
     }
     return this._MainSession;
+  }
+
+  set roomSession(session: GameRoomSession) {
+    this._GameRooms.set(session.id, session);
+  }
+
+  getRoomSession(roomId: string): GameRoomSession {
+    return this._GameRooms.get(roomId);
   }
 
   private clientJoined(client: Client): boolean {
@@ -102,9 +112,18 @@ export class GamingHost {
     if (recipient) {
       const messageOut = {
         sender: sender.details,
-        message: data.message
+        message: data.message,
       };
       recipient.sendPrivateMessage(messageOut);
+    }
+  }
+
+  public inviteAndOpenRoom(sender: Client, data: any): void {
+    const recipient = this.checkSenderAndGetRecipient(sender, data);
+    if (recipient) {
+      console.log("inviteAndOpenRoom");
+
+      console.log(data);
     }
   }
 
@@ -119,8 +138,4 @@ export class GamingHost {
     this.mainSession.removeClient(client);
     return !this.mainSession.hasClients;
   }
-
-
-
-
 }

@@ -1,3 +1,4 @@
+MESSAGES IN:
 {
   "type": "join",
   "data": {
@@ -19,6 +20,14 @@
 
 {
   "type": "private-message",
+  "data": {
+    "recipientId": "",
+    "message": {}
+  }
+}
+
+{
+  "type": "invite-and-open-room",
   "data": {
     "recipientId": "",
     "message": {}
