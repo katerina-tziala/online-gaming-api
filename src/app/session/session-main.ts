@@ -20,24 +20,19 @@ export class MainSession extends Session {
     });
   }
 
-  //
   public addClient(client: Client): void {
     this.addInClients(client);
     client.sendUserUpdate(this.getPeersDetailsOfClient(client));
     this.broadcastSession([client.id]);
+  }
 
-    // console.log("connected clients");
-    // console.log(this.clientsList.map((clienti) => clienti.details));
-    // console.log(this.clientsList.map((clienti) => clienti));
+  public updateClient(client: Client): void {
+    client.sendUserUpdate(this.getPeersDetailsOfClient(client));
+    this.broadcastSession([client.id]);
   }
 
   public removeClient(client: Client): void {
-    // console.log("removeClient from main session");
-    // console.log(client);
     this.removeFromClients(client);
-    // console.log("---");
-    // console.log(this.clientsList.map((clienti) => clienti));
-
     if (this.hasClients) {
       this.broadcastSession();
     }

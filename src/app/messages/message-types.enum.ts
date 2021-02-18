@@ -1,5 +1,6 @@
 export enum MessageInType {
   Join = "join",
+  UserUpdate = "user-update",
   PrivateMessage = "private-message",
 
 }
@@ -7,6 +8,13 @@ export enum MessageInType {
 export enum MessageOutType {
   User = "user-update",
   Peers = "peers-update",
+  Error = "error",
+  MessageFailed = "message-failed",
+  PrivateMessage = "private-message",
+}
+
+export enum MessageErrorType {
   UsernameInUse = "username-in-use",
-  Error = "error"
+  UsernameRequired = "username-required-to-join",
+  RecipientNotConnected = "recipient-not-connected",
 }

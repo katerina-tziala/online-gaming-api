@@ -26,14 +26,86 @@ export class GamingHost {
     return this._MainSession;
   }
 
-  public joinClient(client: Client, data: UserData) {
-    const usernamesInUse = this.mainSession.usernamesInUse;
-    client.update(data);
-    if (usernamesInUse.includes(client.username)) {
+  private clientJoined(client: Client): boolean {
+    if (!this._MainSession) {
+      return false;
+    }
+    return this._MainSession.clientExists(client);
+  }
+
+  private usernameInData(data: UserData): boolean {
+    return Object.keys(data).includes("username");
+  }
+
+  private clientUsernameInUse(client: Client, newUsername: string): boolean {
+    let clientsToCheck = this.mainSession.clientsList;
+    clientsToCheck = clientsToCheck.filter(
+      (joinedClient) => joinedClient.id !== client.id
+    );
+
+    const usernamesInUse = clientsToCheck.map(
+      (joinedClient) => joinedClient.username
+    );
+
+    if (usernamesInUse.includes(newUsername)) {
+      client.sendUsernameInUse();
+      return true;
+    }
+    return false;
+  }
+
+  private checkSenderAndGetRecipient(sender: Client, data: any): Client {
+    if (!this.clientJoined(sender)) {
+      sender.sendUsernameRequired(data);
+      return;
+    }
+    const recipient = this.mainSession.getClientById(data.recipientId);
+    if (!recipient) {
+      sender.sendRecipientNotConnected(data);
+    }
+    return recipient;
+  }
+
+  public joinClient(client: Client, data: UserData): void {
+    if (!this.usernameInData(data) || !data.username.length) {
+      client.sendUsernameRequired(data);
+      return;
+    }
+
+    if (this.clientUsernameInUse(client, data.username)) {
       client.sendUsernameInUse();
       return;
     }
+    delete data.id;
+    client.update(data);
     this.mainSession.addClient(client);
+  }
+
+  public updateClient(client: Client, data: UserData): void {
+    if (this.usernameInData(data) && !data.username.length) {
+      client.sendUsernameRequired(data);
+      return;
+    }
+
+    if (this.clientUsernameInUse(client, data.username)) {
+      client.sendUsernameInUse();
+      return;
+    }
+
+    delete data.id;
+    client.update(data);
+    this.mainSession.updateClient(client);
+  }
+
+  public sendPrivateMessage(sender: Client, data: any): void {
+    const recipient = this.checkSenderAndGetRecipient(sender, data);
+    if (recipient) {
+      const messageOut = {
+        sender: sender.details,
+        message: data.message
+      };
+      recipient.sendPrivateMessage(messageOut);
+    }
   }
 
   public removeClient(client: Client): boolean {
@@ -47,26 +119,6 @@ export class GamingHost {
     this.mainSession.removeClient(client);
     return !this.mainSession.hasClients;
   }
-
-  public sendPrivateMessage(sender: Client, data: any): void {
-    // TODO: terminate games
-    // TODO:  handle invitations
-    if (sender.connected) {
-        const recipient = this.mainSession.getClientById(data.recipientId);
-
-        console.log("sendPrivateMessage");
-        console.log(sender.details);
-        console.log(data);
-        if (recipient) {
-            console.log(recipient.details);
-        } else {
-            console.log("no recipient");
-
-        }
-    }
-  }
-
-
 
 
 

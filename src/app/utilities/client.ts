@@ -1,7 +1,7 @@
 import * as WebSocket from "ws";
 
 import { UserData } from "../interfaces/user-data.interface";
-import { MessageOutType } from "../messages/message-types.enum";
+import { MessageErrorType, MessageOutType } from "../messages/message-types.enum";
 import { MessageOut } from "../messages/message.interface";
 import { generateId } from "./app-utils";
 
@@ -75,7 +75,7 @@ export class Client {
       username: this.username,
       gameRoomId: this.gameRoomId,
       origin: this.origin,
-      properties: this.properties
+      properties: this.properties,
     };
   }
 
@@ -92,11 +92,10 @@ export class Client {
 
   public sendMessage(data: MessageOut): void {
     if (!this.connected) {
-      // throw new Error("client is not connected");
-      console.log("client is not connected");
-      console.log(this.username);
+      console.log("client is not connected -> cannot deliver the message");
       return;
     }
+
     this.conn.send(JSON.stringify(data), (error) => {
       if (error) {
         console.log(error);
@@ -109,8 +108,8 @@ export class Client {
     this.sendMessage({
       type: MessageOutType.Error,
       data: {
-          errorType: MessageOutType.UsernameInUse
-      },
+        errorType: MessageErrorType.UsernameInUse,
+      }
     });
   }
 
@@ -119,19 +118,45 @@ export class Client {
       type: MessageOutType.User,
       data: {
         user: this.details,
-        peers,
+        peers
       },
     });
   }
 
   public sendPeersNotification(peers: UserData[]): void {
     this.sendMessage({
-        type: MessageOutType.Peers,
-        data: {
-            peers
-        }
+      type: MessageOutType.Peers,
+      data: {
+        peers,
+      }
     });
   }
 
+  public sendUsernameRequired(message: {}): void {
+    this.sendMessage({
+      type: MessageOutType.Error,
+      data: {
+        errorType: MessageErrorType.UsernameRequired,
+        messageFailed: message
+      }
+    });
+  }
+
+  public sendRecipientNotConnected(message: {}): void {
+    this.sendMessage({
+      type: MessageOutType.MessageFailed,
+      data: {
+        errorType: MessageErrorType.RecipientNotConnected,
+        messageFailed: message
+      }
+    });
+  }
+
+  public sendPrivateMessage(message: {}): void {
+    this.sendMessage({
+      type: MessageOutType.PrivateMessage,
+      data: message
+    });
+  }
 
 }

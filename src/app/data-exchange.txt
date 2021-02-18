@@ -7,6 +7,17 @@
 }
 
 {
+  "type": "user-update",
+  "data": {
+    "username": "kater",
+    "id": "kater",
+    "properties": {
+      "testprp" : "232323"
+    }
+  }
+}
+
+{
   "type": "private-message",
   "data": {
     "recipientId": "",
