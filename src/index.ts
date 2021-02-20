@@ -73,6 +73,10 @@ function messageHandler(client: Client, msg: MessageIn): void {
     case MessageInType.InviteAndOpenRoom:
       host.inviteAndOpenRoom(client, msg.data);
       break;
+    case MessageInType.RejectInvitation:
+      host.rejectInvitation(client, msg.data.invitationId);
+      break;
+
     default:
       console.log("message");
       console.log("-------------------------");
@@ -83,8 +87,8 @@ function messageHandler(client: Client, msg: MessageIn): void {
 }
 
 function disconnect(client: Client): void {
-  console.log("disconnect");
-  console.log(client.details);
+  // console.log("disconnect");
+  // console.log(client.details);
 
   const host = getGamingHost(client.origin);
   const destroyHost = host.removeClient(client);

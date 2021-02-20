@@ -12,7 +12,7 @@ export class MainSession extends Session {
     let clientsToReceiveBroadcast = this.clientsList.filter(
       (client) => !excludingClientsIds.includes(client.id)
     );
-    clientsToReceiveBroadcast = clientsToReceiveBroadcast.filter(client => !!client.gameRoomId);
+    clientsToReceiveBroadcast = clientsToReceiveBroadcast.filter(client => !client.gameRoomId);
     clientsToReceiveBroadcast.forEach((client) => {
       const clientPeers = this.getPeersDetailsOfClient(client);
       client.sendPeersNotification(clientPeers);

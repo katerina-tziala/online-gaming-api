@@ -5,7 +5,7 @@ import { MessageOutType } from "../messages/message-types.enum";
 import { MessageOut } from "../messages/message.interface";
 import { GameRoomSession } from "../session/session-game-room";
 import { MainSession } from "../session/session-main";
-import { generateId } from "./app-utils";
+import { generateId, getNowTimeStamp } from "./app-utils";
 import { Client } from "./client";
 
 export class GamingHost {
@@ -115,13 +115,14 @@ export class GamingHost {
 
   public sendPrivateMessage(sender: Client, data: any): void {
     const recipient = this.checkSenderAndGetRecipient(sender, data);
-    if (recipient) {
-      const messageOut = {
-        sender: sender.details,
-        message: data.message,
-      };
-      recipient.sendPrivateMessage(messageOut);
+    if (!recipient) {
+      return;
     }
+    const messageOut = {
+      sender: sender.details,
+      message: data.message,
+    };
+    recipient.sendPrivateMessage(messageOut);
   }
 
   public inviteAndOpenRoom(sender: Client, data: any): void {
@@ -135,16 +136,49 @@ export class GamingHost {
       return;
     }
 
-    const gameRoom = new GameRoomSession(this.id, data.allowedPlayers, data.roomType);
-    gameRoom.properties = data.message;
-    gameRoom.addClient(sender);
+    const gameRoom = new GameRoomSession(
+      this.id,
+      data.allowedPlayers,
+      data.roomType
+    );
+    gameRoom.properties = data.gameProperties;
+
+
+
+    gameRoom.openForClient(
+      sender,
+      this.mainSession.getPeersDetailsOfClient(sender)
+    );
+
+    this.roomSession = gameRoom;
+
     this.mainSession.broadcastSession([sender.id]);
 
     const invitation = {
-      sender: sender.details,
+      id: generateId(),
+      createdAt: getNowTimeStamp(),
+      sender: sender.userData,
       game: gameRoom.details,
     };
-    recipient.sendInvitation(invitation);
+
+    recipient.sendInvitation({ ...invitation });
+  }
+
+  public rejectInvitation(client: Client, invitationId: string): void {
+    const rejectedInvitation = client.getRejectedInvitation(invitationId);
+
+    if (!rejectedInvitation) {
+      return;
+    }
+
+    const sender = this.mainSession.getClientById(rejectedInvitation.sender.id);
+
+    const game = rejectedInvitation.game;
+    console.log(sender.details);
+    // console.log(client.details);
+    console.log(game.id);
+
+    //
   }
 
   public removeClient(client: Client): boolean {

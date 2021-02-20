@@ -1,3 +1,4 @@
+import { UserData } from "../interfaces/user-data.interface";
 import { Client } from "../utilities/client";
 import { Session } from "./session";
 
@@ -11,8 +12,10 @@ export class GameRoomSession extends Session {
   constructor(origin: string, allowedPlayers = 2, type = "default") {
     super();
     this._origin = origin;
-    this._allowedPlayers = allowedPlayers;
     this._url = `${this._origin}?gameId=${this.id}`;
+
+    this._allowedPlayers = allowedPlayers;
+
     this.roomType = type;
   }
 
@@ -26,11 +29,24 @@ export class GameRoomSession extends Session {
       roomType: this.roomType,
       entryURL: this._url,
     };
-    return { ...gameDetails, ...this.properties };
+    return { ...gameDetails, ...this._properties };
   }
 
   public get roomFilled() {
     return this.clientsList.length === this._allowedPlayers;
+  }
+
+
+
+
+  public openForClient(client: Client, peersInMainSession: UserData[]): void {
+    this.addInClients(client);
+    client.gameRoomId = this.id;
+    const data = {
+      game: this.details,
+      peers: peersInMainSession
+    };
+    client.sendRoomOpened(data);
   }
 
 
@@ -51,6 +67,12 @@ export class GameRoomSession extends Session {
 
       return;
     }
-    client.sendUserUpdate(this.getPeersDetailsOfClient(client));
+    // client.sendUserUpdate(this.getPeersDetailsOfClient(client));
   }
+
+
+
+
+
+
 }

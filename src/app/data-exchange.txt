@@ -31,7 +31,14 @@ MESSAGES IN:
   "data": {
     "recipientId": "",
     "allowedPlayers": 2,
-    "roomType": "default"
-    "message": {}
+    "roomType": "default",
+    "gameProperties": {}
+  }
+}
+
+{
+  "type": "reject-invitation",
+  "data": {
+    "invitationId": ""
   }
 }

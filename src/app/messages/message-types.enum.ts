@@ -3,6 +3,7 @@ export enum MessageInType {
   UserUpdate = "user-update",
   PrivateMessage = "private-message",
   InviteAndOpenRoom = "invite-and-open-room",
+  RejectInvitation = "reject-invitation",
 }
 
 export enum MessageOutType {
@@ -11,7 +12,9 @@ export enum MessageOutType {
   Error = "error",
   MessageFailed = "message-failed",
   PrivateMessage = "private-message",
+  RoomOpened = "game-room-opened",
   GameInvitation = "game-invitation",
+  Invitations = "invitations-update",
 }
 
 export enum MessageErrorType {
