@@ -143,12 +143,7 @@ export class GamingHost {
     );
     gameRoom.properties = data.gameProperties;
 
-
-
-    gameRoom.openForClient(
-      sender,
-      this.mainSession.getPeersDetailsOfClient(sender)
-    );
+    gameRoom.openForClient(sender);
 
     this.roomSession = gameRoom;
 
@@ -172,13 +167,15 @@ export class GamingHost {
     }
 
     const sender = this.mainSession.getClientById(rejectedInvitation.sender.id);
-
     const game = rejectedInvitation.game;
-    console.log(sender.details);
-    // console.log(client.details);
-    console.log(game.id);
 
-    //
+    if (sender.gameRoomId === game.id) {
+      sender.gameRoomId = null;
+      sender.sendInvitationRejected(rejectedInvitation);
+
+      sender.sendUserUpdate(this.mainSession.getPeersDetailsOfClient(sender));
+      this.mainSession.broadcastSession([sender.id]);
+    }
   }
 
   public removeClient(client: Client): boolean {

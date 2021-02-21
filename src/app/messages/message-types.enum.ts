@@ -15,6 +15,7 @@ export enum MessageOutType {
   RoomOpened = "game-room-opened",
   GameInvitation = "game-invitation",
   Invitations = "invitations-update",
+  InvitationRejected = "invitation-rejected",
 }
 
 export enum MessageErrorType {

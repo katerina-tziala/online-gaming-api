@@ -39,12 +39,11 @@ export class GameRoomSession extends Session {
 
 
 
-  public openForClient(client: Client, peersInMainSession: UserData[]): void {
+  public openForClient(client: Client): void {
     this.addInClients(client);
     client.gameRoomId = this.id;
     const data = {
-      game: this.details,
-      peers: peersInMainSession
+      game: this.details
     };
     client.sendRoomOpened(data);
   }

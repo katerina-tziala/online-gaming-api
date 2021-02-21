@@ -202,6 +202,12 @@ export class Client {
     });
   }
 
+  public sendInvitationRejected(invitation: {}): void {
+    this.sendMessage({
+      type: MessageOutType.InvitationRejected,
+      data: invitation
+    });
+  }
 
 
 }
