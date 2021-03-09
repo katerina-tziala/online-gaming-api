@@ -28,7 +28,7 @@ export class GamingHost {
     return this._MainSession;
   }
 
-  set roomSession(session: GameRoomSession) {
+  set gameRooms(session: GameRoomSession) {
     this._GameRooms.set(session.id, session);
   }
 
@@ -125,6 +125,19 @@ export class GamingHost {
     recipient.sendPrivateMessage(messageOut);
   }
 
+  private createRoomForClient(client: Client, data: any): GameRoomSession {
+    const gameRoom = new GameRoomSession(
+      this.id,
+      data.allowedPlayers,
+      data.roomType
+    );
+    gameRoom.properties = data.gameProperties;
+    gameRoom.openForClient(client);
+    this.mainSession.broadcastSession([client.id]);
+    this.gameRooms = gameRoom;
+    return gameRoom;
+  }
+
   public inviteAndOpenRoom(sender: Client, data: any): void {
     if (sender.gameRoomId) {
       console.log("sender already in room");
@@ -136,24 +149,14 @@ export class GamingHost {
       return;
     }
 
-    const gameRoom = new GameRoomSession(
-      this.id,
-      data.allowedPlayers,
-      data.roomType
-    );
-    gameRoom.properties = data.gameProperties;
-
-    gameRoom.openForClient(sender);
-
-    this.roomSession = gameRoom;
-
-    this.mainSession.broadcastSession([sender.id]);
+    const gameRoom = this.createRoomForClient(sender, data);
 
     const invitation = {
       id: generateId(),
       createdAt: getNowTimeStamp(),
       sender: sender.userData,
       game: gameRoom.details,
+      recipient: recipient.userData
     };
 
     recipient.sendInvitation({ ...invitation });
@@ -165,14 +168,18 @@ export class GamingHost {
     if (!rejectedInvitation) {
       return;
     }
+    // console.log(invitationId);
+    // console.log("rejectInvitation");
 
     const sender = this.mainSession.getClientById(rejectedInvitation.sender.id);
     const game = rejectedInvitation.game;
+    // console.log(game, sender.details);
+
 
     if (sender.gameRoomId === game.id) {
       sender.gameRoomId = null;
-      sender.sendInvitationRejected(rejectedInvitation);
-
+      rejectedInvitation.sender = client.userData;
+      sender.sendInvitationDenied(rejectedInvitation);
       sender.sendUserUpdate(this.mainSession.getPeersDetailsOfClient(sender));
       this.mainSession.broadcastSession([sender.id]);
     }
@@ -181,8 +188,10 @@ export class GamingHost {
   public removeClient(client: Client): boolean {
     // TODO: terminate games
     // TODO:  handle invitations
+    // console.log("removeClient From gaming host");
+
     if (!client) {
-      console.log("no client to remove");
+   //   console.log("no client to remove");
       return false;
     }
 

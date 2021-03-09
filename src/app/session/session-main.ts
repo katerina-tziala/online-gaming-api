@@ -21,7 +21,7 @@ export class MainSession extends Session {
 
   public addClient(client: Client): void {
     this.addInClients(client);
-    client.sendUserUpdate(this.getPeersDetailsOfClient(client));
+    client.sendUserJoined(this.getPeersDetailsOfClient(client));
     this.broadcastSession([client.id]);
   }
 

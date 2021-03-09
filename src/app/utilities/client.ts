@@ -2,7 +2,10 @@ import * as WebSocket from "ws";
 import { Invitation } from "../interfaces/invitation.interface";
 
 import { UserData } from "../interfaces/user-data.interface";
-import { MessageErrorType, MessageOutType } from "../messages/message-types.enum";
+import {
+  MessageErrorType,
+  MessageOutType,
+} from "../messages/message-types.enum";
 import { MessageOut } from "../messages/message.interface";
 import { generateId } from "./app-utils";
 
@@ -102,18 +105,15 @@ export class Client {
   }
 
   public getRejectedInvitation(invitationId: string): Invitation {
-    const rejectedInvitation = this.invitations.find(invitation => invitation.id === invitationId);
-    this.invitations = this.invitations.filter(invitation => invitation.id !== invitationId);
-    this.sendMessage({
-      type: MessageOutType.Invitations,
-      data: {
-        invitations: this.invitations
-      }
-    });
+    const rejectedInvitation = this.invitations.find(
+      (invitation) => invitation.id === invitationId
+    );
+    this.invitations = this.invitations.filter(
+      (invitation) => invitation.id !== invitationId
+    );
+    this.sendInvitationRejected(rejectedInvitation);
     return rejectedInvitation;
   }
-
-
 
   /* ~~~~~~~~~~~~~~~~~~~~~~~ SEND CLIENT MESSAGES ~~~~~~~~~~~~~~~~~~~~~~~ */
   public sendMessage(data: MessageOut): void {
@@ -135,7 +135,17 @@ export class Client {
       type: MessageOutType.Error,
       data: {
         errorType: MessageErrorType.UsernameInUse,
-      }
+      },
+    });
+  }
+
+  public sendUserJoined(peers: UserData[]): void {
+    this.sendMessage({
+      type: MessageOutType.Joined,
+      data: {
+        user: this.userData,
+        peers,
+      },
     });
   }
 
@@ -144,7 +154,7 @@ export class Client {
       type: MessageOutType.User,
       data: {
         user: this.userData,
-        peers
+        peers,
       },
     });
   }
@@ -154,7 +164,7 @@ export class Client {
       type: MessageOutType.Peers,
       data: {
         peers,
-      }
+      },
     });
   }
 
@@ -163,8 +173,8 @@ export class Client {
       type: MessageOutType.Error,
       data: {
         errorType: MessageErrorType.UsernameRequired,
-        messageFailed: message
-      }
+        messageFailed: message,
+      },
     });
   }
 
@@ -173,41 +183,51 @@ export class Client {
       type: MessageOutType.MessageFailed,
       data: {
         errorType: MessageErrorType.RecipientNotConnected,
-        messageFailed: message
-      }
+        messageFailed: message,
+      },
     });
   }
 
   public sendPrivateMessage(message: {}): void {
     this.sendMessage({
       type: MessageOutType.PrivateMessage,
-      data: message
+      data: message,
     });
   }
 
   public sendInvitation(invitation: Invitation): void {
-    this.invitations.push({...invitation});
+    this.invitations.push({ ...invitation });
     this.sendMessage({
       type: MessageOutType.GameInvitation,
-      data: {
-        invitations: this.invitations
-      }
+      data: { invitation },
     });
   }
 
-  public sendRoomOpened(data: {}): void {
+  public sendRoomOpened(gameDetails: {}): void {
+    const data = {
+      user: this.userData,
+      game: gameDetails,
+    };
     this.sendMessage({
       type: MessageOutType.RoomOpened,
-      data
+      data,
     });
   }
 
-  public sendInvitationRejected(invitation: {}): void {
+  public sendInvitationRejected(invitation: Invitation): void {
     this.sendMessage({
       type: MessageOutType.InvitationRejected,
-      data: invitation
+      data: {
+        deletedInvitation: invitation,
+        invitations: this.invitations,
+      },
     });
   }
 
-
+  public sendInvitationDenied(invitation: Invitation): void {
+    this.sendMessage({
+      type: MessageOutType.InvitationDenied,
+      data: { invitation },
+    });
+  }
 }

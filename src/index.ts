@@ -54,9 +54,14 @@ function getGamingHost(hostId: string): GamingHost {
 }
 
 function messageHandler(client: Client, msg: MessageIn): void {
-  if (!client || !msg) {
+  if (!client || !msg || !msg.type) {
     console.log("error on message");
     // throw Error("error on message");
+  }
+
+  if (msg.type === MessageInType.Disconnect) {
+    disconnect(client);
+    return;
   }
 
   const host = getGamingHost(client.origin);
@@ -74,9 +79,8 @@ function messageHandler(client: Client, msg: MessageIn): void {
       host.inviteAndOpenRoom(client, msg.data);
       break;
     case MessageInType.RejectInvitation:
-      host.rejectInvitation(client, msg.data.invitationId);
+      host.rejectInvitation(client, msg.data.id);
       break;
-
     default:
       console.log("message");
       console.log("-------------------------");
@@ -87,14 +91,9 @@ function messageHandler(client: Client, msg: MessageIn): void {
 }
 
 function disconnect(client: Client): void {
-  // console.log("disconnect");
-  // console.log(client.details);
-
   const host = getGamingHost(client.origin);
   const destroyHost = host.removeClient(client);
   if (destroyHost) {
     GamingHosts.delete(host.id);
   }
-  // console.log("destroyHost", destroyHost);
-  // console.log("_GamingHosts", GamingHosts);
 }

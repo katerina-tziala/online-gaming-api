@@ -77,6 +77,11 @@ export class OnlineGamingAPI {
       case MessageInType.Join:
         host.joinClient(client, msg.data);
         break;
+      case MessageInType.Disconnect:
+        this.disconnect(client);
+        break;
+
+      //
       default:
         console.log("message");
         console.log("-------------------------");
@@ -90,14 +95,9 @@ export class OnlineGamingAPI {
     console.log("disconnect");
 
     const host = this.getGamingHost(client.origin);
-    // console.log(client.conn);
-
     const destroyHost = host.removeClient(client);
     if (destroyHost) {
       this._GamingHosts.delete(host.id);
     }
-    // console.log("destroyHost", destroyHost);
-
-    // console.log("_GamingHosts", this._GamingHosts);
   }
 }

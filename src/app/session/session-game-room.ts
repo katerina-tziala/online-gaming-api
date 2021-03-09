@@ -36,21 +36,11 @@ export class GameRoomSession extends Session {
     return this.clientsList.length === this._allowedPlayers;
   }
 
-
-
-
   public openForClient(client: Client): void {
     this.addInClients(client);
     client.gameRoomId = this.id;
-    const data = {
-      game: this.details
-    };
-    client.sendRoomOpened(data);
+    client.sendRoomOpened(this.details);
   }
-
-
-
-
 
   public addClient(client: Client): void {
     if (this.roomFilled) {
