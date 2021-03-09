@@ -138,6 +138,7 @@ export class GamingHost {
     return gameRoom;
   }
 
+  // TODO: multiple invitations
   public inviteAndOpenRoom(sender: Client, data: any): void {
     if (sender.gameRoomId) {
       console.log("sender already in room");
@@ -150,7 +151,6 @@ export class GamingHost {
     }
 
     const gameRoom = this.createRoomForClient(sender, data);
-
     const invitation = {
       id: generateId(),
       createdAt: getNowTimeStamp(),
@@ -158,7 +158,6 @@ export class GamingHost {
       game: gameRoom.details,
       recipient: recipient.userData
     };
-
     recipient.sendInvitation({ ...invitation });
   }
 
@@ -168,21 +167,45 @@ export class GamingHost {
     if (!rejectedInvitation) {
       return;
     }
-    // console.log(invitationId);
-    // console.log("rejectInvitation");
 
     const sender = this.mainSession.getClientById(rejectedInvitation.sender.id);
     const game = rejectedInvitation.game;
-    // console.log(game, sender.details);
 
-
+    // TODO handle for multiple
     if (sender.gameRoomId === game.id) {
       sender.gameRoomId = null;
-      rejectedInvitation.sender = client.userData;
       sender.sendInvitationDenied(rejectedInvitation);
       sender.sendUserUpdate(this.mainSession.getPeersDetailsOfClient(sender));
       this.mainSession.broadcastSession([sender.id]);
     }
+  }
+
+  public acceptInvitation(client: Client, invitationId: string): void {
+    const invitation = client.geInvitation(invitationId);
+
+    if (!invitation) {
+      console.log("send message to client who tries to accept");
+
+      return;
+    }
+
+
+    const gameRoom = this.getRoomSession(invitation.game.id);
+    if (!gameRoom) {
+      console.log("notify opponent that room is closed");
+
+      return;
+    }
+
+    if (client.gameRoomId) {
+      console.log("notify opponent client is leaving the game");
+
+    }
+
+    console.log(invitation);
+    console.log(client.userData);
+
+
   }
 
   public removeClient(client: Client): boolean {

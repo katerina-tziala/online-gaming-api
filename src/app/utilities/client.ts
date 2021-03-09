@@ -104,10 +104,14 @@ export class Client {
     this.properties = data.properties || this.properties;
   }
 
-  public getRejectedInvitation(invitationId: string): Invitation {
-    const rejectedInvitation = this.invitations.find(
+  public geInvitation(invitationId: string): Invitation {
+    return this.invitations.find(
       (invitation) => invitation.id === invitationId
     );
+  }
+
+  public getRejectedInvitation(invitationId: string): Invitation {
+    const rejectedInvitation = this.geInvitation(invitationId);
     this.invitations = this.invitations.filter(
       (invitation) => invitation.id !== invitationId
     );

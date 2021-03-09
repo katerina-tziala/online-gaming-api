@@ -81,6 +81,9 @@ function messageHandler(client: Client, msg: MessageIn): void {
     case MessageInType.RejectInvitation:
       host.rejectInvitation(client, msg.data.id);
       break;
+    case MessageInType.AcceptInvitation:
+      host.acceptInvitation(client, msg.data.id);
+      break;
     default:
       console.log("message");
       console.log("-------------------------");

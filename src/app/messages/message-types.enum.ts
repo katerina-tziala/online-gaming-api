@@ -5,6 +5,7 @@ export enum MessageInType {
   PrivateMessage = "private-message",
   InviteAndOpenRoom = "invite-and-open-room",
   RejectInvitation = "reject-invitation",
+  AcceptInvitation = "accept-invitation",
 }
 
 export enum MessageOutType {

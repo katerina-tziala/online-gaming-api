@@ -5,4 +5,5 @@ export interface Invitation {
   createdAt: string;
   sender: UserData;
   game: any;
+  recipient: UserData;
 }
