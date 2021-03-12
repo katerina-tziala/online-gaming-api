@@ -21,6 +21,7 @@ export class MainSession extends Session {
 
   public addClient(client: Client): void {
     this.addInClients(client);
+    client.gameRoomId = null;
     client.sendUserJoined(this.getPeersDetailsOfClient(client));
     this.broadcastSession([client.id]);
   }

@@ -1,4 +1,5 @@
 import { CONFIG } from '../../config/config';
+import { Duration } from '../interfaces/duration.interface';
 import { TYPOGRAPHY } from "./constants/typography.constants";
 
 export function getNowTimeStamp(): string {
@@ -21,6 +22,26 @@ export function getArrayFromMap<T>(mapToConvert: Map<string, T>): T[] {
 }
 
 export function getRandomValueFromArray<T>(arrayToChooseFrom: T[]): T {
-    return arrayToChooseFrom[Math.floor(Math.random() * arrayToChooseFrom.length)];
+    return arrayToChooseFrom[Math.round(Math.random() * arrayToChooseFrom.length)];
 }
+
+export const getDateDifferenceInSeconds = (endDate: Date, startDate: Date): number => {
+    if (!endDate || !startDate) {
+      return 0;
+    }
+    const durationInMilliseconds = Math.abs(endDate.getTime() - startDate.getTime());
+    return Math.ceil(durationInMilliseconds / 1000);
+  };
+
+  export const getDuration = (seconds: number): Duration => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor(seconds % 3600 / 60);
+    seconds = Math.floor(seconds % 3600 % 60);
+    return { hours, minutes, seconds };
+  };
+
+  export const getDurationFromDates = (endDate: Date, startDate: Date): Duration => {
+    const differenceInSeconds = getDateDifferenceInSeconds(endDate, startDate);
+    return getDuration(differenceInSeconds);
+  };
 

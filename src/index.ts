@@ -84,6 +84,12 @@ function messageHandler(client: Client, msg: MessageIn): void {
     case MessageInType.AcceptInvitation:
       host.acceptInvitation(client, msg.data.id);
       break;
+    case MessageInType.GameUpdate:
+      host.submitGameUpdate(client, msg.data);
+      break;
+      case MessageInType.GameOver:
+        host.submitGameOver(client, msg.data);
+        break;
     default:
       console.log("message");
       console.log("-------------------------");

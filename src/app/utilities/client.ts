@@ -79,9 +79,7 @@ export class Client {
       id: this.id,
       username: this.username,
       gameRoomId: this.gameRoomId,
-      properties: this.properties,
-      origin: this.origin,
-      invitations: this.invitations,
+      properties: this.properties
     };
   }
 
@@ -90,6 +88,8 @@ export class Client {
       id: this.id,
       username: this.username,
       gameRoomId: this.gameRoomId,
+      origin: this.origin,
+      invitations: this.invitations,
       properties: this.properties,
     };
   }
@@ -120,6 +120,23 @@ export class Client {
   }
 
   /* ~~~~~~~~~~~~~~~~~~~~~~~ SEND CLIENT MESSAGES ~~~~~~~~~~~~~~~~~~~~~~~ */
+  private send(data: MessageOut): void {
+    this.conn.send(JSON.stringify(data), (error) => {
+      if (error) {
+        console.log("could not deliver message");
+        console.log(error);
+      }
+    });
+  }
+
+  public notify<T>(type: MessageOutType, data: T): void {
+    if (!this.connected) {
+      console.log("client is not connected -> cannot deliver the message");
+      return;
+    }
+    this.send({type, data});
+  }
+
   public sendMessage(data: MessageOut): void {
     if (!this.connected) {
       console.log("client is not connected -> cannot deliver the message");
@@ -202,7 +219,7 @@ export class Client {
   public sendInvitation(invitation: Invitation): void {
     this.invitations.push({ ...invitation });
     this.sendMessage({
-      type: MessageOutType.GameInvitation,
+      type: MessageOutType.Invitation,
       data: { invitation },
     });
   }
@@ -234,4 +251,5 @@ export class Client {
       data: { invitation },
     });
   }
+
 }

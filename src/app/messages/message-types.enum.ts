@@ -6,6 +6,8 @@ export enum MessageInType {
   InviteAndOpenRoom = "invite-and-open-room",
   RejectInvitation = "reject-invitation",
   AcceptInvitation = "accept-invitation",
+  GameUpdate = "game-update",
+  GameOver = "game-over",
 }
 
 export enum MessageOutType {
@@ -15,12 +17,15 @@ export enum MessageOutType {
   Joined = "user-joined",
   MessageFailed = "message-failed",
   PrivateMessage = "private-message",
-  RoomOpened = "game-room-opened",
-  GameInvitation = "game-invitation",
+  Invitation = "invitation",
   Invitations = "invitations-update",
   InvitationDenied = "invitation-denied",
   InvitationRejected = "invitation-rejected",
-
+  RoomOpened = "game-room-opened",
+  GameStart = "game-start",
+  PlayerJoined = "player-joined",
+  GameUpdate = "game-update",
+  GameOver = "game-over",
 }
 
 export enum MessageErrorType {

@@ -132,7 +132,8 @@ export class GamingHost {
       data.roomType
     );
     gameRoom.properties = data.gameProperties;
-    gameRoom.openForClient(client);
+    gameRoom.addInClients(client);
+
     this.mainSession.broadcastSession([client.id]);
     this.gameRooms = gameRoom;
     return gameRoom;
@@ -151,12 +152,16 @@ export class GamingHost {
     }
 
     const gameRoom = this.createRoomForClient(sender, data);
+    const gameDetails = gameRoom.details;
+    gameDetails.players = [sender.details, recipient.details];
+    sender.sendRoomOpened(gameDetails);
+
     const invitation = {
       id: generateId(),
       createdAt: getNowTimeStamp(),
-      sender: sender.userData,
+      sender: sender.details,
       game: gameRoom.details,
-      recipient: recipient.userData
+      recipient: recipient.details
     };
     recipient.sendInvitation({ ...invitation });
   }
@@ -197,16 +202,41 @@ export class GamingHost {
       return;
     }
 
-    if (client.gameRoomId) {
+    const currentGameId = client.gameRoomId;
+    if (currentGameId) {
       console.log("notify opponent client is leaving the game");
+      console.log(currentGameId);
 
+      return;
     }
 
-    console.log(invitation);
-    console.log(client.userData);
+    gameRoom.joinGame(client);
+    this.mainSession.broadcastSession([client.id]);
+    // console.log(invitation);
+    // console.log(client.userData);
 
 
   }
+
+  public submitGameUpdate<T>(client: Client, data: T): void {
+    const gameRoom = this.getRoomSession(client.gameRoomId);
+    if (!gameRoom) {
+      console.log("notify client that room does not exist");
+      return;
+    }
+    gameRoom.broadcastGameUpdate(client, data);
+  }
+  public submitGameOver<T>(client: Client, data: T): void {
+    const gameRoom = this.getRoomSession(client.gameRoomId);
+    if (!gameRoom) {
+      console.log("notify client that room does not exist");
+      return;
+    }
+    gameRoom.gameOver(client, data);
+  }
+
+
+
 
   public removeClient(client: Client): boolean {
     // TODO: terminate games
