@@ -208,6 +208,13 @@ export class GamingHost {
     console.log("player quits before invitation is accepted?");
     console.log(gameId);
 
+    const gameRoom = this.getRoomSession(gameId);
+    if (!gameRoom) {
+      client.sendMessageFailed(MessageErrorType.GameDoesNotExist, {"game-to-quit": gameId});
+      return;
+    }
+    this.playerLeftGame(client, gameRoom);
+    this.mainSession.addClient(client);
   }
 
 

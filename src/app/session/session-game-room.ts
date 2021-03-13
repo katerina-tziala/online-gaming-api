@@ -102,7 +102,7 @@ export class GameRoomSession extends Session {
 
   public quitGame(client: Client): void {
     clearTimeout(this.startTimeout);
-    this.broadcastPlayerLeft(client)
+    this.broadcastPlayerLeft(client);
     this.removeFromClients(client);
   }
 
