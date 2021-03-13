@@ -13,7 +13,7 @@ export function generateId(): string {
     while (idLength--) {
         id += getRandomValueFromArray<string>(chars);
     }
-    id += TYPOGRAPHY.DOUBLE_UNDERSCORE + getNowTimeStamp();
+    id += TYPOGRAPHY.HYPHEN + Date.now().toString();
     return id;
 }
 
@@ -42,6 +42,13 @@ export const getDateDifferenceInSeconds = (endDate: Date, startDate: Date): numb
 
   export const getDurationFromDates = (endDate: Date, startDate: Date): Duration => {
     const differenceInSeconds = getDateDifferenceInSeconds(endDate, startDate);
+    if (!endDate || !startDate) {
+      return undefined;
+    }
     return getDuration(differenceInSeconds);
   };
 
+
+  export const arrayDifference = (arrayToFilter: string[], arrayReference: string[]): string[] => {
+    return arrayToFilter.filter((item) => !arrayReference.includes(item));
+  };

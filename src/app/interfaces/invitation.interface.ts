@@ -1,9 +1,9 @@
-import { UserData } from "./user-data.interface";
+import { UserInfo } from "./user-data.interface";
 
 export interface Invitation {
   id: string;
   createdAt: string;
-  sender: UserData;
+  sender: UserInfo;
   game: any;
-  recipient: UserData;
+  recipients: UserInfo[];
 }

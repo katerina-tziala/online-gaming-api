@@ -8,6 +8,7 @@ export enum MessageInType {
   AcceptInvitation = "accept-invitation",
   GameUpdate = "game-update",
   GameOver = "game-over",
+  QuitGame = "quit-game",
 }
 
 export enum MessageOutType {
@@ -21,15 +22,24 @@ export enum MessageOutType {
   Invitations = "invitations-update",
   InvitationDenied = "invitation-denied",
   InvitationRejected = "invitation-rejected",
+  InvitationRemoved = "invitation-removed",
   RoomOpened = "game-room-opened",
-  GameStart = "game-start",
+  RoomCreated = "game-room-created",
   PlayerJoined = "player-joined",
+  PlayerLeft = "player-left",
+  GameStart = "game-start",
   GameUpdate = "game-update",
   GameOver = "game-over",
+  GameEntranceForbidden = "game-entrance-forbidden",
 }
 
 export enum MessageErrorType {
   UsernameInUse = "username-in-use",
   UsernameRequired = "username-required-to-join",
   RecipientNotConnected = "recipient-not-connected",
+  GameDoesNotExist = "game-does-not-exist",
+  AlreadyInGame = "client-in-game-already",
+  NoRecipientsSpecified = "no-recipients-specified",
+  RecipientsDisconnected = "recipients-disconnected",
+  InvitationDoesNotExist = "invitation-does-not-exist",
 }

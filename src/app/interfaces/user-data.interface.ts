@@ -1,8 +1,13 @@
-export interface UserData {
+import { Invitation } from "./invitation.interface";
+
+export interface UserInfo {
   id: string;
   username: string;
   gameRoomId: string;
-  origin?: string;
   properties?: {};
-  invitations?: {}[];
+}
+
+export interface UserData extends UserInfo {
+  origin?: string;
+  invitations?: Invitation[];
 }

@@ -1,7 +1,8 @@
 import * as WebSocket from "ws";
+import { InviteAndOpenRoom } from "../interfaces/game-room.interfaces";
 import { Invitation } from "../interfaces/invitation.interface";
 
-import { UserData } from "../interfaces/user-data.interface";
+import { UserData, UserInfo } from "../interfaces/user-data.interface";
 import {
   MessageErrorType,
   MessageOutType,
@@ -17,6 +18,7 @@ export class Client {
   private _gameRoomId: string;
   private _properties: {};
   private invitations: Invitation[] = [];
+
 
   constructor(conn: WebSocket, origin: string) {
     this.conn = conn;
@@ -74,12 +76,12 @@ export class Client {
     return this._properties;
   }
 
-  public get details(): UserData {
+  public get details(): UserInfo {
     return {
       id: this.id,
       username: this.username,
       gameRoomId: this.gameRoomId,
-      properties: this.properties
+      properties: this.properties,
     };
   }
 
@@ -104,38 +106,85 @@ export class Client {
     this.properties = data.properties || this.properties;
   }
 
-  public geInvitation(invitationId: string): Invitation {
+
+  public geReceivedInvitation(invitationId: string): Invitation {
     return this.invitations.find(
       (invitation) => invitation.id === invitationId
     );
   }
 
-  public getRejectedInvitation(invitationId: string): Invitation {
-    const rejectedInvitation = this.geInvitation(invitationId);
+  public removeInvitation(invitationId: string): void {
     this.invitations = this.invitations.filter(
       (invitation) => invitation.id !== invitationId
     );
-    this.sendInvitationRejected(rejectedInvitation);
-    return rejectedInvitation;
+  }
+
+  public rejectInvitation(invitation: Invitation): void {
+    this.removeInvitation(invitation.id);
+    const data = {
+      rejectedInvitation: invitation,
+      invitations: this.invitations,
+    };
+    this.notify(MessageOutType.InvitationRejected, data);
   }
 
   /* ~~~~~~~~~~~~~~~~~~~~~~~ SEND CLIENT MESSAGES ~~~~~~~~~~~~~~~~~~~~~~~ */
   private send(data: MessageOut): void {
     this.conn.send(JSON.stringify(data), (error) => {
+      if (!this.connected) {
+        console.log("client is not connected -> cannot deliver the message");
+        return;
+      }
       if (error) {
-        console.log("could not deliver message");
+        console.log("client is not connected -> cannot deliver the message");
         console.log(error);
       }
     });
   }
 
-  public notify<T>(type: MessageOutType, data: T): void {
-    if (!this.connected) {
-      console.log("client is not connected -> cannot deliver the message");
-      return;
-    }
-    this.send({type, data});
+  public notify(type: MessageOutType, data: {}): void {
+
+    this.send({ type, data });
   }
+
+  public sendMessageFailed(errorType: MessageErrorType, messageFailed: {}): void {
+    this.notify(MessageOutType.MessageFailed, { errorType, messageFailed });
+  }
+
+  public sendRecipientNotConnected(message: {}): void {
+    this.sendMessageFailed(MessageErrorType.RecipientNotConnected, message);
+  }
+
+  // Messages For Invitations
+  public sendInvitationRejected(invitation: Invitation): void {
+    const data = {
+      deletedInvitation: invitation,
+      invitations: this.invitations,
+    };
+    this.notify(MessageOutType.InvitationRejected, data);
+  }
+
+  public invitationDenied(sender: UserData, invitation: Invitation): void {
+    this.notify(MessageOutType.InvitationDenied, {sender, invitation});
+  }
+
+  public invitationRemoved(sender: UserData, invitation: Invitation): void {
+    this.notify(MessageOutType.InvitationRemoved, {sender, invitation});
+  }
+
+  public sendInvitation(invitation: Invitation): void {
+    this.invitations.push(invitation);
+    this.notify(MessageOutType.Invitation, invitation);
+  }
+
+  public noRecipiendsSpecified(data: InviteAndOpenRoom): void {
+    this.sendMessageFailed(MessageErrorType.NoRecipientsSpecified, data);
+  }
+
+  public invitationRecipiendsDisconnected(disconnectedRecipients: string[]): void {
+    this.sendMessageFailed(MessageErrorType.RecipientsDisconnected, {disconnectedRecipients});
+  }
+
 
   public sendMessage(data: MessageOut): void {
     if (!this.connected) {
@@ -199,57 +248,10 @@ export class Client {
     });
   }
 
-  public sendRecipientNotConnected(message: {}): void {
-    this.sendMessage({
-      type: MessageOutType.MessageFailed,
-      data: {
-        errorType: MessageErrorType.RecipientNotConnected,
-        messageFailed: message,
-      },
-    });
-  }
-
-  public sendPrivateMessage(message: {}): void {
+  public sendPrivateMessage(sender: UserData, message: {}): void {
     this.sendMessage({
       type: MessageOutType.PrivateMessage,
-      data: message,
+      data: { sender, message },
     });
   }
-
-  public sendInvitation(invitation: Invitation): void {
-    this.invitations.push({ ...invitation });
-    this.sendMessage({
-      type: MessageOutType.Invitation,
-      data: { invitation },
-    });
-  }
-
-  public sendRoomOpened(gameDetails: {}): void {
-    const data = {
-      user: this.userData,
-      game: gameDetails,
-    };
-    this.sendMessage({
-      type: MessageOutType.RoomOpened,
-      data,
-    });
-  }
-
-  public sendInvitationRejected(invitation: Invitation): void {
-    this.sendMessage({
-      type: MessageOutType.InvitationRejected,
-      data: {
-        deletedInvitation: invitation,
-        invitations: this.invitations,
-      },
-    });
-  }
-
-  public sendInvitationDenied(invitation: Invitation): void {
-    this.sendMessage({
-      type: MessageOutType.InvitationDenied,
-      data: { invitation },
-    });
-  }
-
 }

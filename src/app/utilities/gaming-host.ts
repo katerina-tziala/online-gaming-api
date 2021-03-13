@@ -1,12 +1,18 @@
 import * as WebSocket from "ws";
+import { GameConfig, InviteAndOpenRoom } from "../interfaces/game-room.interfaces";
 
 import { UserData } from "../interfaces/user-data.interface";
-import { MessageOutType } from "../messages/message-types.enum";
+import { InvitationCreation } from "../invitations/invitation-creation";
+import {
+  MessageErrorType,
+  MessageOutType,
+} from "../messages/message-types.enum";
 import { MessageOut } from "../messages/message.interface";
 import { GameRoomSession } from "../session/session-game-room";
 import { MainSession } from "../session/session-main";
 import { generateId, getNowTimeStamp } from "./app-utils";
 import { Client } from "./client";
+import { InvitationsController } from "./invitations-manager";
 
 export class GamingHost {
   public id: string;
@@ -32,8 +38,12 @@ export class GamingHost {
     this._GameRooms.set(session.id, session);
   }
 
-  getRoomSession(roomId: string): GameRoomSession {
+  public getRoomSession(roomId: string): GameRoomSession {
     return this._GameRooms.get(roomId);
+  }
+
+  public removeRoomSession(session: GameRoomSession): void {
+    this._GameRooms.delete(session.id);
   }
 
   private clientJoined(client: Client): boolean {
@@ -62,24 +72,6 @@ export class GamingHost {
       return true;
     }
     return false;
-  }
-
-  private checkSenderAndGetRecipient(sender: Client, data: any): Client {
-    if (sender.id === data.recipientId) {
-      console.log("cannot send message to self");
-      return;
-    }
-
-    if (!this.clientJoined(sender)) {
-      sender.sendUsernameRequired(data);
-      return;
-    }
-
-    const recipient = this.mainSession.getClientById(data.recipientId);
-    if (!recipient) {
-      sender.sendRecipientNotConnected(data);
-    }
-    return recipient;
   }
 
   public joinClient(client: Client, data: UserData): void {
@@ -114,129 +106,131 @@ export class GamingHost {
   }
 
   public sendPrivateMessage(sender: Client, data: any): void {
-    const recipient = this.checkSenderAndGetRecipient(sender, data);
-    if (!recipient) {
+    if (!this.clientAllowedToSendMessage(sender, data)) {
       return;
     }
-    const messageOut = {
-      sender: sender.details,
-      message: data.message,
-    };
-    recipient.sendPrivateMessage(messageOut);
+
+    const recipient = this.mainSession.getClientById(data.recipientId);
+    if (!recipient) {
+      sender.sendRecipientNotConnected(data);
+      return;
+    }
+
+    if (sender.id === recipient.id) {
+      console.log("cannot send message to self");
+      return;
+    }
+
+    recipient.sendPrivateMessage(sender.details, data.message);
   }
 
-  private createRoomForClient(client: Client, data: any): GameRoomSession {
-    const gameRoom = new GameRoomSession(
-      this.id,
-      data.allowedPlayers,
-      data.roomType
-    );
-    gameRoom.properties = data.gameProperties;
-    gameRoom.addInClients(client);
+  private clientAllowedToSendMessage(sender: Client, data: any): boolean {
+    if (!this.clientJoined(sender)) {
+      sender.sendUsernameRequired(data);
+      return false;
+    }
+    return true;
+  }
 
-    this.mainSession.broadcastSession([client.id]);
+  private clientAlredyInRoom(sender: Client): boolean {
+    const gameRoom = this.getRoomSession(sender.gameRoomId);
+    if (gameRoom) {
+      sender.sendMessageFailed(
+        MessageErrorType.AlreadyInGame,
+        gameRoom.details
+      );
+      return true;
+    }
+    return false;
+  }
+
+  private invitationForNewRoomAllowed(sender: Client, data: any): boolean {
+    return (
+      this.clientAllowedToSendMessage(sender, data) &&
+      !this.clientAlredyInRoom(sender)
+    );
+  }
+
+  private createRoomForClient(client: Client, config: GameConfig,  settings: {}): GameRoomSession {
+    const gameRoom = new GameRoomSession(this.id, config, settings);
     this.gameRooms = gameRoom;
+    gameRoom.addInClients(client);
+    this.mainSession.broadcastSession([client.id]);
     return gameRoom;
   }
 
-  // TODO: multiple invitations
-  public inviteAndOpenRoom(sender: Client, data: any): void {
-    if (sender.gameRoomId) {
-      console.log("sender already in room");
+  public inviteAndOpenRoom(sender: Client, data: InviteAndOpenRoom): void {
+    if (!this.invitationForNewRoomAllowed(sender, data)) {
       return;
     }
 
-    const recipient = this.checkSenderAndGetRecipient(sender, data);
-    if (!recipient) {
+    const clientsToInvite = InvitationCreation.getRecipientsForInvitation(sender, this.mainSession, data);
+    if (!clientsToInvite.length) {
       return;
     }
 
-    const gameRoom = this.createRoomForClient(sender, data);
-    const gameDetails = gameRoom.details;
-    gameDetails.players = [sender.details, recipient.details];
-    sender.sendRoomOpened(gameDetails);
+    const { config, settings } = data;
+    const gameRoom = this.createRoomForClient(sender, config, settings);
 
-    const invitation = {
-      id: generateId(),
-      createdAt: getNowTimeStamp(),
-      sender: sender.details,
-      game: gameRoom.details,
-      recipient: recipient.details
-    };
-    recipient.sendInvitation({ ...invitation });
+    gameRoom.broadcastRoomCreated(sender, [...clientsToInvite.map(client => client.details)]);
+    InvitationsController.sendInvitations(sender, clientsToInvite, gameRoom);
   }
 
   public rejectInvitation(client: Client, invitationId: string): void {
-    const rejectedInvitation = client.getRejectedInvitation(invitationId);
-
-    if (!rejectedInvitation) {
+    if (!this.clientAllowedToSendMessage(client, {rejectInvitation: invitationId})) {
       return;
     }
-
-    const sender = this.mainSession.getClientById(rejectedInvitation.sender.id);
-    const game = rejectedInvitation.game;
-
-    // TODO handle for multiple
-    if (sender.gameRoomId === game.id) {
-      sender.gameRoomId = null;
-      sender.sendInvitationDenied(rejectedInvitation);
-      sender.sendUserUpdate(this.mainSession.getPeersDetailsOfClient(sender));
-      this.mainSession.broadcastSession([sender.id]);
-    }
+    InvitationsController.rejectInvitation(client, this.mainSession, invitationId);
   }
 
   public acceptInvitation(client: Client, invitationId: string): void {
-    const invitation = client.geInvitation(invitationId);
+    const invitation = client.geReceivedInvitation(invitationId);
 
     if (!invitation) {
-      console.log("send message to client who tries to accept");
-
+      client.sendMessageFailed(MessageErrorType.InvitationDoesNotExist, {invitationId});
       return;
     }
 
-
-    const gameRoom = this.getRoomSession(invitation.game.id);
-    if (!gameRoom) {
-      console.log("notify opponent that room is closed");
-
+    const gameRoomToJoin = this.getRoomSession(invitation.game.id);
+    if (!gameRoomToJoin) {
+      client.sendMessageFailed(MessageErrorType.GameDoesNotExist, invitation);
       return;
     }
 
-    const currentGameId = client.gameRoomId;
-    if (currentGameId) {
-      console.log("notify opponent client is leaving the game");
-      console.log(currentGameId);
-
-      return;
-    }
-
-    gameRoom.joinGame(client);
+    const gameRoomToLeave = this.getRoomSession(client.gameRoomId);
+    gameRoomToJoin.joinGame(client);
     this.mainSession.broadcastSession([client.id]);
-    // console.log(invitation);
-    // console.log(client.userData);
+    this.playerLeftGame(client, gameRoomToLeave);
+  }
 
+
+  public quitGame(client: Client, gameId: string): void {
+    console.log("player quits before invitation is accepted?");
+    console.log(gameId);
 
   }
 
-  public submitGameUpdate<T>(client: Client, data: T): void {
+
+
+
+
+  public submitGameUpdate(client: Client, data: {}): void {
     const gameRoom = this.getRoomSession(client.gameRoomId);
     if (!gameRoom) {
-      console.log("notify client that room does not exist");
+      client.sendMessageFailed(MessageErrorType.GameDoesNotExist, data);
       return;
     }
     gameRoom.broadcastGameUpdate(client, data);
   }
-  public submitGameOver<T>(client: Client, data: T): void {
+
+  public submitGameOver(client: Client, data: {}): void {
     const gameRoom = this.getRoomSession(client.gameRoomId);
     if (!gameRoom) {
-      console.log("notify client that room does not exist");
+      client.sendMessageFailed(MessageErrorType.GameDoesNotExist, data);
       return;
     }
     gameRoom.gameOver(client, data);
   }
-
-
-
 
   public removeClient(client: Client): boolean {
     // TODO: terminate games
@@ -244,11 +238,37 @@ export class GamingHost {
     // console.log("removeClient From gaming host");
 
     if (!client) {
-   //   console.log("no client to remove");
+      //   console.log("no client to remove");
       return false;
     }
 
+    console.log(client.userData);
+
     this.mainSession.removeClient(client);
     return !this.mainSession.hasClients;
+  }
+
+
+  private playerLeftGame(client: Client, gameRoomToLeave: GameRoomSession): void {
+    if (!gameRoomToLeave) {
+      return;
+    }
+    gameRoomToLeave.quitGame(client);
+    if (!gameRoomToLeave.hasClients) {
+      this.removeRoomSession(gameRoomToLeave);
+    }
+  }
+
+  private rejectPendingInvitations(client: Client): void {
+    // TODO: terminate games
+    // TODO:  handle invitations
+    // console.log("removeClient From gaming host");
+    // if (!client) {
+    //   //   console.log("no client to remove");
+    //   return false;
+    // }
+    // console.log(client.userData);
+    // this.mainSession.removeClient(client);
+    // return !this.mainSession.hasClients;
   }
 }

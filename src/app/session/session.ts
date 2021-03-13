@@ -8,12 +8,12 @@ import { Client } from "../utilities/client";
 
 export class Session {
   private _id: string;
-  private _createdAt: string;
+  private _createdAt: string = null;
   private _clients: Map<string, Client> = new Map();
 
   constructor() {
     this.id = generateId();
-    this.createdAt = getNowTimeStamp();
+    this.createdAt = new Date().toString();
   }
 
   public set id(value: string) {
@@ -25,7 +25,7 @@ export class Session {
   }
 
   public set createdAt(value: string) {
-    this._createdAt = value;
+    this._createdAt = value.toString();
   }
 
   public get createdAt(): string {
@@ -56,6 +56,10 @@ export class Session {
 
   public getClientById(clientId: string): Client {
     return this.clientsMap.get(clientId);
+  }
+
+  public getClients(ids: string[]): Client[] {
+    return this.clientsList.filter(client => ids.includes(client.id));
   }
 
   public addInClients(client: Client): void {
