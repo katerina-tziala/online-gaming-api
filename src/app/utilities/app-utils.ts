@@ -48,7 +48,6 @@ export const getDateDifferenceInSeconds = (endDate: Date, startDate: Date): numb
     return getDuration(differenceInSeconds);
   };
 
-
   export const arrayDifference = (arrayToFilter: string[], arrayReference: string[]): string[] => {
     return arrayToFilter.filter((item) => !arrayReference.includes(item));
   };

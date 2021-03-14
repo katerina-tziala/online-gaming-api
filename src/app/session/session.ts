@@ -1,9 +1,5 @@
 import { UserData } from "./../interfaces/user-data.interface";
-import {
-  generateId,
-  getArrayFromMap,
-  getNowTimeStamp,
-} from "../utilities/app-utils";
+import { generateId, getArrayFromMap } from "../utilities/app-utils";
 import { Client } from "../utilities/client";
 
 export class Session {

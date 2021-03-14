@@ -97,11 +97,11 @@ function disconnect(client: Client): void {
   const host = getGamingHost(client.origin);
   // console.log(client.conn);
 
-  const destroyHost = host.removeClient(client);
-  if (destroyHost) {
-    GamingHosts.delete(host.id);
-  }
-  console.log("destroyHost", destroyHost);
+  // const destroyHost = host.removeClient(client);
+  // if (destroyHost) {
+  //   GamingHosts.delete(host.id);
+  // // }
+  // console.log("destroyHost", destroyHost);
 
   console.log("_GamingHosts", GamingHosts);
 }

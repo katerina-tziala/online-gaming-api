@@ -1,6 +1,4 @@
-import * as WebSocket from "ws";
 import { GameConfig, InviteAndOpenRoom } from "../interfaces/game-room.interfaces";
-
 import { UserData } from "../interfaces/user-data.interface";
 import { InvitationCreation } from "../invitations/invitation-creation";
 import {
@@ -10,9 +8,8 @@ import {
 import { MessageOut } from "../messages/message.interface";
 import { GameRoomSession } from "../session/session-game-room";
 import { MainSession } from "../session/session-main";
-import { generateId, getNowTimeStamp } from "./app-utils";
 import { Client } from "./client";
-import { InvitationsController } from "./invitations-manager";
+import { InvitationsController } from "../invitations/invitations-controller";
 
 export class GamingHost {
   public id: string;
@@ -53,56 +50,12 @@ export class GamingHost {
     return this._MainSession.clientExists(client);
   }
 
-  private usernameInData(data: UserData): boolean {
-    return Object.keys(data).includes("username");
-  }
-
-  private clientUsernameInUse(client: Client, newUsername: string): boolean {
-    let clientsToCheck = this.mainSession.clientsList;
-    clientsToCheck = clientsToCheck.filter(
-      (joinedClient) => joinedClient.id !== client.id
-    );
-
-    const usernamesInUse = clientsToCheck.map(
-      (joinedClient) => joinedClient.username
-    );
-
-    if (usernamesInUse.includes(newUsername)) {
-      client.sendUsernameInUse();
-      return true;
-    }
-    return false;
-  }
-
   public joinClient(client: Client, data: UserData): void {
-    if (!this.usernameInData(data) || !data.username.length) {
-      client.sendUsernameRequired(data);
-      return;
-    }
-
-    if (this.clientUsernameInUse(client, data.username)) {
-      client.sendUsernameInUse();
-      return;
-    }
-    delete data.id;
-    client.update(data);
-    this.mainSession.addClient(client);
+    this.mainSession.joinClient(client, data);
   }
 
   public updateClient(client: Client, data: UserData): void {
-    if (this.usernameInData(data) && !data.username.length) {
-      client.sendUsernameRequired(data);
-      return;
-    }
-
-    if (this.clientUsernameInUse(client, data.username)) {
-      client.sendUsernameInUse();
-      return;
-    }
-
-    delete data.id;
-    client.update(data);
-    this.mainSession.updateClient(client);
+    this.mainSession.updateClient(client, data);
   }
 
   public sendPrivateMessage(sender: Client, data: any): void {
@@ -184,13 +137,14 @@ export class GamingHost {
   }
 
   public acceptInvitation(client: Client, invitationId: string): void {
-    const invitation = client.geReceivedInvitation(invitationId);
+    const invitation = client.getInvitation(invitationId);
 
     if (!invitation) {
       client.sendMessageFailed(MessageErrorType.InvitationDoesNotExist, {invitationId});
       return;
     }
-
+    client.acceptInvitation(invitation);
+    // notify other recipients?
     const gameRoomToJoin = this.getRoomSession(invitation.game.id);
     if (!gameRoomToJoin) {
       client.sendMessageFailed(MessageErrorType.GameDoesNotExist, invitation);
@@ -198,29 +152,21 @@ export class GamingHost {
     }
 
     const gameRoomToLeave = this.getRoomSession(client.gameRoomId);
+
     gameRoomToJoin.joinGame(client);
     this.mainSession.broadcastSession([client.id]);
     this.playerLeftGame(client, gameRoomToLeave);
   }
-
-
   public quitGame(client: Client, gameId: string): void {
-    console.log("player quits before invitation is accepted?");
-    console.log(gameId);
-
     const gameRoom = this.getRoomSession(gameId);
     if (!gameRoom) {
       client.sendMessageFailed(MessageErrorType.GameDoesNotExist, {"game-to-quit": gameId});
       return;
     }
+    InvitationsController.cancelInvitationsForGame(client, this.mainSession, gameRoom.id);
     this.playerLeftGame(client, gameRoom);
     this.mainSession.addClient(client);
   }
-
-
-
-
-
   public submitGameUpdate(client: Client, data: {}): void {
     const gameRoom = this.getRoomSession(client.gameRoomId);
     if (!gameRoom) {
@@ -239,23 +185,6 @@ export class GamingHost {
     gameRoom.gameOver(client, data);
   }
 
-  public removeClient(client: Client): boolean {
-    // TODO: terminate games
-    // TODO:  handle invitations
-    // console.log("removeClient From gaming host");
-
-    if (!client) {
-      //   console.log("no client to remove");
-      return false;
-    }
-
-    console.log(client.userData);
-
-    this.mainSession.removeClient(client);
-    return !this.mainSession.hasClients;
-  }
-
-
   private playerLeftGame(client: Client, gameRoomToLeave: GameRoomSession): void {
     if (!gameRoomToLeave) {
       return;
@@ -266,16 +195,20 @@ export class GamingHost {
     }
   }
 
-  private rejectPendingInvitations(client: Client): void {
-    // TODO: terminate games
-    // TODO:  handle invitations
-    // console.log("removeClient From gaming host");
-    // if (!client) {
-    //   //   console.log("no client to remove");
-    //   return false;
-    // }
-    // console.log(client.userData);
-    // this.mainSession.removeClient(client);
-    // return !this.mainSession.hasClients;
+  public removeClient(client: Client): void {
+    if (!client) {
+      return ;
+    }
+    const gameRoom = this.getRoomSession(client.gameRoomId);
+    this.playerLeftGame(client, gameRoom);
+    InvitationsController.handleInvitationsForDisconnectedClient(client, this.mainSession);
+    this.mainSession.removeClient(client);
+  }
+
+  public hasClients(): boolean {
+    if (!this.mainSession) {
+      return true;
+    }
+    return !this.mainSession.hasClients;
   }
 }

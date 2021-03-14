@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { CONFIG } from "./config/config";
-import { OnlineGamingAPI } from "./app/app";
+// import { OnlineGamingAPI } from "./app/app";
 import * as WebSocket from "ws";
 import { IncomingMessage, Server } from "http";
 import { GamingHost } from "./app/utilities/gaming-host";
@@ -103,9 +103,12 @@ function messageHandler(client: Client, msg: MessageIn): void {
 }
 
 function disconnect(client: Client): void {
+  if (!client) {
+    return;
+  }
   const host = getGamingHost(client.origin);
-  const destroyHost = host.removeClient(client);
-  if (destroyHost) {
+  host.removeClient(client);
+  if (host.hasClients()) {
     GamingHosts.delete(host.id);
   }
 }

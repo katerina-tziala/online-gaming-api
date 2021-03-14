@@ -94,10 +94,10 @@ export class OnlineGamingAPI {
   private disconnect(client: Client): void {
     console.log("disconnect");
 
-    const host = this.getGamingHost(client.origin);
-    const destroyHost = host.removeClient(client);
-    if (destroyHost) {
-      this._GamingHosts.delete(host.id);
-    }
+    // const host = this.getGamingHost(client.origin);
+    // const destroyHost = host.removeClient(client);
+    // if (destroyHost) {
+    //   this._GamingHosts.delete(host.id);
+    // }
   }
 }

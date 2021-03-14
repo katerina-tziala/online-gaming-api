@@ -44,9 +44,9 @@ export class InvitationCreation {
     return {
       id: generateId(),
       createdAt: new Date().toString(),
-      sender: sender.details,
+      sender: sender.info,
       game: gameRoom.details,
-      recipients: clientsToInvite.map(client => client.details)
+      recipients: clientsToInvite.map(client => client.info)
     };
   }
 
