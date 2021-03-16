@@ -7,47 +7,47 @@ import { Client } from "../utilities/client";
 
 export class InvitationCreation {
 
-  private static getRecipientsIds(client: Client, data: InviteAndOpenRoom): string[] {
-    const invitationRecipients = data.recipients.filter(id => id !== client.id);
-    if (!invitationRecipients.length) {
-      client.noRecipiendsSpecified(data);
-      return [];
-    }
+  // private static getRecipientsIds(client: Client, data: InviteAndOpenRoom): string[] {
+  //   const invitationRecipients = data.recipients.filter(id => id !== client.id);
+  //   if (!invitationRecipients.length) {
+  //     client.noRecipiendsSpecified(data);
+  //     return [];
+  //   }
 
-    return invitationRecipients;
-  }
+  //   return invitationRecipients;
+  // }
 
-  private static getClientsToInvite(client: Client, mainSession: MainSession, recipients: string[]): Client[] {
-    const clientsToInvite = mainSession.getClients(recipients);
+  // private static getClientsToInvite(client: Client, mainSession: MainSession, recipients: string[]): Client[] {
+  //   const clientsToInvite = mainSession.getClients(recipients);
 
-    const connectedClients = clientsToInvite.map(connectedClient => connectedClient.id);
-    const disconnectedRecipients = arrayDifference(recipients, connectedClients);
+  //   const connectedClients = clientsToInvite.map(connectedClient => connectedClient.id);
+  //   const disconnectedRecipients = arrayDifference(recipients, connectedClients);
 
-    if (disconnectedRecipients.length) {
-      client.invitationRecipiendsDisconnected(disconnectedRecipients);
-      return [];
-    }
+  //   if (disconnectedRecipients.length) {
+  //     client.invitationRecipiendsDisconnected(disconnectedRecipients);
+  //     return [];
+  //   }
 
-    return clientsToInvite;
-  }
+  //   return clientsToInvite;
+  // }
 
-  public static getRecipientsForInvitation(client: Client, mainSession: MainSession, data: InviteAndOpenRoom): Client[] {
-    const invitationRecipients = InvitationCreation.getRecipientsIds(client, data);
-    if (!invitationRecipients.length) {
-      return [];
-    }
+  // public static getRecipientsForInvitation(client: Client, mainSession: MainSession, data: InviteAndOpenRoom): Client[] {
+  //   const invitationRecipients = InvitationCreation.getRecipientsIds(client, data);
+  //   if (!invitationRecipients.length) {
+  //     return [];
+  //   }
 
-    return InvitationCreation.getClientsToInvite(client, mainSession, invitationRecipients);
-  }
+  //   return InvitationCreation.getClientsToInvite(client, mainSession, invitationRecipients);
+  // }
 
-  public static createInvitation(sender: Client, gameRoom: GameRoomSession, clientsToInvite: Client[]): Invitation {
-    return {
-      id: generateId(),
-      createdAt: new Date().toString(),
-      sender: sender.info,
-      game: gameRoom.details,
-      recipients: clientsToInvite.map(client => client.info)
-    };
-  }
+  // public static createInvitation(sender: Client, gameRoom: GameRoomSession, clientsToInvite: Client[]): Invitation {
+  //   return {
+  //     id: generateId(),
+  //     createdAt: new Date().toString(),
+  //     sender: sender.info,
+  //     game: gameRoom.details,
+  //     recipients: clientsToInvite.map(client => client.info)
+  //   };
+  // }
 
 }

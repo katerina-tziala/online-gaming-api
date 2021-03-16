@@ -54,50 +54,52 @@ function getGamingHost(hostId: string): GamingHost {
 }
 
 function messageHandler(client: Client, msg: MessageIn): void {
-  if (!client || !msg || !msg.type) {
+  const { type, data } = msg;
+
+  if (!client || !type || !data) {
     console.log("error on message");
     // throw Error("error on message");
   }
 
-  if (msg.type === MessageInType.Disconnect) {
+  if (type === MessageInType.Disconnect) {
     disconnect(client);
     return;
   }
 
-  const host = getGamingHost(client.origin);
-  switch (msg.type) {
+  const host = getGamingHost(client.host);
+  switch (type) {
     case MessageInType.Join:
-      host.joinClient(client, msg.data);
+      host.joinClient(client, msg);
       break;
     case MessageInType.UserUpdate:
-      host.updateClient(client, msg.data);
+      host.updateClient(client, msg);
       break;
-    case MessageInType.PrivateMessage:
-      host.sendPrivateMessage(client, msg.data);
-      break;
-    case MessageInType.InviteAndOpenRoom:
-      host.inviteAndOpenRoom(client, msg.data);
-      break;
-    case MessageInType.RejectInvitation:
-      host.rejectInvitation(client, msg.data.id);
-      break;
-    case MessageInType.AcceptInvitation:
-      host.acceptInvitation(client, msg.data.id);
-      break;
-    case MessageInType.GameUpdate:
-      host.submitGameUpdate(client, msg.data);
-      break;
-    case MessageInType.GameOver:
-      host.submitGameOver(client, msg.data);
-      break;
-    case MessageInType.QuitGame:
-      host.quitGame(client, msg.data.id);
-      break;
+    // case MessageInType.PrivateMessage:
+    //   host.sendPrivateMessage(client, msg.data);
+    //   break;
+    // case MessageInType.InviteAndOpenRoom:
+    //   host.inviteAndOpenRoom(client, msg.data);
+    //   break;
+    // case MessageInType.RejectInvitation:
+    //   host.rejectInvitation(client, msg.data.id);
+    //   break;
+    // case MessageInType.AcceptInvitation:
+    //   host.acceptInvitation(client, msg.data.id);
+    //   break;
+    // case MessageInType.GameUpdate:
+    //   host.submitGameUpdate(client, msg.data);
+    //   break;
+    // case MessageInType.GameOver:
+    //   host.submitGameOver(client, msg.data);
+    //   break;
+    // case MessageInType.QuitGame:
+    //   host.quitGame(client, msg.data.id);
+    //   break;
     default:
       console.log("message");
       console.log("-------------------------");
       console.log(msg);
-      console.log(client.details);
+      console.log(client);
       break;
   }
 }
@@ -106,9 +108,9 @@ function disconnect(client: Client): void {
   if (!client) {
     return;
   }
-  const host = getGamingHost(client.origin);
-  host.removeClient(client);
-  if (host.hasClients()) {
-    GamingHosts.delete(host.id);
-  }
+  // const host = getGamingHost(client.origin);
+  // host.removeClient(client);
+  // if (host.hasClients()) {
+  //   GamingHosts.delete(host.id);
+  // }
 }

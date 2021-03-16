@@ -1,6 +1,7 @@
 export enum MessageInType {
-  Join = "join",
+  Connect = "connect",
   Disconnect = "disconnect",
+  Join = "join",
   UserUpdate = "user-update",
   PrivateMessage = "private-message",
   InviteAndOpenRoom = "invite-and-open-room",
@@ -35,12 +36,13 @@ export enum MessageOutType {
 }
 
 export enum MessageErrorType {
+  UsernameRequired = "username-required",
+  UsernameInvalid = "username-invalid",
   UsernameInUse = "username-in-use",
-  UsernameRequired = "username-required-to-join",
-  RecipientNotConnected = "recipient-not-connected",
-  GameDoesNotExist = "game-does-not-exist",
-  AlreadyInGame = "client-in-game-already",
-  NoRecipientsSpecified = "no-recipients-specified",
-  RecipientsDisconnected = "recipients-disconnected",
-  InvitationDoesNotExist = "invitation-does-not-exist",
+  // RecipientNotConnected = "recipient-not-connected",
+  // GameDoesNotExist = "game-does-not-exist",
+  // AlreadyInGame = "client-in-game-already",
+  // NoRecipientsSpecified = "no-recipients-specified",
+  // RecipientsDisconnected = "recipients-disconnected",
+  // InvitationDoesNotExist = "invitation-does-not-exist",
 }

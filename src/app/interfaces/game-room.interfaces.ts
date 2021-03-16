@@ -1,5 +1,5 @@
 import { Duration } from "./duration.interface";
-import { UserInfo } from "./user-data.interface";
+// import { UserInfo } from "./user-data.interface";
 
 export interface GameConfig {
   allowedPlayers: number;
@@ -17,14 +17,14 @@ export interface GameInfo {
   endedAt?: string;
   settings?: {};
   playerStartId?: string;
-  players?: UserInfo[];
-  durationCompleted?: Duration;
+  // players?: UserInfo[];
+  // durationCompleted?: Duration;
 }
 
 export interface GameMessage {
-  sender: UserInfo;
+  // sender: UserInfo;
   game?: GameInfo;
-  data?: {};
+  // data?: {};
 }
 
 export interface InviteAndOpenRoom {

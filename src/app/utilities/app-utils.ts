@@ -2,9 +2,9 @@ import { CONFIG } from '../../config/config';
 import { Duration } from '../interfaces/duration.interface';
 import { TYPOGRAPHY } from "./constants/typography.constants";
 
-export function getNowTimeStamp(): string {
-    return new Date().toISOString();
-}
+// export function getNowTimeStamp(): string {
+//     return new Date().toISOString();
+// }
 
 export function generateId(): string {
     let idLength = CONFIG.ID_GENERATION.LENGTH;

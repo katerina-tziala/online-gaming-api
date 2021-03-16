@@ -3,7 +3,9 @@ MESSAGES IN:
   "type": "join",
   "data": {
     "username": "kater",
-    "id": "kater"
+    "properties": {
+      "testprp" : "232323"
+    }
   }
 }
 
@@ -11,7 +13,6 @@ MESSAGES IN:
   "type": "user-update",
   "data": {
     "username": "kater",
-    "id": "kater",
     "properties": {
       "testprp" : "232323"
     }
