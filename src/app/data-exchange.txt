@@ -27,19 +27,3 @@ MESSAGES IN:
   }
 }
 
-{
-  "type": "invite-and-open-room",
-  "data": {
-    "recipientId": "",
-    "allowedPlayers": 2,
-    "roomType": "default",
-    "gameProperties": {}
-  }
-}
-
-{
-  "type": "reject-invitation",
-  "data": {
-    "invitationId": ""
-  }
-}

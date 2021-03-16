@@ -15,12 +15,12 @@ export class MainSession extends Session {
     return peers.filter((peer) => !peer.gameRoomId);
   }
 
-  private notifyJoinedUser(client: Client): void {
+  private notifyUser(client: Client, type: MessageOutType): void {
     const data = {
       user: client.info,
       peers: this.getPeersDetailsOfClient(client),
     };
-    client.notify(MessageOutType.Joined, data);
+    client.notify(type, data);
   }
 
   private broadcastPeersUpdate(joinedClient: Client): void {
@@ -34,88 +34,22 @@ export class MainSession extends Session {
   public addClient(client: Client): void {
     client.gameRoomId = null;
     this.addInClients(client);
-    this.notifyJoinedUser(client);
+    this.notifyUser(client, MessageOutType.Joined);
     this.broadcastPeersUpdate(client);
   }
 
   public broadcastUpdatedClient(client: Client): void {
-    this.notifyJoinedUser(client);
+    this.notifyUser(client, MessageOutType.UserUpdate);
     this.broadcastPeersUpdate(client);
   }
 
-  // public joinClient(client: Client, data: ClientUpdateData): void {
-  //   // if (!this.usernameInData(data) || !data.username.length) {
-  //   //   client.sendUsernameRequired(data);
-  //   //   return;
-  //   // }
-  //   // ^\w{4,}$
-  //   const { username, properties } = data;
-  //   console.log(client, data);
-  //   // if (this.clientUsernameInUse(client, data.username)) {
-  //   //   client.sendUsernameInUse();
-  //   //   return;
-  //   // }
+  public removeClient(client: Client): void {
+    this.removeFromClients(client);
+    if (this.hasClients) {
+      this.broadcastPeersUpdate(client);
+    }
+  }
 
-  //   // client.update(data);
-  //   // this.addClient(client);
-  // }
-
-  // private getAvailableClientsExcept(excludingClientsIds: string[] = []): Client[] {
-  //   const availableClients = this.getAvailableClients();
-  //   return availableClients.filter(client => !excludingClientsIds.includes(client.id));
-  // }
-
-  // public joinClient(client: Client, data: UserData): void {
-  //   if (!this.usernameInData(data) || !data.username.length) {
-  //     client.sendUsernameRequired(data);
-  //     return;
-  //   }
-
-  //   if (this.clientUsernameInUse(client, data.username)) {
-  //     client.sendUsernameInUse();
-  //     return;
-  //   }
-
-  //   client.update(data);
-  //   this.addClient(client);
-  // }
-
-  // public addClient(client: Client): void {
-  //   this.addInClients(client);
-  //   client.gameRoomId = null;
-  //   this.notifyJoinedUser(client);
-  //   this.broadcastSession([client.id]);
-  // }
-
-  // public updateClient(client: Client, data: UserData): void {
-  //   if (this.usernameInData(data) && !data.username.length) {
-  //     client.sendUsernameRequired(data);
-  //     return;
-  //   }
-
-  //   if (this.clientUsernameInUse(client, data.username)) {
-  //     client.sendUsernameInUse();
-  //     return;
-  //   }
-  //   client.update(data);
-  //   client.sendUserUpdate(this.getPeersDetailsOfClient(client));
-  //   this.broadcastSession([client.id]);
-  // }
-
-  // public removeClient(client: Client): void {
-  //   this.removeFromClients(client);
-  //   if (this.hasClients) {
-  //     this.broadcastSession();
-  //   }
-  // }
-
-  // public broadcastSession(excludingClientsIds: string[] = []): void {
-  //   const clientsToReceiveBroadcast = this.getAvailableClientsExcept(excludingClientsIds);
-  //   clientsToReceiveBroadcast.forEach((client) => {
-  //     const peers = this.getPeersDetailsOfClient(client);
-  //     client.notify(MessageOutType.Peers, {peers});
-  //   });
-  // }
 
   // public getAllInvitations(): Invitation[] {
   //   const invitationsOfClients = this.clientsList.map(client => client.invitations);

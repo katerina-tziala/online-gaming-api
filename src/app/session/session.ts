@@ -64,9 +64,6 @@ export class Session {
 //     });
 //   }
 
-
-
-
   // private get availableClients(): Client[] {
   //   return this.clients.filter(client => !client.gameRoomId);
   // }

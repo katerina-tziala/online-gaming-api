@@ -74,6 +74,9 @@ function messageHandler(client: Client, msg: MessageIn): void {
     case MessageInType.UserUpdate:
       host.updateClient(client, msg);
       break;
+    case MessageInType.PrivateMessage:
+      host.sendPrivateMessage(client, msg);
+      break;
     // case MessageInType.PrivateMessage:
     //   host.sendPrivateMessage(client, msg.data);
     //   break;

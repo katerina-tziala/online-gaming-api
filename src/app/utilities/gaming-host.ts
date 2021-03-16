@@ -68,7 +68,27 @@ export class GamingHost extends MainSession {
     this.broadcastUpdatedClient(client);
   }
 
+  public sendPrivateMessage(client: Client, msg: MessageIn): void {
+    console.log(client.info);
+    console.log(msg.data);
 
+    // if (!this.clientAllowedToSendMessage(sender, data)) {
+    //   return;
+    // }
+
+    // const recipient = this.mainSession.getClientById(data.recipientId);
+    // if (!recipient) {
+    //   sender.sendRecipientNotConnected(data);
+    //   return;
+    // }
+
+    // if (sender.id === recipient.id) {
+    //   console.log("cannot send message to self");
+    //   return;
+    // }
+
+    // recipient.sendPrivateMessage(sender.details, data.message);
+  }
 
 
 
