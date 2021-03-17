@@ -10,10 +10,10 @@ export class MainSession extends Session {
     super();
   }
 
-  private getAvailablePeers(client: Client): Client[] {
-    const peers = this.getClientPeers(client);
-    return peers.filter((peer) => !peer.gameRoomId);
-  }
+  // private getAvailablePeers(client: Client): Client[] {
+  //   const peers = this.getClientPeers(client);
+  //   return peers.filter((peer) => !peer.gameRoomId);
+  // }
 
   private notifyUser(client: Client, type: MessageOutType): void {
     const data = {
@@ -24,7 +24,7 @@ export class MainSession extends Session {
   }
 
   private broadcastPeersUpdate(joinedClient: Client): void {
-    const clientsToReceiveBroadcast = this.getAvailablePeers(joinedClient);
+    const clientsToReceiveBroadcast = this.getClientPeers(joinedClient);
     clientsToReceiveBroadcast.forEach((client) => {
       const peers = this.getPeersDetailsOfClient(client);
       client.notify(MessageOutType.Peers, { peers });

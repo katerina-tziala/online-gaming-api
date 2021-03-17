@@ -12,7 +12,7 @@ import { GameRoomSession } from "../session/session-game-room";
 import { MainSession } from "../session/session-main";
 import { Client } from "./client";
 import { MessageIn } from "../messages/message.interface";
-import { MessageErrorType, MessageOutType } from "../messages/message-types.enum";
+import { MessageErrorType, MessageInType, MessageOutType } from "../messages/message-types.enum";
 import { PrivateMessage } from "../interfaces/private-message.interface";
 // import { InvitationsController } from "../invitations/invitations-controller";
 
@@ -25,6 +25,18 @@ export class GamingHost extends MainSession {
     this.id = id;
   }
 
+  private set gameRooms(session: GameRoomSession) {
+    this._GameRooms.set(session.id, session);
+  }
+
+  private removeRoomSession(session: GameRoomSession): void {
+    this._GameRooms.delete(session.id);
+  }
+
+  private getRoomSession(roomId: string): GameRoomSession {
+    return this._GameRooms.get(roomId);
+  }
+
   private clientAllowedToSendMessage(sender: Client, data: MessageIn): boolean {
     if (!this.clientExists(sender)) {
       sender.sendError(MessageErrorType.NotJoined, data);
@@ -33,6 +45,14 @@ export class GamingHost extends MainSession {
     return true;
   }
 
+  private getMessageRecipient(recipientId: string, sender: Client, msg: MessageIn): Client {
+    const recipient = this.findClientById(recipientId);
+    if (!recipient) {
+      sender.sendError(MessageErrorType.RecipientNotConnected, msg);
+      return ;
+    }
+    return recipient;
+  }
 
   private usernameValidationError(client: Client, username: string): MessageErrorType {
     if (!username || !username.length) {
@@ -63,10 +83,46 @@ export class GamingHost extends MainSession {
     this.addClient(client);
   }
 
-  public updateClient(client: Client, msg: MessageIn): void {
+  public onMessage(client: Client, msg: MessageIn): void {
     if (!this.clientAllowedToSendMessage(client, msg)) {
       return;
     }
+
+    switch (msg.type) {
+      case MessageInType.UserUpdate:
+        this.updateClient(client, msg);
+        break;
+      case MessageInType.PrivateMessage:
+        this.sendPrivateMessage(client, msg);
+        break;
+      // case MessageInType.InviteAndOpenRoom:
+      //   host.inviteAndOpenRoom(client, msg.data);
+      //   break;
+      // case MessageInType.RejectInvitation:
+      //   host.rejectInvitation(client, msg.data.id);
+      //   break;
+      // case MessageInType.AcceptInvitation:
+      //   host.acceptInvitation(client, msg.data.id);
+      //   break;
+      // case MessageInType.GameUpdate:
+      //   host.submitGameUpdate(client, msg.data);
+      //   break;
+      // case MessageInType.GameOver:
+      //   host.submitGameOver(client, msg.data);
+      //   break;
+      // case MessageInType.QuitGame:
+      //   host.quitGame(client, msg.data.id);
+      //   break;
+      default:
+        console.log("message");
+        console.log("-------------------------");
+        console.log(msg);
+        console.log(client);
+        break;
+    }
+  }
+
+  public updateClient(client: Client, msg: MessageIn): void {
     const { username } = msg.data;
     const validationError = this.usernameValidationError(client, username);
 
@@ -78,19 +134,7 @@ export class GamingHost extends MainSession {
     this.broadcastUpdatedClient(client);
   }
 
-  private getMessageRecipient(recipientId: string, sender: Client, msg: MessageIn): Client {
-    const recipient = this.findClientById(recipientId);
-    if (!recipient) {
-      sender.sendError(MessageErrorType.RecipientNotConnected, msg);
-      return ;
-    }
-    return recipient;
-  }
-
   public sendPrivateMessage(sender: Client, msg: MessageIn): void {
-    if (!this.clientAllowedToSendMessage(sender, msg)) {
-      return;
-    }
     const data: PrivateMessage = msg.data;
     const recipient = this.getMessageRecipient(data.recipientId, sender, msg);
     if (recipient) {// notify sender?
@@ -103,20 +147,27 @@ export class GamingHost extends MainSession {
   }
 
 
+  public disconnectClient(client: Client): void {
+    console.log("disconnectClient");
+    console.log("invitations");
+    if (!client) {
+      return;
+    }
+
+   const gameRoom = this.getRoomSession(client.gameRoomId);
+    if (gameRoom) {
+      console.log("client leaves game");
+
+    }
+    this.removeClient(client);
+  }
 
 
 
-  // set gameRooms(session: GameRoomSession) {
-  //   this._GameRooms.set(session.id, session);
-  // }
 
-  // public getRoomSession(roomId: string): GameRoomSession {
-  //   return this._GameRooms.get(roomId);
-  // }
 
-  // public removeRoomSession(session: GameRoomSession): void {
-  //   this._GameRooms.delete(session.id);
-  // }
+
+
 
   // private clientJoined(client: Client): boolean {
   //   if (!this._MainSession) {
@@ -278,10 +329,4 @@ export class GamingHost extends MainSession {
   //   this.mainSession.removeClient(client);
   // }
 
-  // public hasClients(): boolean {
-  //   if (!this.mainSession) {
-  //     return true;
-  //   }
-  //   return !this.mainSession.hasClients;
-  // }
 }

@@ -53,6 +53,13 @@ function getGamingHost(hostId: string): GamingHost {
   return GamingHosts.get(hostId);
 }
 
+function getClientHost(client: Client): GamingHost {
+  if (!client) {
+    return;
+  }
+  return getGamingHost(client.host);
+}
+
 function messageHandler(client: Client, msg: MessageIn): void {
   const { type, data } = msg;
 
@@ -63,57 +70,22 @@ function messageHandler(client: Client, msg: MessageIn): void {
 
   if (type === MessageInType.Disconnect) {
     disconnect(client);
-    return;
   }
-
-  const host = getGamingHost(client.host);
-  switch (type) {
-    case MessageInType.Join:
-      host.joinClient(client, msg);
-      break;
-    case MessageInType.UserUpdate:
-      host.updateClient(client, msg);
-      break;
-    case MessageInType.PrivateMessage:
-      host.sendPrivateMessage(client, msg);
-      break;
-    // case MessageInType.PrivateMessage:
-    //   host.sendPrivateMessage(client, msg.data);
-    //   break;
-    // case MessageInType.InviteAndOpenRoom:
-    //   host.inviteAndOpenRoom(client, msg.data);
-    //   break;
-    // case MessageInType.RejectInvitation:
-    //   host.rejectInvitation(client, msg.data.id);
-    //   break;
-    // case MessageInType.AcceptInvitation:
-    //   host.acceptInvitation(client, msg.data.id);
-    //   break;
-    // case MessageInType.GameUpdate:
-    //   host.submitGameUpdate(client, msg.data);
-    //   break;
-    // case MessageInType.GameOver:
-    //   host.submitGameOver(client, msg.data);
-    //   break;
-    // case MessageInType.QuitGame:
-    //   host.quitGame(client, msg.data.id);
-    //   break;
-    default:
-      console.log("message");
-      console.log("-------------------------");
-      console.log(msg);
-      console.log(client);
-      break;
+  const host = getClientHost(client);
+  if (type === MessageInType.Join) {
+    host.joinClient(client, msg);
+   return;
   }
+  host.onMessage(client, msg);
 }
 
 function disconnect(client: Client): void {
   if (!client) {
     return;
   }
-  // const host = getGamingHost(client.origin);
-  // host.removeClient(client);
-  // if (host.hasClients()) {
-  //   GamingHosts.delete(host.id);
-  // }
+  const host = getClientHost(client);
+  host.disconnectClient(client);
+  if (!host.hasClients) {
+    GamingHosts.delete(host.id);
+  }
 }
