@@ -17,7 +17,7 @@ export enum MessageOutType {
   Joined = "user-joined",
   Peers = "peers-update",
   UserUpdate = "user-update",
-
+  PrivateMessage = "private-message",
 
 
   // MessageFailed = "message-failed",
@@ -42,7 +42,8 @@ export enum MessageErrorType {
   UsernameRequired = "username-required",
   UsernameInvalid = "username-invalid",
   UsernameInUse = "username-in-use",
-  // RecipientNotConnected = "recipient-not-connected",
+  NotJoined = "not-joined",
+  RecipientNotConnected = "recipient-not-connected",
   // GameDoesNotExist = "game-does-not-exist",
   // AlreadyInGame = "client-in-game-already",
   // NoRecipientsSpecified = "no-recipients-specified",

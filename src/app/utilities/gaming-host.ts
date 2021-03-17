@@ -13,6 +13,7 @@ import { MainSession } from "../session/session-main";
 import { Client } from "./client";
 import { MessageIn } from "../messages/message.interface";
 import { MessageErrorType, MessageOutType } from "../messages/message-types.enum";
+import { PrivateMessage } from "../interfaces/private-message.interface";
 // import { InvitationsController } from "../invitations/invitations-controller";
 
 export class GamingHost extends MainSession {
@@ -24,7 +25,13 @@ export class GamingHost extends MainSession {
     this.id = id;
   }
 
-
+  private clientAllowedToSendMessage(sender: Client, data: MessageIn): boolean {
+    if (!this.clientExists(sender)) {
+      sender.sendError(MessageErrorType.NotJoined, data);
+      return false;
+    }
+    return true;
+  }
 
 
   private usernameValidationError(client: Client, username: string): MessageErrorType {
@@ -57,6 +64,9 @@ export class GamingHost extends MainSession {
   }
 
   public updateClient(client: Client, msg: MessageIn): void {
+    if (!this.clientAllowedToSendMessage(client, msg)) {
+      return;
+    }
     const { username } = msg.data;
     const validationError = this.usernameValidationError(client, username);
 
@@ -68,26 +78,28 @@ export class GamingHost extends MainSession {
     this.broadcastUpdatedClient(client);
   }
 
-  public sendPrivateMessage(client: Client, msg: MessageIn): void {
-    console.log(client.info);
-    console.log(msg.data);
+  private getMessageRecipient(recipientId: string, sender: Client, msg: MessageIn): Client {
+    const recipient = this.findClientById(recipientId);
+    if (!recipient) {
+      sender.sendError(MessageErrorType.RecipientNotConnected, msg);
+      return ;
+    }
+    return recipient;
+  }
 
-    // if (!this.clientAllowedToSendMessage(sender, data)) {
-    //   return;
-    // }
-
-    // const recipient = this.mainSession.getClientById(data.recipientId);
-    // if (!recipient) {
-    //   sender.sendRecipientNotConnected(data);
-    //   return;
-    // }
-
-    // if (sender.id === recipient.id) {
-    //   console.log("cannot send message to self");
-    //   return;
-    // }
-
-    // recipient.sendPrivateMessage(sender.details, data.message);
+  public sendPrivateMessage(sender: Client, msg: MessageIn): void {
+    if (!this.clientAllowedToSendMessage(sender, msg)) {
+      return;
+    }
+    const data: PrivateMessage = msg.data;
+    const recipient = this.getMessageRecipient(data.recipientId, sender, msg);
+    if (recipient) {// notify sender?
+      const messageToSend = {
+        message: data.message,
+        sender: sender.info
+      };
+      recipient.notify(MessageOutType.PrivateMessage, messageToSend);
+    }
   }
 
 

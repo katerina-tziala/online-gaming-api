@@ -38,31 +38,35 @@ export class Session {
     this.removeFromClients(client);
     this._clients.set(client.id, client);
   }
+
   public getPeersDetailsOfClient(client: Client): ClientInfo[] {
     return this.getClientPeers(client).map((peer) => peer.info);
   }
 
+  public findClientById(clientId: string): Client {
+    return this._clients.get(clientId);
+  }
 
-//   private getAvailablePeers(client: Client): Client[] {
-//     const peers = this.getClientPeers(client);
-//     return peers.filter(peer => !peer.gameRoomId);
-//   }
+  //   private getAvailablePeers(client: Client): Client[] {
+  //     const peers = this.getClientPeers(client);
+  //     return peers.filter(peer => !peer.gameRoomId);
+  //   }
 
-//   public notifyJoinedUser(client: Client): void {
-//     const data = {
-//       user: client.info,
-//       peers: this.getPeersDetailsOfClient(client)
-//     };
-//     client.notify(MessageOutType.Joined, data);
-//   }
+  //   public notifyJoinedUser(client: Client): void {
+  //     const data = {
+  //       user: client.info,
+  //       peers: this.getPeersDetailsOfClient(client)
+  //     };
+  //     client.notify(MessageOutType.Joined, data);
+  //   }
 
-//  public broadcastPeersUpdate(joinedClient: Client): void {
-//     const clientsToReceiveBroadcast = this.getAvailablePeers(joinedClient);
-//     clientsToReceiveBroadcast.forEach((client) => {
-//       const peers = this.getPeersDetailsOfClient(client);
-//       client.notify(MessageOutType.Peers, {peers});
-//     });
-//   }
+  //  public broadcastPeersUpdate(joinedClient: Client): void {
+  //     const clientsToReceiveBroadcast = this.getAvailablePeers(joinedClient);
+  //     clientsToReceiveBroadcast.forEach((client) => {
+  //       const peers = this.getPeersDetailsOfClient(client);
+  //       client.notify(MessageOutType.Peers, {peers});
+  //     });
+  //   }
 
   // private get availableClients(): Client[] {
   //   return this.clients.filter(client => !client.gameRoomId);
@@ -76,9 +80,7 @@ export class Session {
   // public get clientsList(): Client[] {
   //   return getArrayFromMap(this.clientsMap);
   // }
-  // public getClientById(clientId: string): Client {
-  //   return this.clientsMap.get(clientId);
-  // }
+
   // public getClients(ids: string[]): Client[] {
   //   return this.clientsList.filter(client => ids.includes(client.id));
   // }
