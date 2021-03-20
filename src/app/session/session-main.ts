@@ -1,19 +1,29 @@
-import { CONFIG } from "../../config/config";
-import { Invitation } from "../interfaces/invitation.interface";
-import { ClientUpdateData, UserData } from "../interfaces/user-data.interface";
-import { MessageOutType } from "../messages/message-types.enum";
+import { PrivateMessage } from "../interfaces/private-message.interface";
+import {
+  MessageErrorType,
+  MessageOutType,
+} from "../messages/message-types.enum";
+import { MessageIn } from "../messages/message.interface";
 import { Client } from "../utilities/client";
+import { ClientUpdateData } from "./../interfaces/user-data.interface";
 import { Session } from "./session";
+
 
 export class MainSession extends Session {
   constructor() {
     super();
   }
 
-  // private getAvailablePeers(client: Client): Client[] {
-  //   const peers = this.getClientPeers(client);
-  //   return peers.filter((peer) => !peer.gameRoomId);
-  // }
+  private usernameValid(username: string): boolean {
+    return username.length ? new RegExp(/^(\w{4,})$/).test(username) : false;
+  }
+
+  private usernameUnique(client: Client, username: string): boolean {
+    const usernamesInSession = this.getClientPeers(client).map(
+      (peer) => peer.username
+    );
+    return !usernamesInSession.includes(username);
+  }
 
   private notifyUser(client: Client, type: MessageOutType): void {
     const data = {
@@ -31,15 +41,24 @@ export class MainSession extends Session {
     });
   }
 
+  private clientUpdated(client: Client, msg: MessageIn): boolean {
+    const userData: ClientUpdateData = msg.data;
+    userData.username = userData.username.trim();
+    if (!this.usernameValid(userData.username)) {
+      client.sendError(MessageErrorType.UsernameInvalid, msg);
+      return false;
+    } else if (!this.usernameUnique(client, userData.username)) {
+      client.sendError(MessageErrorType.UsernameInUse, msg);
+      return false;
+    }
+    client.update(userData);
+    return true;
+  }
+
   public addClient(client: Client): void {
     client.gameRoomId = null;
     this.addInClients(client);
     this.notifyUser(client, MessageOutType.Joined);
-    this.broadcastPeersUpdate(client);
-  }
-
-  public broadcastUpdatedClient(client: Client): void {
-    this.notifyUser(client, MessageOutType.UserUpdate);
     this.broadcastPeersUpdate(client);
   }
 
@@ -50,14 +69,53 @@ export class MainSession extends Session {
     }
   }
 
+  public onJoinClient(client: Client, msg: MessageIn): void {
+    const { username } = msg.data;
+    if (!username || !username.length) {
+      client.sendError(MessageErrorType.UsernameRequired, msg);
+    } else if (this.clientUpdated(client, msg)) {
+      this.addClient(client);
+    }
+  }
 
-  // public getAllInvitations(): Invitation[] {
-  //   const invitationsOfClients = this.clientsList.map(client => client.invitations);
-  //   return [].concat.apply([], invitationsOfClients);
-  // }
+  public onClientUpdate(client: Client, msg: MessageIn): void {
+    const { username } = msg.data;
+    if (username === undefined) {
+      client.update(msg.data);
+      this.notifyUser(client, MessageOutType.UserUpdate);
+      this.broadcastPeersUpdate(client);
+      return;
+    } else if (this.clientUpdated(client, msg)) {
+      this.notifyUser(client, MessageOutType.UserUpdate);
+      this.broadcastPeersUpdate(client);
+    }
+  }
 
-  // public getSenderInvitations(clientId: string): Invitation[] {
-  //   const invitationsOfClients = this.getAllInvitations();
-  //   return invitationsOfClients.filter(invitation => invitation.sender.id === clientId);
+  public sendPrivateMessage(sender: Client, msg: MessageIn): void {
+    const data: PrivateMessage = msg.data;
+
+    if (sender.id === data.recipientId) {
+      // notify sender?
+      sender.sendError(MessageErrorType.MessageToSelf, msg);
+      return;
+    }
+
+    const recipient = this.findClientById(data.recipientId);
+    if (!recipient) {
+      sender.sendError(MessageErrorType.RecipientNotConnected, msg);
+      return;
+    }
+
+    const messageToSend = {
+      content: data.content,
+      sender: sender.info,
+      deliveredAt: new Date().toString(),
+    };
+    recipient.notify(MessageOutType.PrivateMessage, messageToSend);
+  }
+
+  // private getAvailablePeers(client: Client): Client[] {
+  //   const peers = this.getClientPeers(client);
+  //   return peers.filter((peer) => !peer.gameRoomId);
   // }
 }

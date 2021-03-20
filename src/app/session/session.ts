@@ -1,7 +1,6 @@
-import { ClientInfo, UserData } from "./../interfaces/user-data.interface";
+import { ClientData } from "./../interfaces/user-data.interface";
 import { generateId } from "../utilities/app-utils";
 import { Client } from "../utilities/client";
-import { MessageOutType } from "../messages/message-types.enum";
 
 export class Session {
   public id: string;
@@ -39,7 +38,7 @@ export class Session {
     this._clients.set(client.id, client);
   }
 
-  public getPeersDetailsOfClient(client: Client): ClientInfo[] {
+  public getPeersDetailsOfClient(client: Client): ClientData[] {
     return this.getClientPeers(client).map((peer) => peer.info);
   }
 
@@ -47,47 +46,12 @@ export class Session {
     return this._clients.get(clientId);
   }
 
-  //   private getAvailablePeers(client: Client): Client[] {
-  //     const peers = this.getClientPeers(client);
-  //     return peers.filter(peer => !peer.gameRoomId);
-  //   }
+  public getClientsByIds(clientIds: string[]): Client[] {
+    let clients = clientIds.map(id => this._clients.get(id));
+    clients = clients.filter(client => !!client);
+    return clients;
+  }
 
-  //   public notifyJoinedUser(client: Client): void {
-  //     const data = {
-  //       user: client.info,
-  //       peers: this.getPeersDetailsOfClient(client)
-  //     };
-  //     client.notify(MessageOutType.Joined, data);
-  //   }
 
-  //  public broadcastPeersUpdate(joinedClient: Client): void {
-  //     const clientsToReceiveBroadcast = this.getAvailablePeers(joinedClient);
-  //     clientsToReceiveBroadcast.forEach((client) => {
-  //       const peers = this.getPeersDetailsOfClient(client);
-  //       client.notify(MessageOutType.Peers, {peers});
-  //     });
-  //   }
 
-  // private get availableClients(): Client[] {
-  //   return this.clients.filter(client => !client.gameRoomId);
-  // }
-  // public get clientsMap(): Map<string, Client> {
-  //   return this._clients;
-  // }
-  // public get hasClients(): boolean {
-  //   return this.clientsMap && this.clientsMap.size ? true : false;
-  // }
-  // public get clientsList(): Client[] {
-  //   return getArrayFromMap(this.clientsMap);
-  // }
-
-  // public getClients(ids: string[]): Client[] {
-  //   return this.clientsList.filter(client => ids.includes(client.id));
-  // }
-  // public getClientPeers(client: Client): Client[] {
-  //   return this.clientsList.filter((peer) => peer.id !== client.id);
-  // }
-  // public getPeersDetailsOfClient(client: Client): UserData[] {
-  //   return this.getClientPeers(client).map((peer) => peer.details);
-  // }
 }

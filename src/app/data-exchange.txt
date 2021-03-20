@@ -23,7 +23,17 @@ MESSAGES IN:
   "type": "private-message",
   "data": {
     "recipientId": "",
-    "message": {}
+    "content": {}
+  }
+}
+
+{
+  "type": "open-private-game-room",
+  "data": {
+    "playersExpected":[],
+    "settings": {},
+    "playersAllowed": 2,
+    "startWaitingTime": 8000
   }
 }
 

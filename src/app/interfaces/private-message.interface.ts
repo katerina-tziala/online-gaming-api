@@ -1,7 +1,7 @@
-import { ClientInfo } from "./user-data.interface";
+import { ClientData } from "./user-data.interface";
 
 export interface PrivateMessage {
-  message: {};
+  content: {};
   recipientId?: string;
-  sender?: ClientInfo;
+  sender?: ClientData;
 }

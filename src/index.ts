@@ -73,7 +73,7 @@ function messageHandler(client: Client, msg: MessageIn): void {
   }
   const host = getClientHost(client);
   if (type === MessageInType.Join) {
-    host.joinClient(client, msg);
+    host.onJoinClient(client, msg);
    return;
   }
   host.onMessage(client, msg);

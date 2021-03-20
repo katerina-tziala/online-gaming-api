@@ -1,15 +1,9 @@
 // import { UserInfo } from "../interfaces/user-data.interface";
-import { MessageOutType } from "../messages/message-types.enum";
-import { getRandomValueFromArray } from "../utilities/app-utils";
+// import { MessageOutType } from "../messages/message-types.enum";
+// import { getRandomValueFromArray } from "../utilities/app-utils";
 import { Client } from "../utilities/client";
 import { Session } from "./session";
-import { getDurationFromDates } from "../utilities/app-utils";
-import {
-  GameConfig,
-  GameInfo,
-  GameMessage,
-} from "../interfaces/game-room.interfaces";
-import { Duration } from "../interfaces/duration.interface";
+import { GameConfig } from "../interfaces/game-room.interfaces";
 
 export class GameRoomSession extends Session {
   // public roomType: string;
@@ -23,15 +17,19 @@ export class GameRoomSession extends Session {
   // private endedAt: string;
   // private startWaitingTime: number;
 
-  // constructor(origin: string, config: GameConfig, settings?: {}) {
-  //   super();
-  //   this.origin = origin;
-  //   this.url = `${this.origin}?gameId=${this.id}`;
-  //   this.allowedPlayers = config.allowedPlayers || 2;
-  //   this.roomType = config.roomType || "default";
-  //   this.startWaitingTime = config.startWaitingTime || 3000;
-  //   this.settings = settings;
-  // }
+  constructor(config: GameConfig, settings?: {}) {
+    super();
+    console.log("GameRoomSession");
+    console.log(config);
+    console.log(settings);
+
+    // this.origin = origin;
+    // this.url = `${this.origin}?gameId=${this.id}`;
+    // this.allowedPlayers = config.allowedPlayers || 2;
+    // this.roomType = config.roomType || "default";
+    // this.startWaitingTime = config.startWaitingTime || 3000;
+    // this.settings = settings;
+  }
 
   // // TODO: message to restart
   // public set settings(settings: {}) {

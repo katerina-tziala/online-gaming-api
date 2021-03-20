@@ -1,6 +1,6 @@
-import { Invitation } from "../interfaces/invitation.interface";
-// import { UserInfo } from "../interfaces/user-data.interface";
-import { MainSession } from "../session/session-main";
+// import { Invitation } from "../interfaces/invitation.interface";
+// // import { UserInfo } from "../interfaces/user-data.interface";
+// import { MainSession } from "../session/session-main";
 
 export class InvitationRejection {
   // public static notifySenderForRejectedInvitation(client: UserInfo, mainSession: MainSession, invitation: Invitation) {
