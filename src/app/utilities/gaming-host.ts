@@ -112,6 +112,17 @@ export class GamingHost extends MainSession {
       case MessageInType.GameOver:
           this.onGameOver(client, msg);
         break;
+        case MessageInType.GameMessage:
+          this.onGameMessage(client, msg);
+        break;
+      case MessageInType.QuitGame:
+          this.onQuitGame(client, msg);
+        break;
+        case MessageInType.GameState:
+          this.onGameState(client, msg);
+        break;
+
+        //
       default:
         console.log("message");
         console.log("-------------------------");
@@ -122,13 +133,15 @@ export class GamingHost extends MainSession {
   }
 
 
-
-
-
-
-
-
-
+  private onQuitGame(client: Client, msg: MessageIn): void {
+    const gameRoom = this.getGameRoomById(client.gameRoomId);
+    if (!gameRoom) {
+      client.sendError(MessageErrorType.GameNotFound, msg);
+      return;
+    }
+    this.removeClientFromGame(client, gameRoom);
+    this.addClient(client);
+  }
 
   private onOpenGameRoom(client: Client, msg: MessageIn): void {
     this.removeClientFromGame(client, this.getGameRoomById(client.gameRoomId));
@@ -199,11 +212,28 @@ export class GamingHost extends MainSession {
       client.sendError(MessageErrorType.GameNotFound, msg);
     }
   }
-
+  private onGameMessage(client: Client, msg: MessageIn): void {
+    const gameRoom = this.getGameRoomById(client.gameRoomId);
+    if (gameRoom) {
+      gameRoom.broadcastGameMessage(client, msg.data);
+    } else {
+      client.sendError(MessageErrorType.GameNotFound, msg);
+    }
+  }
   private onGameOver(client: Client, msg: MessageIn): void {
     const gameRoom = this.getGameRoomById(client.gameRoomId);
     if (gameRoom) {
       gameRoom.onGameOver(client, msg.data);
+    } else {
+      client.sendError(MessageErrorType.GameNotFound, msg);
+    }
+  }
+
+  private onGameState(client: Client, msg: MessageIn): void {
+    const gameRoomId = msg?.data?.gameRoomId || client.gameRoomId;
+    const gameRoom = this.getGameRoomById(gameRoomId);
+    if (gameRoom) {
+      client.notify(MessageOutType.GameState, gameRoom.state);
     } else {
       client.sendError(MessageErrorType.GameNotFound, msg);
     }

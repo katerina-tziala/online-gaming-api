@@ -46,13 +46,10 @@ export const getDuration = (seconds: number): Duration => {
   return { hours, minutes, seconds };
 };
 
-export const getDurationFromDates = (
-  endDate: Date,
-  startDate: Date
-): Duration => {
+export const getDurationFromDates = (endDate: Date, startDate: Date): Duration => {
   const differenceInSeconds = getDateDifferenceInSeconds(endDate, startDate);
   if (!endDate || !startDate) {
-    return undefined;
+    return null;
   }
   return getDuration(differenceInSeconds);
 };

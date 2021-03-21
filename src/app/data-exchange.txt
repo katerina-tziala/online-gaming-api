@@ -60,3 +60,26 @@ MESSAGES IN:
     "test": "over"
   }
 }
+
+
+{
+  "type": "quit-game",
+  "data": {
+    "test": "over"
+  }
+}
+
+{
+  "type": "game-message",
+  "data": {
+    "test": "lets"
+  }
+}
+
+{
+  "type": "game-state",
+  "data": {
+    "gameRoomId": "rrr"
+  }
+}
+

@@ -182,32 +182,6 @@
 
 
 
-//   // public sendPrivateMessage(sender: Client, data: any): void {
-//   //   if (!this.clientAllowedToSendMessage(sender, data)) {
-//   //     return;
-//   //   }
-
-//   //   const recipient = this.mainSession.getClientById(data.recipientId);
-//   //   if (!recipient) {
-//   //     sender.sendRecipientNotConnected(data);
-//   //     return;
-//   //   }
-
-//   //   if (sender.id === recipient.id) {
-//   //     console.log("cannot send message to self");
-//   //     return;
-//   //   }
-
-//   //   recipient.sendPrivateMessage(sender.details, data.message);
-//   // }
-
-//   // private clientAllowedToSendMessage(sender: Client, data: any): boolean {
-//   //   if (!this.clientJoined(sender)) {
-//   //     sender.sendUsernameRequired(data);
-//   //     return false;
-//   //   }
-//   //   return true;
-//   // }
 
 //   // private clientAlredyInRoom(sender: Client): boolean {
 //   //   const gameRoom = this.getRoomSession(sender.gameRoomId);
@@ -281,47 +255,8 @@
 //   //   this.mainSession.broadcastSession([client.id]);
 //   //   this.playerLeftGame(client, gameRoomToLeave);
 //   // }
-//   // public quitGame(client: Client, gameId: string): void {
-//   //   const gameRoom = this.getRoomSession(gameId);
-//   //   if (!gameRoom) {
-//   //     client.sendMessageFailed(MessageErrorType.GameDoesNotExist, {"game-to-quit": gameId});
-//   //     return;
-//   //   }
-//   //   InvitationsController.cancelInvitationsForGame(client, this.mainSession, gameRoom.id);
-//   //   this.playerLeftGame(client, gameRoom);
-//   //   this.mainSession.addClient(client);
-//   // }
 
 
-
-
-// //   public submitGameUpdate(client: Client, data: {}): void {
-// //     const gameRoom = this.getRoomSession(client.gameRoomId);
-// //     if (!gameRoom) {
-// //       client.sendMessageFailed(MessageErrorType.GameDoesNotExist, data);
-// //       return;
-// //     }
-// //     gameRoom.broadcastGameUpdate(client, data);
-// //   }
-
-// //   public submitGameOver(client: Client, data: {}): void {
-// //     const gameRoom = this.getRoomSession(client.gameRoomId);
-// //     if (!gameRoom) {
-// //       client.sendMessageFailed(MessageErrorType.GameDoesNotExist, data);
-// //       return;
-// //     }
-// //     gameRoom.gameOver(client, data);
-// //   }
-
-// //   private playerLeftGame(client: Client, gameRoomToLeave: GameRoomSession): void {
-// //     if (!gameRoomToLeave) {
-// //       return;
-// //     }
-// //     gameRoomToLeave.quitGame(client);
-// //     if (!gameRoomToLeave.hasClients) {
-// //       this.removeRoomSession(gameRoomToLeave);
-// //     }
-// //   }
 
 //   // public removeClient(client: Client): void {
 //   //   if (!client) {

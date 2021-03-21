@@ -7,6 +7,6 @@ export interface MessageIn {
 
 export interface MessageOut {
   type: MessageOutType;
-  data: any;
+  data?: any;
 }
 

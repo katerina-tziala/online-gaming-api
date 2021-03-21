@@ -67,11 +67,17 @@ export class GameRoomSession extends Session {
     };
   }
 
+  public get state(): GameInfo {
+    return {
+      ...this.details,
+      completedIn: this.completedIn
+    };
+  }
+
   public get completedIn(): Duration {
-    return getDurationFromDates(
-      new Date(this.startedAt),
-      new Date(this.endedAt)
-    );
+    const start = this.startedAt ? new Date(this.startedAt): undefined;
+    const end = this.endedAt ? new Date(this.endedAt): undefined;
+    return getDurationFromDates(start, end);
   }
 
   public joinClient(client: Client): void {
@@ -147,8 +153,7 @@ export class GameRoomSession extends Session {
   }
 
   private broadcastGameOver(player: Client, data: {}): void {
-    const game = this.details;
-    game.completedIn = this.completedIn;
+    const game = this.state;
     const sender = player.info;
     const dataLoad = { sender, game, data };
     this.broadcastToPeers(player, MessageOutType.GameOver, dataLoad);
@@ -174,6 +179,11 @@ export class GameRoomSession extends Session {
     const sender = playerLeft.info;
     const game = this.details;
     this.broadcastToPeers(playerLeft, MessageOutType.PlayerLeft, {sender, game});
+  }
+
+  public broadcastGameMessage(player: Client, data: {}): void {
+    const sender = player.info;
+    this.broadcastToPeers(player, MessageOutType.GameMessage, { sender, data });
   }
 
 }
