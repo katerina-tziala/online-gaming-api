@@ -18,9 +18,10 @@ import {
   MessageOutType,
 } from "../messages/message-types.enum";
 import { PrivateMessage } from "../interfaces/private-message.interface";
-import { GameConfig } from "../interfaces/game-room.interfaces";
+
 import { TYPOGRAPHY } from "./constants/typography.constants";
 // import { InvitationsController } from "../invitations/invitations-controller";
+import { GameConfig, ConfigUtils } from "../session/game-room/game-config";
 
 export class GamingHost extends MainSession {
   public id: string;
@@ -112,21 +113,10 @@ export class GamingHost extends MainSession {
     }
   }
 
-  private getValidGameConfig(config: GameConfig): GameConfig {
-    config.playersAllowed = config.playersAllowed || 2;
-    config.roomType = config.roomType || "default";
-    config.startWaitingTime = config.startWaitingTime || 3000;
-    return config;
-  }
-  // gamroom namespace/module
-  private getGameKey(config: GameConfig): string {
-    return `${config.roomType}${TYPOGRAPHY.HYPHEN}${config.playersAllowed}${TYPOGRAPHY.HYPHEN}${config.startWaitingTime}`;
-  }
-
   private onOpenGameRoom(client: Client, msg: MessageIn): void {
     const { settings, ...configData } = msg.data;
-    const config: GameConfig = this.getValidGameConfig(configData);
-    const gameKey = this.getGameKey(config);
+    const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
+    const gameKey = ConfigUtils.generateGameKey(config);
 
     let gameRoom = this.getAvailableGameRoomByKey(gameKey);
     if (!gameRoom) {
@@ -145,7 +135,7 @@ export class GamingHost extends MainSession {
     //   return;
     // }
 
-    // const { potentialPlayers, errorType } = this.checkPotentialPlayers(config.playersExpected);
+    // const { potentialPlayers, errorType } = this.getPotentialCoPlayers(config.playersExpected);
     // if (errorType) {
     //   client.sendError(errorType, msg);
     //   return;
@@ -154,10 +144,7 @@ export class GamingHost extends MainSession {
     this.openPrivateGameRoom(client, config, this.getClientPeers(client));
   }
 
-  private getExpectedOpponents(
-    client: Client,
-    playersExpected: string[] = []
-  ): string[] {
+  private getExpectedOpponents(client: Client, playersExpected: string[] = []): string[] {
     let expectedOpponents = Array.from(new Set(playersExpected));
     expectedOpponents = expectedOpponents.filter(
       (clientId) => clientId !== client.id
@@ -165,7 +152,7 @@ export class GamingHost extends MainSession {
     return expectedOpponents;
   }
 
-  private checkPotentialPlayers(
+  private getPotentialCoPlayers(
     playersExpected: string[] = []
   ): { potentialPlayers: Client[]; errorType: MessageErrorType } {
     const potentialPlayers: Client[] = this.getClientsByIds(playersExpected);
@@ -178,11 +165,7 @@ export class GamingHost extends MainSession {
     return { potentialPlayers, errorType };
   }
 
-  private openPrivateGameRoom(
-    client: Client,
-    config: GameConfig,
-    potentialPlayers: Client[]
-  ): void {
+  private openPrivateGameRoom( client: Client, config: GameConfig, potentialPlayers: Client[]): void {
     console.log(client.info);
     console.log(config);
 

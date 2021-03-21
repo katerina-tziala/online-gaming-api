@@ -1,5 +1,7 @@
 export const TYPOGRAPHY = {
     EMPTY_STRING: "",
     DOUBLE_UNDERSCORE: "__",
-    HYPHEN: "-"
+    HYPHEN: "-",
+    SPACE: "-",
+    UNDERSCORE_AND_UNDERSCORE: "__",
 };

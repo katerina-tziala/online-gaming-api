@@ -9,7 +9,7 @@ export function generateId(): string {
   while (idLength--) {
     id += getRandomValueFromArray<string>(chars);
   }
-  id += TYPOGRAPHY.HYPHEN + Date.now().toString();
+  id += TYPOGRAPHY.UNDERSCORE_AND_UNDERSCORE + Date.now().toString();
   return id;
 }
 

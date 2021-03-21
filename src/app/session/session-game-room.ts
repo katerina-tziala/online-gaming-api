@@ -1,12 +1,15 @@
 import { Client } from "../utilities/client";
 import { Session } from "./session";
 import {
-  GameConfig,
+  // GameConfig,
   GameInfo
 } from "../interfaces/game-room.interfaces";
 import { TYPOGRAPHY } from "../utilities/constants/typography.constants";
 import { MessageOutType } from "../messages/message-types.enum";
 
+import { GameConfig, ConfigUtils } from "../session/game-room/game-config";
+
+// implements vs extends
 export class GameRoomSession extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
   private _config: GameConfig;
@@ -18,11 +21,8 @@ export class GameRoomSession extends Session {
 
   constructor(config: GameConfig, settings?: {}) {
     super();
-    this._config = config;
-    this._config.playersAllowed = config.playersAllowed || 2;
-    this._config.roomType = config.roomType || "default";
-    this._config.startWaitingTime = config.startWaitingTime || 3000;
-    this.key = `${this._config.roomType}${TYPOGRAPHY.HYPHEN}${this._config.playersAllowed}${TYPOGRAPHY.HYPHEN}${this._config.startWaitingTime}`;
+    this._config = ConfigUtils.getValidGameConfig(config);
+    this.key = ConfigUtils.generateGameKey(config);
     this._settings = settings;
   }
 
