@@ -105,10 +105,4 @@ export class Client {
     this.notify(MessageOutType.Error, { errorType, messageFailed });
   }
 
-
-  public sendGameEntranceForbidden(data: GameInfo): void {
-    const type = MessageOutType.GameEntranceForbidden;
-    this.notify(type, data);
-  }
-
 }

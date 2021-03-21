@@ -8,7 +8,7 @@
 // import { MessageOut } from "../messages/message.interface";
 import { Session } from "../session/session";
 import { ClientUpdateData } from "../interfaces/user-data.interface";
-import { GameRoomSession } from "../session/session-game-room";
+import { GameRoomSession } from "../session/game-room/session-game-room";
 import { MainSession } from "../session/session-main";
 import { Client } from "./client";
 import { MessageIn } from "../messages/message.interface";
@@ -21,7 +21,7 @@ import { PrivateMessage } from "../interfaces/private-message.interface";
 
 import { TYPOGRAPHY } from "./constants/typography.constants";
 // import { InvitationsController } from "../invitations/invitations-controller";
-import { GameConfig, ConfigUtils } from "../session/game-room/game-config";
+import { GameConfig, ConfigUtils } from "../session/game-room/game-config/game-config";
 
 export class GamingHost extends MainSession {
   public id: string;
@@ -109,6 +109,7 @@ export class GamingHost extends MainSession {
         break;
       case MessageInType.GameUpdate:
         this.onGameUpdate(client, msg);
+        break;
       case MessageInType.GameOver:
           this.onGameOver(client, msg);
         break;

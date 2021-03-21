@@ -1,5 +1,5 @@
 import { GameConfig } from "./game-config.intefrace";
-import { TYPOGRAPHY } from "../../utilities/constants/typography.constants";
+import { TYPOGRAPHY } from "../../../utilities/constants/typography.constants";
 
 export function getValidGameConfig(config: GameConfig): GameConfig {
   config.playersAllowed = config.playersAllowed || 2;

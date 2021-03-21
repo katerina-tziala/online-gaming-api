@@ -1,13 +1,13 @@
-import { Client } from "../utilities/client";
-import { Session } from "./session";
-import { GameInfo } from "../interfaces/game-room.interfaces";
-import { MessageOutType } from "../messages/message-types.enum";
-import { GameConfig, ConfigUtils } from "../session/game-room/game-config";
+import { Client } from "../../utilities/client";
+import { Session } from "../session";
+import { MessageOutType } from "../../messages/message-types.enum";
+import { GameConfig, ConfigUtils } from "./game-config/game-config";
+import { GameInfo } from "./game-info.interface";
 import {
   getDurationFromDates,
   getRandomValueFromArray,
-} from "../utilities/app-utils";
-import { Duration } from "../interfaces/duration.interface";
+} from "../../utilities/app-utils";
+import { Duration } from "../../interfaces/duration.interface";
 
 export class GameRoomSession extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
@@ -82,7 +82,7 @@ export class GameRoomSession extends Session {
 
   public joinClient(client: Client): void {
     if (!this.entranceAllowed) {
-      client.sendGameEntranceForbidden(this.info);
+      client.notify(MessageOutType.GameEntranceForbidden, this.info);
       return;
     }
     this.addClient(client);
