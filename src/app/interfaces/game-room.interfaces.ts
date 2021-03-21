@@ -1,33 +1,29 @@
-// import { Duration } from "./duration.interface";
-// import { UserInfo } from "./user-data.interface";
+import { Duration } from "./duration.interface";
+import { ClientData } from "./user-data.interface";
 
 export interface GameConfig {
   playersAllowed?: number;
   startWaitingTime?: number;
-  playersExpected?: string[];
   roomType?: string;
+}
+  // playersExpected?: string[];
+export interface GameInfo extends GameConfig {
+  id: string;
+  entranceAllowed: boolean;
+  createdAt: string;
+  startedAt?: string;
+  endedAt?: string;
   settings?: {};
+  playerStartId?: string;
+  players?: ClientData[];
+  completedIn?: Duration;
 }
 
-// export interface GameInfo {
-//   id: string;
-//   url: string;
-//   config: GameConfig;
-//   roomClosed: boolean;
-//   createdAt: string;
-//   startedAt?: string;
-//   endedAt?: string;
-//   settings?: {};
-//   playerStartId?: string;
-//   // players?: UserInfo[];
-//   // durationCompleted?: Duration;
-// }
-
-// export interface GameMessage {
-//   // sender: UserInfo;
-//   game?: GameInfo;
-//   // data?: {};
-// }
+export interface GameMessage {
+  sender: ClientData;
+  game?: GameInfo;
+  data?: {};
+}
 
 // export interface OpenPrivateGameRoom {
 //   recipients: string[];

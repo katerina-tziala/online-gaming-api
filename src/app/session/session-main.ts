@@ -33,14 +33,6 @@ export class MainSession extends Session {
     client.notify(type, data);
   }
 
-  private broadcastPeersUpdate(joinedClient: Client): void {
-    const clientsToReceiveBroadcast = this.getClientPeers(joinedClient);
-    clientsToReceiveBroadcast.forEach((client) => {
-      const peers = this.getPeersDetailsOfClient(client);
-      client.notify(MessageOutType.Peers, { peers });
-    });
-  }
-
   private clientUpdated(client: Client, msg: MessageIn): boolean {
     const userData: ClientUpdateData = msg.data;
     userData.username = userData.username.trim();
@@ -55,8 +47,12 @@ export class MainSession extends Session {
     return true;
   }
 
-  public addClient(client: Client): void {
+  public addInClients(client: Client): void {
     client.gameRoomId = null;
+    super.addInClients(client);
+  }
+
+  public addClient(client: Client): void {
     this.addInClients(client);
     this.notifyUser(client, MessageOutType.Joined);
     this.broadcastPeersUpdate(client);
@@ -69,7 +65,7 @@ export class MainSession extends Session {
     }
   }
 
-  public onJoinClient(client: Client, msg: MessageIn): void {
+  public joinClient(client: Client, msg: MessageIn): void {
     const { username } = msg.data;
     if (!username || !username.length) {
       client.sendError(MessageErrorType.UsernameRequired, msg);
@@ -112,6 +108,14 @@ export class MainSession extends Session {
       deliveredAt: new Date().toString(),
     };
     recipient.notify(MessageOutType.PrivateMessage, messageToSend);
+  }
+
+  public broadcastPeersUpdate(clientToExclude: Client): void {
+    const clientsToReceiveBroadcast = this.getClientPeers(clientToExclude);
+    clientsToReceiveBroadcast.forEach((client) => {
+      const peers = this.getPeersDetailsOfClient(client);
+      client.notify(MessageOutType.Peers, { peers });
+    });
   }
 
   // private getAvailablePeers(client: Client): Client[] {

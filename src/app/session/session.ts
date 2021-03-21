@@ -20,6 +20,9 @@ export class Session {
     return Array.from(this._clients.values());
   }
   public getClientPeers(client: Client): Client[] {
+    if (!client) {
+      return this.clients;
+    }
     return this.clients.filter((peer) => peer.id !== client.id);
   }
 
@@ -51,7 +54,5 @@ export class Session {
     clients = clients.filter(client => !!client);
     return clients;
   }
-
-
 
 }

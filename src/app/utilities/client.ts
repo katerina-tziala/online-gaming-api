@@ -1,4 +1,5 @@
 import * as WebSocket from "ws";
+import { GameInfo } from "../interfaces/game-room.interfaces";
 import {
   ClientData,
   ClientUpdateData
@@ -104,5 +105,10 @@ export class Client {
     this.notify(MessageOutType.Error, { errorType, messageFailed });
   }
 
+
+  public sendGameEntranceForbidden(data: GameInfo): void {
+    const type = MessageOutType.GameEntranceForbidden;
+    this.notify(type, data);
+  }
 
 }

@@ -4,6 +4,7 @@ export enum MessageInType {
   Join = "join",
   UserUpdate = "user-update",
   PrivateMessage = "private-message",
+  OpenGameRoom = "open-game-room",
   OpenPrivateGameRoom = "open-private-game-room"
   // InviteAndOpenRoom = "invite-and-open-room",
   // RejectInvitation = "reject-invitation",
@@ -19,7 +20,9 @@ export enum MessageOutType {
   Peers = "peers-update",
   UserUpdate = "user-update",
   PrivateMessage = "private-message",
-
+  GameEntranceForbidden = "game-entrance-forbidden",
+  GameRoomOpened = "game-room-opened",
+  PlayerJoined = "player-joined",
 
   // MessageFailed = "message-failed",
   // PrivateMessage = "private-message",
@@ -29,14 +32,10 @@ export enum MessageOutType {
   // InvitationDenied = "invitation-denied",
   // InvitationRejected = "invitation-rejected",
   // InvitationCanceled = "invitation-canceled",
-  // RoomOpened = "game-room-opened",
-  // RoomCreated = "game-room-created",
-  // PlayerJoined = "player-joined",
   // PlayerLeft = "player-left",
   // GameStart = "game-start",
   // GameUpdate = "game-update",
   // GameOver = "game-over",
-  // GameEntranceForbidden = "game-entrance-forbidden",
 }
 
 export enum MessageErrorType {
@@ -49,7 +48,7 @@ export enum MessageErrorType {
   ExpectedPlayersNotSpecified = "expected-players-not-specified",
   ExpectedPlayersNotConnected = "expected-players-not-connected",
   SomeExpectedPlayersNotConnected = "some-expected-players-not-connected",
-
+  GameNotFound = "game-not-found",
   // GameDoesNotExist = "game-does-not-exist",
   // AlreadyInGame = "client-in-game-already",
   // NoRecipientsSpecified = "no-recipients-specified",

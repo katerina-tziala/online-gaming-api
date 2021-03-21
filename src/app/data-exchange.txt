@@ -37,3 +37,12 @@ MESSAGES IN:
   }
 }
 
+{
+  "type": "open-game-room",
+  "data": {
+    "playersAllowed": 2,
+    "startWaitingTime": 8000,
+    "roomType": "type1",
+    "settings": {}
+  }
+}
