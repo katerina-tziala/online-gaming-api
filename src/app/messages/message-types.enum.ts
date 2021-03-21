@@ -5,13 +5,13 @@ export enum MessageInType {
   UserUpdate = "user-update",
   PrivateMessage = "private-message",
   OpenGameRoom = "open-game-room",
-  OpenPrivateGameRoom = "open-private-game-room"
-  // InviteAndOpenRoom = "invite-and-open-room",
+  OpenPrivateGameRoom = "open-private-game-room",
+  GameUpdate = "game-update",
+  GameOver = "game-over",
+  // QuitGame = "quit-game",
+    // InviteAndOpenRoom = "invite-and-open-room",
   // RejectInvitation = "reject-invitation",
   // AcceptInvitation = "accept-invitation",
-  // GameUpdate = "game-update",
-  // GameOver = "game-over",
-  // QuitGame = "quit-game",
 }
 
 export enum MessageOutType {
@@ -23,7 +23,10 @@ export enum MessageOutType {
   GameEntranceForbidden = "game-entrance-forbidden",
   GameRoomOpened = "game-room-opened",
   PlayerJoined = "player-joined",
-
+  GameStart = "game-start",
+  GameUpdate = "game-update",
+  GameOver = "game-over",
+  PlayerLeft = "player-left"
   // MessageFailed = "message-failed",
   // PrivateMessage = "private-message",
   // InvitationReceived = "invitation-received",
@@ -32,10 +35,7 @@ export enum MessageOutType {
   // InvitationDenied = "invitation-denied",
   // InvitationRejected = "invitation-rejected",
   // InvitationCanceled = "invitation-canceled",
-  // PlayerLeft = "player-left",
-  // GameStart = "game-start",
-  // GameUpdate = "game-update",
-  // GameOver = "game-over",
+  //
 }
 
 export enum MessageErrorType {
@@ -43,6 +43,7 @@ export enum MessageErrorType {
   UsernameInvalid = "username-invalid",
   UsernameInUse = "username-in-use",
   NotJoined = "not-joined",
+  JoinedAlready = "joined-already",
   MessageToSelf = "cannot-send-message-to-yourself",
   RecipientNotConnected = "recipient-not-connected",
   ExpectedPlayersNotSpecified = "expected-players-not-specified",

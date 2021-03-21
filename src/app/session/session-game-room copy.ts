@@ -151,35 +151,8 @@
 //   //   }
 //   // }
 
-//   // public gameOver(player: Client, updateData: {}): void {
-//   //   this.endGame();
-//   //   this.broadcastGameOver(player, updateData);
-//   // }
 
-//   // public broadcastRoomCreated(client: Client, clientsInvited: UserInfo[]): void {
-//   //   const data = {
-//   //     sender: client.details,
-//   //     game: this.details,
-//   //     clientsInvited,
-//   //   };
-//   //   client.notify(MessageOutType.RoomCreated, data);
-//   // }
 
-//   // private broadcastToPeers(initiator: Client, type: MessageOutType, data: GameMessage): void {
-//   //   const peers = this.getClientPeers(initiator);
-//   //   peers.forEach((client) => client.notify(type, data));
-//   // }
-
-//   // private broadcastPlayerEntrance(playerJoined: Client): void {
-//   //   const data = this.getGameStateBroadcastData(playerJoined);
-//   //   this.broadcastToPeers(playerJoined, MessageOutType.PlayerJoined, data);
-//   // }
-
-//   // private broadcastGameStart(): void {
-//   //   this.clientsList.forEach((client) =>
-//   //     client.notify(MessageOutType.GameStart, this.details)
-//   //   );
-//   // }
 
 //   // private broadcastGameOver(player: Client, updateData: {}): void {
 //   //   const game = this.details;
@@ -194,13 +167,6 @@
 //   //   );
 //   // }
 
-//   // private broadcastRoomOpened(client: Client): void {
-//   //   const data = {
-//   //     user: client.details,
-//   //     game: this.details,
-//   //   };
-//   //   client.notify(MessageOutType.RoomOpened, data);
-//   // }
 
 //   // private broadcastPlayerLeft(playerLeft: Client): void {
 //   //   const data = this.getGameStateBroadcastData(playerLeft);

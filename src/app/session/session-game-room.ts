@@ -1,15 +1,14 @@
 import { Client } from "../utilities/client";
 import { Session } from "./session";
-import {
-  // GameConfig,
-  GameInfo
-} from "../interfaces/game-room.interfaces";
-import { TYPOGRAPHY } from "../utilities/constants/typography.constants";
+import { GameInfo } from "../interfaces/game-room.interfaces";
 import { MessageOutType } from "../messages/message-types.enum";
-
 import { GameConfig, ConfigUtils } from "../session/game-room/game-config";
+import {
+  getDurationFromDates,
+  getRandomValueFromArray,
+} from "../utilities/app-utils";
+import { Duration } from "../interfaces/duration.interface";
 
-// implements vs extends
 export class GameRoomSession extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
   private _config: GameConfig;
@@ -42,6 +41,10 @@ export class GameRoomSession extends Session {
     return !this.filled && !this.startedAt && !this.endedAt;
   }
 
+  public get readyToStart(): boolean {
+    return this.filled && !this.startedAt && !this.endedAt;
+  }
+
   public get info(): GameInfo {
     return {
       id: this.id,
@@ -62,6 +65,13 @@ export class GameRoomSession extends Session {
       players: this.clients.map((client) => client.info),
       playerStartId: this.playerStartId,
     };
+  }
+
+  public get completedIn(): Duration {
+    return getDurationFromDates(
+      new Date(this.startedAt),
+      new Date(this.endedAt)
+    );
   }
 
   public joinClient(client: Client): void {
@@ -94,26 +104,76 @@ export class GameRoomSession extends Session {
 
   private broadcastPlayerEntrance(clientJoined: Client): void {
     const playerJoined = clientJoined.info;
-    this.broadcastToPeers(clientJoined, MessageOutType.PlayerJoined, { playerJoined });
+    this.broadcastToPeers(clientJoined, MessageOutType.PlayerJoined, {
+      playerJoined,
+    });
   }
 
-  private broadcastToPeers(
-    initiator: Client, type: MessageOutType, data: {}): void {
+  private broadcastToPeers(initiator: Client, type: MessageOutType,  data: {}): void {
     const peers = this.getClientPeers(initiator);
     peers.forEach((client) => client.notify(type, data));
   }
 
   private checkGameStart(): void {
     clearTimeout(this.startTimeout);
-    if (this.filled) {
-      console.log("room filled");
-
+    if (this.readyToStart) {
+      this.startTimeout = setTimeout(() => {
+        this.startGame();
+      }, this._config.startWaitingTime);
     }
-    // this.startTimeout = setTimeout(
-    //   () => {
-    //     this.startGame();
-    //   },
-    //   this.startWaitingTime);
+  }
+
+  private startGame(): void {
+    if (this.readyToStart) {
+      const playersIds = this.clients.map((client) => client.id);
+      this.playerStartId = getRandomValueFromArray(playersIds);
+      this.startedAt = new Date().toString();
+      this.broadcastGameStart();
+    }
+    clearTimeout(this.startTimeout);
+  }
+
+  private broadcastGameStart(): void {
+    this.clients.forEach((client) =>
+      client.notify(MessageOutType.GameStart, this.details)
+    );
+  }
+
+  public broadcastGameUpdate(player: Client, data: {}): void {
+    if (!this.endedAt) {
+      const sender = player.info;
+      this.broadcastToPeers(player, MessageOutType.GameUpdate, { sender, data });
+    }
+  }
+
+  private broadcastGameOver(player: Client, data: {}): void {
+    const game = this.details;
+    game.completedIn = this.completedIn;
+    const sender = player.info;
+    const dataLoad = { sender, game, data };
+    this.broadcastToPeers(player, MessageOutType.GameOver, dataLoad);
+  }
+
+  private endGame(): void {
+    clearTimeout(this.startTimeout);
+    this.endedAt = new Date().toString();
+  }
+
+  public onGameOver(client: Client, data: {}): void {
+    this.endGame();
+    this.broadcastGameOver(client, data);
+  }
+
+  public onPlayerLeft(client: Client): void {
+    clearTimeout(this.startTimeout);
+    this.removeFromClients(client);
+    this.broadcastPlayerLeft(client);
+  }
+
+  private broadcastPlayerLeft(playerLeft: Client): void {
+    const sender = playerLeft.info;
+    const game = this.details;
+    this.broadcastToPeers(playerLeft, MessageOutType.PlayerLeft, {sender, game});
   }
 
 }

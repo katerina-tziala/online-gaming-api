@@ -46,3 +46,17 @@ MESSAGES IN:
     "settings": {}
   }
 }
+
+{
+  "type": "game-update",
+  "data": {
+    "test": "test"
+  }
+}
+
+{
+  "type": "game-over",
+  "data": {
+    "test": "over"
+  }
+}

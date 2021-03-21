@@ -291,33 +291,37 @@
 //   //   this.playerLeftGame(client, gameRoom);
 //   //   this.mainSession.addClient(client);
 //   // }
-//   // public submitGameUpdate(client: Client, data: {}): void {
-//   //   const gameRoom = this.getRoomSession(client.gameRoomId);
-//   //   if (!gameRoom) {
-//   //     client.sendMessageFailed(MessageErrorType.GameDoesNotExist, data);
-//   //     return;
-//   //   }
-//   //   gameRoom.broadcastGameUpdate(client, data);
-//   // }
 
-//   // public submitGameOver(client: Client, data: {}): void {
-//   //   const gameRoom = this.getRoomSession(client.gameRoomId);
-//   //   if (!gameRoom) {
-//   //     client.sendMessageFailed(MessageErrorType.GameDoesNotExist, data);
-//   //     return;
-//   //   }
-//   //   gameRoom.gameOver(client, data);
-//   // }
 
-//   // private playerLeftGame(client: Client, gameRoomToLeave: GameRoomSession): void {
-//   //   if (!gameRoomToLeave) {
-//   //     return;
-//   //   }
-//   //   gameRoomToLeave.quitGame(client);
-//   //   if (!gameRoomToLeave.hasClients) {
-//   //     this.removeRoomSession(gameRoomToLeave);
-//   //   }
-//   // }
+
+
+// //   public submitGameUpdate(client: Client, data: {}): void {
+// //     const gameRoom = this.getRoomSession(client.gameRoomId);
+// //     if (!gameRoom) {
+// //       client.sendMessageFailed(MessageErrorType.GameDoesNotExist, data);
+// //       return;
+// //     }
+// //     gameRoom.broadcastGameUpdate(client, data);
+// //   }
+
+// //   public submitGameOver(client: Client, data: {}): void {
+// //     const gameRoom = this.getRoomSession(client.gameRoomId);
+// //     if (!gameRoom) {
+// //       client.sendMessageFailed(MessageErrorType.GameDoesNotExist, data);
+// //       return;
+// //     }
+// //     gameRoom.gameOver(client, data);
+// //   }
+
+// //   private playerLeftGame(client: Client, gameRoomToLeave: GameRoomSession): void {
+// //     if (!gameRoomToLeave) {
+// //       return;
+// //     }
+// //     gameRoomToLeave.quitGame(client);
+// //     if (!gameRoomToLeave.hasClients) {
+// //       this.removeRoomSession(gameRoomToLeave);
+// //     }
+// //   }
 
 //   // public removeClient(client: Client): void {
 //   //   if (!client) {

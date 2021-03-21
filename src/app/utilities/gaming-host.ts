@@ -53,21 +53,24 @@ export class GamingHost extends MainSession {
     );
   }
 
-  // private removeRoomSession(session: GameRoomSession): void {
-  //   this._GameRooms.delete(session.id);
-  // }
+  private removeGameRoomSession(session: GameRoomSession): void {
+    this._GameRooms.delete(session.id);
+  }
 
 
 
   public onJoinClient(client: Client, msg: MessageIn): void {
-    const { gameRoomId } = msg.data;
-    this.joinClient(client, msg);
+    if (!this.clientExists(client)) {
+      const { gameRoomId } = msg.data;
+      this.joinClient(client, msg);
 
-    if (gameRoomId) {
-      this.joinClientInGame(client, gameRoomId);
+      if (gameRoomId) {
+        this.joinClientInGame(client, gameRoomId);
+      }
+    } else {
+      client.sendError(MessageErrorType.JoinedAlready, msg);
     }
   }
-
 
   public joinClientInGame(client: Client, gameRoomId: string): void {
     const gameRoom = this.getGameRoomById(gameRoomId);
@@ -104,6 +107,11 @@ export class GamingHost extends MainSession {
       case MessageInType.OpenGameRoom:
         this.onOpenGameRoom(client, msg);
         break;
+      case MessageInType.GameUpdate:
+        this.onGameUpdate(client, msg);
+      case MessageInType.GameOver:
+          this.onGameOver(client, msg);
+        break;
       default:
         console.log("message");
         console.log("-------------------------");
@@ -113,11 +121,20 @@ export class GamingHost extends MainSession {
     }
   }
 
+
+
+
+
+
+
+
+
+
   private onOpenGameRoom(client: Client, msg: MessageIn): void {
+    this.removeClientFromGame(client, this.getGameRoomById(client.gameRoomId));
     const { settings, ...configData } = msg.data;
     const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
     const gameKey = ConfigUtils.generateGameKey(config);
-
     let gameRoom = this.getAvailableGameRoomByKey(gameKey);
     if (!gameRoom) {
       gameRoom = new GameRoomSession(config, settings);
@@ -171,6 +188,35 @@ export class GamingHost extends MainSession {
 
     // const report = this.clients.map(client => client.info);
     // console.log(report);
+  }
+
+
+  private onGameUpdate(client: Client, msg: MessageIn): void {
+    const gameRoom = this.getGameRoomById(client.gameRoomId);
+    if (gameRoom) {
+      gameRoom.broadcastGameUpdate(client, msg.data);
+    } else {
+      client.sendError(MessageErrorType.GameNotFound, msg);
+    }
+  }
+
+  private onGameOver(client: Client, msg: MessageIn): void {
+    const gameRoom = this.getGameRoomById(client.gameRoomId);
+    if (gameRoom) {
+      gameRoom.onGameOver(client, msg.data);
+    } else {
+      client.sendError(MessageErrorType.GameNotFound, msg);
+    }
+  }
+
+  private removeClientFromGame(client: Client, gameRoomToLeave: GameRoomSession): void {
+    if (!gameRoomToLeave) {
+      return;
+    }
+    gameRoomToLeave.onPlayerLeft(client);
+    if (!gameRoomToLeave.hasClients) {
+      this.removeGameRoomSession(gameRoomToLeave);
+    }
   }
 
   public disconnectClient(client: Client): void {
