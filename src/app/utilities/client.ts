@@ -1,5 +1,4 @@
 import * as WebSocket from "ws";
-import { GameInfo } from "../interfaces/game-room.interfaces";
 import {
   ClientData,
   ClientUpdateData
@@ -83,7 +82,7 @@ export class Client {
     this.properties = data.properties || this.properties;
   }
 
-  // /* ~~~~~~~~~~~~~~~~~~~~~~~ SEND CLIENT MESSAGES ~~~~~~~~~~~~~~~~~~~~~~~ */
+  /* ~~~~~~~~~~~~~~~~~~~~~~~ SEND CLIENT MESSAGES ~~~~~~~~~~~~~~~~~~~~~~~ */
   private send(data: {}): void {
     this.conn.send(JSON.stringify(data), (error) => {
       if (error) {

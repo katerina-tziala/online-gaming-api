@@ -25,7 +25,7 @@ export class MainSession extends Session {
     return !usernamesInSession.includes(username);
   }
 
-  private notifyUser(client: Client, type: MessageOutType): void {
+  public notifyUser(client: Client, type: MessageOutType): void {
     const data = {
       user: client.info,
       peers: this.getPeersDetailsOfClient(client),
@@ -65,12 +65,13 @@ export class MainSession extends Session {
     }
   }
 
-  public joinClient(client: Client, msg: MessageIn): void {
+  public joinClient(client: Client, msg: MessageIn, callBack: () => void): void {
     const { username } = msg.data;
     if (!username || !username.length) {
       client.sendError(MessageErrorType.UsernameRequired, msg);
     } else if (this.clientUpdated(client, msg)) {
-      this.addClient(client);
+      this.addInClients(client);
+      callBack();
     }
   }
 

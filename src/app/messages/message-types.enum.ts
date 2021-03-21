@@ -10,10 +10,7 @@ export enum MessageInType {
   GameOver = "game-over",
   GameMessage = "game-message",
   GameState = "game-state",
-  QuitGame = "quit-game",
-    // InviteAndOpenRoom = "invite-and-open-room",
-  // RejectInvitation = "reject-invitation",
-  // AcceptInvitation = "accept-invitation",
+  QuitGame = "quit-game"
 }
 
 export enum MessageOutType {
@@ -30,16 +27,7 @@ export enum MessageOutType {
   GameOver = "game-over",
   PlayerLeft = "player-left",
   GameMessage = "game-message",
-  GameState = "game-state",
-  // MessageFailed = "message-failed",
-  // PrivateMessage = "private-message",
-  // InvitationReceived = "invitation-received",
-  // InvitationAccepted = "invitation-accepted",
-  // Invitations = "invitations-update",
-  // InvitationDenied = "invitation-denied",
-  // InvitationRejected = "invitation-rejected",
-  // InvitationCanceled = "invitation-canceled",
-  //
+  GameState = "game-state"
 }
 
 export enum MessageErrorType {
@@ -54,9 +42,5 @@ export enum MessageErrorType {
   ExpectedPlayersNotConnected = "expected-players-not-connected",
   SomeExpectedPlayersNotConnected = "some-expected-players-not-connected",
   GameNotFound = "game-not-found",
-  // GameDoesNotExist = "game-does-not-exist",
-  // AlreadyInGame = "client-in-game-already",
-  // NoRecipientsSpecified = "no-recipients-specified",
-  // RecipientsDisconnected = "recipients-disconnected",
-  // InvitationDoesNotExist = "invitation-does-not-exist",
+  ClientNotInGame = "not-in-game"
 }

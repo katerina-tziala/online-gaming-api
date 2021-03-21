@@ -1,14 +1,4 @@
-// import { GameConfig, InviteAndOpenRoom } from "../interfaces/game-room.interfaces";
-// import { UserData } from "../interfaces/user-data.interface";
-// import { InvitationCreation } from "../invitations/invitation-creation";
-// import {
-//   MessageErrorType,
-//   MessageOutType,
-// } from "../messages/message-types.enum";
-// import { MessageOut } from "../messages/message.interface";
-import { Session } from "../session/session";
-import { ClientUpdateData } from "../interfaces/user-data.interface";
-import { GameRoomSession } from "../session/game-room/session-game-room";
+import { GameRoomSession } from "../session/game-room/game-room-session";
 import { MainSession } from "../session/session-main";
 import { Client } from "./client";
 import { MessageIn } from "../messages/message.interface";
@@ -17,80 +7,91 @@ import {
   MessageInType,
   MessageOutType,
 } from "../messages/message-types.enum";
-import { PrivateMessage } from "../interfaces/private-message.interface";
-
-import { TYPOGRAPHY } from "./constants/typography.constants";
-// import { InvitationsController } from "../invitations/invitations-controller";
 import { GameConfig, ConfigUtils } from "../session/game-room/game-config/game-config";
+import { HostRoomsController } from "../controllers/host-rooms-controller";
 
 export class GamingHost extends MainSession {
   public id: string;
-  private _GameRooms: Map<string, GameRoomSession> = new Map();
+  private GameRooms = new HostRoomsController();
+  private gameMessages = [MessageInType.GameUpdate, MessageInType.GameOver, MessageInType.GameMessage, MessageInType.GameState];
 
   constructor(id: string) {
     super();
     this.id = id;
   }
-
-  private set addGameRoom(session: GameRoomSession) {
-    this._GameRooms.set(session.id, session);
+  private clientAllowedToSendGameMessage(client: Client, msg: MessageIn): boolean {
+    if (!client.gameRoomId) {
+      client.sendError(MessageErrorType.ClientNotInGame, msg);
+      return false;
+    }
+    return true;
   }
 
-  public get hasGameRooms(): boolean {
-    return !!this._GameRooms.size;
+  private addClientInGameRoom(client: Client, gameRoom: GameRoomSession): void {
+    gameRoom.joinClient(client);
+    this.broadcastPeersUpdate(client);
   }
 
-  public get gameRooms(): GameRoomSession[] {
-    return Array.from(this._GameRooms.values());
-  }
-
-  private getGameRoomById(roomId: string): GameRoomSession {
-    return this._GameRooms.get(roomId);
-  }
-  public getAvailableGameRoomByKey(gameKey: string): GameRoomSession {
-    return this.gameRooms.find(
-      (room) => room.entranceAllowed && room.key === gameKey
-    );
-  }
-
-  private removeGameRoomSession(session: GameRoomSession): void {
-    this._GameRooms.delete(session.id);
-  }
-
-
-
-  public onJoinClient(client: Client, msg: MessageIn): void {
-    if (!this.clientExists(client)) {
-      const { gameRoomId } = msg.data;
-      this.joinClient(client, msg);
-
-      if (gameRoomId) {
-        this.joinClientInGame(client, gameRoomId);
-      }
+  private checkJoinedClientForGameRoom(client: Client, gameRoomId: string): void {
+    if (gameRoomId) {
+      this.onJoinClientInGame(client, gameRoomId);
     } else {
-      client.sendError(MessageErrorType.JoinedAlready, msg);
+      this.notifyUser(client, MessageOutType.Joined);
+      this.broadcastPeersUpdate(client);
     }
   }
 
-  public joinClientInGame(client: Client, gameRoomId: string): void {
-    const gameRoom = this.getGameRoomById(gameRoomId);
+  private onJoinClientInGame(client: Client, gameRoomId: string): void {
+    const gameRoom = this.GameRooms.getGameRoomById(gameRoomId);
     if (!gameRoom) {
       client.sendError(MessageErrorType.GameNotFound, { gameRoomId });
+      this.notifyUser(client, MessageOutType.Joined);
+      this.broadcastPeersUpdate(client);
       return;
     }
     this.addClientInGameRoom(client, gameRoom);
   }
 
-  private addClientInGameRoom(client: Client, gameRoom: GameRoomSession): void {
-    gameRoom.joinClient(client);
-    if (gameRoom.clientExists(client)) {
-      this.broadcastPeersUpdate(client);
+  private onGameMessage(client: Client, msg: MessageIn): void {
+    if (this.clientAllowedToSendGameMessage(client, msg)) {
+      this.GameRooms.onGameMessage(client, msg);
     }
+  }
+
+  private onQuitGame(client: Client, msg: MessageIn): void {
+    if (!this.clientAllowedToSendGameMessage(client, msg)) {
+      return;
+    }
+    this.GameRooms.removeClientFromCurrentGame(client);
+    this.addClient(client);
+  }
+
+  private onOpenGameRoom(client: Client, msg: MessageIn): void {
+    this.GameRooms.removeClientFromCurrentGame(client);
+    const { settings, ...configData } = msg.data;
+    const gameRoom = this.GameRooms.joinOrOpenPublicRoom(configData, settings);
+    this.addClientInGameRoom(client, gameRoom);
+  }
+
+  public onJoinClient(client: Client, msg: MessageIn): void {
+    if (this.clientExists(client)) {
+      client.sendError(MessageErrorType.JoinedAlready, msg);
+      return;
+    }
+    this.joinClient(client, msg, () => {
+      const { gameRoomId } = msg.data;
+      this.checkJoinedClientForGameRoom(client, gameRoomId);
+    });
   }
 
   public onMessage(client: Client, msg: MessageIn): void {
     if (!this.clientExists(client)) {
       client.sendError(MessageErrorType.NotJoined, msg);
+      return;
+    }
+
+    if (this.gameMessages.includes(msg.type)) {
+      this.onGameMessage(client, msg);
       return;
     }
 
@@ -107,23 +108,9 @@ export class GamingHost extends MainSession {
       case MessageInType.OpenGameRoom:
         this.onOpenGameRoom(client, msg);
         break;
-      case MessageInType.GameUpdate:
-        this.onGameUpdate(client, msg);
-        break;
-      case MessageInType.GameOver:
-          this.onGameOver(client, msg);
-        break;
-        case MessageInType.GameMessage:
-          this.onGameMessage(client, msg);
-        break;
       case MessageInType.QuitGame:
           this.onQuitGame(client, msg);
         break;
-        case MessageInType.GameState:
-          this.onGameState(client, msg);
-        break;
-
-        //
       default:
         console.log("message");
         console.log("-------------------------");
@@ -134,28 +121,6 @@ export class GamingHost extends MainSession {
   }
 
 
-  private onQuitGame(client: Client, msg: MessageIn): void {
-    const gameRoom = this.getGameRoomById(client.gameRoomId);
-    if (!gameRoom) {
-      client.sendError(MessageErrorType.GameNotFound, msg);
-      return;
-    }
-    this.removeClientFromGame(client, gameRoom);
-    this.addClient(client);
-  }
-
-  private onOpenGameRoom(client: Client, msg: MessageIn): void {
-    this.removeClientFromGame(client, this.getGameRoomById(client.gameRoomId));
-    const { settings, ...configData } = msg.data;
-    const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
-    const gameKey = ConfigUtils.generateGameKey(config);
-    let gameRoom = this.getAvailableGameRoomByKey(gameKey);
-    if (!gameRoom) {
-      gameRoom = new GameRoomSession(config, settings);
-      this.addGameRoom = gameRoom;
-    }
-    this.addClientInGameRoom(client, gameRoom);
-  }
 
   private onOpenPrivateGameRoom(client: Client, msg: MessageIn): void {
     const config: GameConfig = msg.data;
@@ -166,7 +131,7 @@ export class GamingHost extends MainSession {
     //   return;
     // }
 
-    // const { potentialPlayers, errorType } = this.getPotentialCoPlayers(config.playersExpected);
+    // const { potentialPlayers, errorType } = this.getPotentialOpponents(config.playersExpected);
     // if (errorType) {
     //   client.sendError(errorType, msg);
     //   return;
@@ -183,7 +148,7 @@ export class GamingHost extends MainSession {
     return expectedOpponents;
   }
 
-  private getPotentialCoPlayers(
+  private getPotentialOpponents(
     playersExpected: string[] = []
   ): { potentialPlayers: Client[]; errorType: MessageErrorType } {
     const potentialPlayers: Client[] = this.getClientsByIds(playersExpected);
@@ -205,62 +170,14 @@ export class GamingHost extends MainSession {
   }
 
 
-  private onGameUpdate(client: Client, msg: MessageIn): void {
-    const gameRoom = this.getGameRoomById(client.gameRoomId);
-    if (gameRoom) {
-      gameRoom.broadcastGameUpdate(client, msg.data);
-    } else {
-      client.sendError(MessageErrorType.GameNotFound, msg);
-    }
-  }
-  private onGameMessage(client: Client, msg: MessageIn): void {
-    const gameRoom = this.getGameRoomById(client.gameRoomId);
-    if (gameRoom) {
-      gameRoom.broadcastGameMessage(client, msg.data);
-    } else {
-      client.sendError(MessageErrorType.GameNotFound, msg);
-    }
-  }
-  private onGameOver(client: Client, msg: MessageIn): void {
-    const gameRoom = this.getGameRoomById(client.gameRoomId);
-    if (gameRoom) {
-      gameRoom.onGameOver(client, msg.data);
-    } else {
-      client.sendError(MessageErrorType.GameNotFound, msg);
-    }
-  }
 
-  private onGameState(client: Client, msg: MessageIn): void {
-    const gameRoomId = msg?.data?.gameRoomId || client.gameRoomId;
-    const gameRoom = this.getGameRoomById(gameRoomId);
-    if (gameRoom) {
-      client.notify(MessageOutType.GameState, gameRoom.state);
-    } else {
-      client.sendError(MessageErrorType.GameNotFound, msg);
-    }
-  }
 
-  private removeClientFromGame(client: Client, gameRoomToLeave: GameRoomSession): void {
-    if (!gameRoomToLeave) {
-      return;
-    }
-    gameRoomToLeave.onPlayerLeft(client);
-    if (!gameRoomToLeave.hasClients) {
-      this.removeGameRoomSession(gameRoomToLeave);
-    }
-  }
 
   public disconnectClient(client: Client): void {
-    console.log("disconnectClient");
-    console.log("invitations");
     if (!client) {
       return;
     }
-
-    const gameRoom = this.getGameRoomById(client.gameRoomId);
-    if (gameRoom) {
-      console.log("client leaves game");
-    }
+    this.GameRooms.removeClientFromCurrentGame(client);
     this.removeClient(client);
   }
 }
