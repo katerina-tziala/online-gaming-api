@@ -19,13 +19,6 @@ export class GamingHost extends MainSession {
     super();
     this.id = id;
   }
-  private clientAllowedToSendGameMessage(client: Client, msg: MessageIn): boolean {
-    if (!client.gameRoomId) {
-      client.sendError(MessageErrorType.ClientNotInGame, msg);
-      return false;
-    }
-    return true;
-  }
 
   private addClientInGameRoom(client: Client, gameRoom: GameRoomSession): void {
     gameRoom.joinClient(client);
@@ -52,14 +45,8 @@ export class GamingHost extends MainSession {
     this.addClientInGameRoom(client, gameRoom);
   }
 
-  private onGameMessage(client: Client, msg: MessageIn): void {
-    if (this.clientAllowedToSendGameMessage(client, msg)) {
-      this.GameRooms.onGameMessage(client, msg);
-    }
-  }
-
   private onQuitGame(client: Client, msg: MessageIn): void {
-    if (!this.clientAllowedToSendGameMessage(client, msg)) {
+    if (!this.GameRooms.clientAllowedToSendGameMessage(client, msg)) {
       return;
     }
     this.GameRooms.removeClientFromCurrentGame(client);
@@ -91,7 +78,7 @@ export class GamingHost extends MainSession {
     }
 
     if (this.gameMessages.includes(msg.type)) {
-      this.onGameMessage(client, msg);
+      this.GameRooms.handleMessage(client, msg);
       return;
     }
 

@@ -1,6 +1,5 @@
 import {
   MessageErrorType,
-  MessageInType,
   MessageOutType,
 } from "../messages/message-types.enum";
 import { MessageIn } from "../messages/message.interface";
@@ -16,6 +15,15 @@ import { GameRoomsController } from "./game-rooms-controller";
 export class HostRoomsController {
   private _gameRooms: GameRoomsController = new GameRoomsController();
   private _privateGameRooms: GameRoomsController = new GameRoomsController();
+  private actionsConfig: Map<string, (client: Client, msg: MessageIn) => void> = new Map();
+
+  constructor() {
+    this.actionsConfig.set("game-message", this.onGameMessage);
+    this.actionsConfig.set("game-update", this.onGameUpdate);
+    this.actionsConfig.set("game-over", this.onGameOver);
+    this.actionsConfig.set("game-state", this.onGameState);
+  }
+
 
   public set addGameRoom(session: GameRoomSession) {
     this._gameRooms.addGameRoom = session;
@@ -73,27 +81,57 @@ export class HostRoomsController {
     }
   }
 
+  public handleMessage(client: Client, msg: MessageIn): void {
+    if (this.actionsConfig.get(msg.type)) {
+      this.actionsConfig.get(msg.type)(client, msg);
+    } else {
+      console.log("not implemented");
+      console.log(msg);
+    }
+  }
 
-  public onGameMessage(client: Client, msg: MessageIn): void {
+  public clientAllowedToSendGameMessage(client: Client, msg: MessageIn): boolean {
+    if (!client.gameRoomId) {
+      client.sendError(MessageErrorType.ClientNotInGame, msg);
+      return false;
+    }
+    return true;
+  }
+
+  private checkAndGetGameOnClientMessage(client: Client, msg: MessageIn,
+    callBack: (gameRoom: GameRoomSession | PrivateGameRoomSession) => void): void {
+    if (!this.clientAllowedToSendGameMessage(client, msg)) {
+      return;
+    }
     const gameRoom = this.getGameRoomById(client.gameRoomId);
     if (!gameRoom) {
       client.sendError(MessageErrorType.GameNotFound, msg);
       return;
     }
-    switch (msg.type) {
-      case MessageInType.GameUpdate:
-        gameRoom.broadcastGameUpdate(client, msg.data);
-        break;
-      case MessageInType.GameOver:
-        gameRoom.onGameOver(client, msg.data);
-        break;
-      case MessageInType.GameMessage:
-        gameRoom.broadcastGameMessage(client, msg.data);
-        break;
-      case MessageInType.GameState:
-        client.notify(MessageOutType.GameState, gameRoom.state);
-        break;
-    }
+    callBack(gameRoom);
   }
 
+  private onGameMessage(client: Client, msg: MessageIn): void {
+    this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
+      gameRoom.broadcastGameMessage(client, msg.data);
+    });
+  }
+
+  private onGameOver(client: Client, msg: MessageIn): void {
+    this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
+      gameRoom.onGameOver(client, msg.data);
+    });
+  }
+
+  private onGameUpdate(client: Client, msg: MessageIn): void {
+    this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
+      gameRoom.broadcastGameUpdate(client, msg.data);
+    });
+  }
+
+  private onGameState(client: Client, msg: MessageIn): void {
+    this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
+      client.notify(MessageOutType.GameState, gameRoom.state);
+    });
+  }
 }
