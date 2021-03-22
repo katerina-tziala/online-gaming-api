@@ -12,4 +12,13 @@ export interface GameInfo extends GameConfig {
   playerStartId?: string;
   players?: ClientData[];
   completedIn?: Duration;
+  expectedRestartCorfirmations?: string[];
+}
+
+export interface GameRestartRequest {
+  id: string;
+  createdAt: string;
+  playerRequested: ClientData;
+  playersConfirmed?: ClientData[];
+  playersExpectedToConfirm?: ClientData[];
 }

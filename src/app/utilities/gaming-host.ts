@@ -13,7 +13,9 @@ import { HostRoomsController } from "../controllers/host-rooms-controller";
 export class GamingHost extends MainSession {
   public id: string;
   private GameRooms = new HostRoomsController();
-  private gameMessages = [MessageInType.GameUpdate, MessageInType.GameOver, MessageInType.GameMessage, MessageInType.GameState];
+  private gameMessages = [MessageInType.GameUpdate, MessageInType.GameOver,
+    MessageInType.GameMessage, MessageInType.GameState, MessageInType.GameRestartRequest,
+    MessageInType.GameRestartReject, MessageInType.GameRestartAccept];
 
   constructor(id: string) {
     super();

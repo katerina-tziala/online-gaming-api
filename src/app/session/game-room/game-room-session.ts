@@ -1,22 +1,25 @@
 import { Client } from "../../utilities/client";
 import { Session } from "../session";
-import { MessageOutType } from "../../messages/message-types.enum";
+import { MessageErrorType, MessageInType, MessageOutType } from "../../messages/message-types.enum";
 import { GameConfig, ConfigUtils } from "./game-config/game-config";
 import { GameInfo } from "./game-info.interface";
 import {
+  generateId,
   getDurationFromDates,
   getRandomValueFromArray,
 } from "../../utilities/app-utils";
 import { Duration } from "../../interfaces/duration.interface";
+import { GameRestart } from "./game-restart.interface";
 
 export class GameRoomSession extends Session {
-  private startTimeout: ReturnType<typeof setTimeout>;
-  private _config: GameConfig;
-  private _settings: {} = {};
+  public startTimeout: ReturnType<typeof setTimeout>;
+  public _config: GameConfig;
+  public _settings: {} = {};
   public key: string;
-  private startedAt: string;
-  private endedAt: string;
-  private playerStartId: string;
+  public startedAt: string;
+  public endedAt: string;
+  public playerStartId: string;
+  public restartRequest: GameRestart;
 
   constructor(config: GameConfig, settings?: {}) {
     super();
@@ -80,6 +83,14 @@ export class GameRoomSession extends Session {
     return getDurationFromDates(start, end);
   }
 
+  private get restartConfirmedIds(): string[] {
+    return this.restartRequest ? [] : this.restartRequest.playersConfirmed.map(peerPlayer => peerPlayer.id);
+  }
+
+  private get restartExpectedIds(): string[] {
+    return this.restartRequest ? [] : this.restartRequest.playersExpectedToConfirm.map(peerPlayer => peerPlayer.id);
+  }
+
   public joinClient(client: Client): void {
     if (!this.entranceAllowed) {
       client.notify(MessageOutType.GameEntranceForbidden, this.info);
@@ -90,6 +101,7 @@ export class GameRoomSession extends Session {
 
   public addInClients(client: Client): void {
     client.gameRoomId = this.id;
+    this.restartRequest = undefined;
     super.addInClients(client);
   }
 
@@ -100,7 +112,7 @@ export class GameRoomSession extends Session {
     this.checkGameStart();
   }
 
-  private broadcastRoomOpened(client: Client): void {
+  public broadcastRoomOpened(client: Client): void {
     const data = {
       user: client.info,
       game: this.details,
@@ -108,29 +120,33 @@ export class GameRoomSession extends Session {
     client.notify(MessageOutType.GameRoomOpened, data);
   }
 
-  private broadcastPlayerEntrance(clientJoined: Client): void {
+  public broadcastPlayerEntrance(clientJoined: Client): void {
     const playerJoined = clientJoined.info;
     this.broadcastToPeers(clientJoined, MessageOutType.PlayerJoined, {
       playerJoined,
     });
   }
 
-  private broadcastToPeers(initiator: Client, type: MessageOutType,  data: {}): void {
+  public broadcastToPeers(initiator: Client, type: MessageOutType,  data: {}): void {
     const peers = this.getClientPeers(initiator);
     peers.forEach((client) => client.notify(type, data));
   }
 
-  private checkGameStart(): void {
+  public checkGameStart(): void {
     clearTimeout(this.startTimeout);
     if (this.readyToStart) {
       this.startTimeout = setTimeout(() => {
         this.startGame();
       }, this._config.startWaitingTime);
+    } else {
+      console.log("not readyToStart");
+
     }
   }
 
-  private startGame(): void {
+  public startGame(): void {
     if (this.readyToStart) {
+      this.restartRequest = undefined;
       const playersIds = this.clients.map((client) => client.id);
       this.playerStartId = getRandomValueFromArray(playersIds);
       this.startedAt = new Date().toString();
@@ -139,43 +155,52 @@ export class GameRoomSession extends Session {
     clearTimeout(this.startTimeout);
   }
 
-  private broadcastGameStart(): void {
+  public broadcastGameStart(): void {
     this.clients.forEach((client) =>
       client.notify(MessageOutType.GameStart, this.details)
     );
   }
 
   public broadcastGameUpdate(player: Client, data: {}): void {
+    if (this.restartRequest) {
+      player.sendError(MessageErrorType.CannotUpdateWhenRestartRequested, { type: MessageInType.GameUpdate, data});
+      return;
+    }
     if (!this.endedAt) {
       const sender = player.info;
       this.broadcastToPeers(player, MessageOutType.GameUpdate, { sender, data });
     }
   }
 
-  private broadcastGameOver(player: Client, data: {}): void {
+  public broadcastGameOver(player: Client, data: {}): void {
     const game = this.state;
     const sender = player.info;
     const dataLoad = { sender, game, data };
     this.broadcastToPeers(player, MessageOutType.GameOver, dataLoad);
   }
 
-  private endGame(): void {
+  public endGame(): void {
     clearTimeout(this.startTimeout);
     this.endedAt = new Date().toString();
   }
 
-  public onGameOver(client: Client, data: {}): void {
+  public onGameOver(player: Client, data: {}): void {
+    if (this.restartRequest) {
+      player.sendError(MessageErrorType.CannotEndWhenRestartRequested, { type: MessageInType.GameOver, data});
+      return;
+    }
     this.endGame();
-    this.broadcastGameOver(client, data);
+    this.broadcastGameOver(player, data);
   }
 
   public onPlayerLeft(client: Client): void {
     clearTimeout(this.startTimeout);
     this.removeFromClients(client);
+    this.restartRequest = undefined;
     this.broadcastPlayerLeft(client);
   }
 
-  private broadcastPlayerLeft(playerLeft: Client): void {
+  public broadcastPlayerLeft(playerLeft: Client): void {
     const sender = playerLeft.info;
     const game = this.details;
     this.broadcastToPeers(playerLeft, MessageOutType.PlayerLeft, {sender, game});
@@ -186,4 +211,96 @@ export class GameRoomSession extends Session {
     this.broadcastToPeers(player, MessageOutType.GameMessage, { sender, data });
   }
 
+  public onRequestRestart(player: Client): void {
+    if (!this.filled) {
+      player.sendError(MessageErrorType.RestarErrorRoomNotFilled, { type: MessageInType.GameRestartRequest});
+    } else if (!this.startedAt) {
+      player.sendError(MessageErrorType.RestarErrorGameNotStarted, { type: MessageInType.GameRestartRequest});
+    } else if (this.restartRequest) {
+      this.onRequestRestartWhenRequestExists(player);
+    } else {
+      this.createRestartRequest(player);
+    }
+  }
+
+  private onRequestRestartWhenRequestExists(player: Client): void {
+    if (this.restartExpectedIds.includes(player.id)) {
+      this.onPlayerAcceptRestart(player);
+    } else {
+      this.broadcastRestartConfirmationWaiting(player);
+    }
+  }
+
+  private createRestartRequest(player: Client): void {
+    const playerPeers = this.getClientPeers(player);
+    this.restartRequest = {
+      id: this.id + generateId(),
+      createdAt: new Date().toString(),
+      playerRequested: player.info,
+      playersConfirmed: [],
+      playersExpectedToConfirm: playerPeers.map(peerPLayer => peerPLayer.info)
+    };
+   this.broadcastRestartStateToPeers(player, MessageOutType.GameRestartRequest);
+  }
+
+  public broadcastRestartStateToPeers(player: Client, type: MessageOutType): void {
+    const restartRequest = this.restartRequest;
+    const game = this.info;
+    this.broadcastToPeers(player, MessageOutType.GameRestartRequest, {restartRequest, game});
+  }
+
+  public onRestartReject(player: Client): void {
+    if (!this.restartRequest) {
+      player.sendError(MessageErrorType.RestartNotRequested, { type: MessageInType.GameRestartReject});
+      return;
+    }
+    const replyType = (this.restartRequest.playerRequested.id === player.id) ?
+    MessageOutType.GameRestartCanceled
+    : MessageOutType.GameRestartRejected;
+    this.restartRequest = undefined;
+    this.broadcastRestartRejection(player, replyType);
+  }
+
+  public onRestartAccept(player: Client): void {
+    if (!this.restartRequest) {
+      player.sendError(MessageErrorType.RestartNotRequested, { type: MessageInType.GameRestartReject});
+      return;
+    }
+    if (this.restartRequest.playerRequested.id === player.id || this.restartConfirmedIds.includes(player.id)) {
+      this.broadcastRestartConfirmationWaiting(player);
+    } else {
+      this.onPlayerAcceptRestart(player);
+    }
+  }
+
+  public onPlayerAcceptRestart(player: Client): void {
+    this.restartRequest.playersConfirmed.push(player.info);
+    this.restartRequest.playersExpectedToConfirm = this.restartRequest.playersExpectedToConfirm.filter(peerPlayer => peerPlayer.id !== player.id);
+    this.broadcastAcceptedRestart();
+    if (!this.restartRequest.playersExpectedToConfirm.length) {
+      this.startedAt = undefined;
+      this.endedAt = undefined;
+      this.checkGameStart();
+    }
+  }
+
+  private broadcastAcceptedRestart(): void {
+    const restartRequest = this.restartRequest;
+    const game = this.info;
+    this.clients.forEach(client => {
+      client.notify(MessageOutType.GameRestartAccepted, {restartRequest, game});
+    });
+  }
+
+  private broadcastRestartRejection(player: Client, type: MessageOutType): void {
+    const sender = player.info;
+    this.endedAt = undefined;
+    this.broadcastToPeers(player, type, { sender });
+  }
+
+  private broadcastRestartConfirmationWaiting(player: Client): void {
+    const restartRequest = this.restartRequest;
+    const game = this.info;
+    player.notify(MessageOutType.GameRestartWaitPlayers, { restartRequest, game});
+  }
 }

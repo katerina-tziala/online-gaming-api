@@ -63,7 +63,8 @@ function getClientHost(client: Client): GamingHost {
 function messageHandler(client: Client, msg: MessageIn): void {
   const { type, data } = msg;
 
-  if (!client || !type || !data) {
+  // || !data
+  if (!client || !type ) {
     console.log("error on message");
     // throw Error("error on message");
   }

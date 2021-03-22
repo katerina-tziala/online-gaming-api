@@ -1,5 +1,6 @@
 import {
   MessageErrorType,
+  MessageInType,
   MessageOutType,
 } from "../messages/message-types.enum";
 import { MessageIn } from "../messages/message.interface";
@@ -15,15 +16,20 @@ import { GameRoomsController } from "./game-rooms-controller";
 export class HostRoomsController {
   private _gameRooms: GameRoomsController = new GameRoomsController();
   private _privateGameRooms: GameRoomsController = new GameRoomsController();
-  private actionsConfig: Map<string, (client: Client, msg: MessageIn) => void> = new Map();
+  private messageActionConfig: Map<string, (client: Client, msg: MessageIn) => void> = new Map();
 
   constructor() {
-    this.actionsConfig.set("game-message", this.onGameMessage);
-    this.actionsConfig.set("game-update", this.onGameUpdate);
-    this.actionsConfig.set("game-over", this.onGameOver);
-    this.actionsConfig.set("game-state", this.onGameState);
-  }
+    this.messageActionConfig.set(MessageInType.GameMessage, this.onGameMessage.bind(this));
+    this.messageActionConfig.set(MessageInType.GameUpdate, this.onGameUpdate.bind(this));
+    this.messageActionConfig.set(MessageInType.GameOver, this.onGameOver.bind(this));
+    this.messageActionConfig.set(MessageInType.GameState, this.onGameState.bind(this));
+    this.messageActionConfig.set(MessageInType.GameRestartRequest, this.onGameRestartRequest.bind(this));
+    this.messageActionConfig.set(MessageInType.GameRestartReject, this.onGameRestartReject.bind(this));
+    this.messageActionConfig.set(MessageInType.GameRestartAccept, this.onGameRestartAccept.bind(this));
 
+
+
+  }
 
   public set addGameRoom(session: GameRoomSession) {
     this._gameRooms.addGameRoom = session;
@@ -82,8 +88,8 @@ export class HostRoomsController {
   }
 
   public handleMessage(client: Client, msg: MessageIn): void {
-    if (this.actionsConfig.get(msg.type)) {
-      this.actionsConfig.get(msg.type)(client, msg);
+    if (this.messageActionConfig.get(msg.type)) {
+      this.messageActionConfig.get(msg.type)(client, msg);
     } else {
       console.log("not implemented");
       console.log(msg);
@@ -134,4 +140,23 @@ export class HostRoomsController {
       client.notify(MessageOutType.GameState, gameRoom.state);
     });
   }
+
+  private onGameRestartRequest(client: Client, msg: MessageIn): void {
+    this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
+      gameRoom.onRequestRestart(client);
+    });
+  }
+
+  private onGameRestartReject(client: Client, msg: MessageIn): void {
+    this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
+      gameRoom.onRestartReject(client);
+    });
+  }
+
+  private onGameRestartAccept(client: Client, msg: MessageIn): void {
+    this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
+      gameRoom.onRestartAccept(client);
+    });
+  }
+
 }

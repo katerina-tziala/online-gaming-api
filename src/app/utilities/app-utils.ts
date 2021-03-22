@@ -18,7 +18,7 @@ export function getArrayFromMap<T>(mapToConvert: Map<string, T>): T[] {
 }
 
 export function getRandomInt(max = 100): number {
-  return Math.round(Math.random() * Math.round(max));
+  return Math.floor(Math.random() * Math.round(max));
 }
 
 export function getRandomValueFromArray<T>(arrayToChooseFrom: T[]): T {

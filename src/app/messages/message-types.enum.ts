@@ -10,7 +10,10 @@ export enum MessageInType {
   GameOver = "game-over",
   GameMessage = "game-message",
   GameState = "game-state",
-  QuitGame = "quit-game"
+  QuitGame = "quit-game",
+  GameRestartRequest = "game-restart-request",
+  GameRestartReject = "game-restart-reject",
+  GameRestartAccept = "game-restart-accept"
 }
 
 export enum MessageOutType {
@@ -27,7 +30,13 @@ export enum MessageOutType {
   GameOver = "game-over",
   PlayerLeft = "player-left",
   GameMessage = "game-message",
-  GameState = "game-state"
+  GameState = "game-state",
+  GameRestartRequest = "game-restart-request",
+  GameRestartCanceled = "game-restart-canceled",
+  GameRestartRejected = "game-restart-rejected",
+  GameRestartWaitPlayers = "game-restart-wait-for-players",
+  GameRestartAccepted = "game-restart-accepted",
+
 }
 
 export enum MessageErrorType {
@@ -42,5 +51,10 @@ export enum MessageErrorType {
   ExpectedPlayersNotConnected = "expected-players-not-connected",
   SomeExpectedPlayersNotConnected = "some-expected-players-not-connected",
   GameNotFound = "game-not-found",
-  ClientNotInGame = "not-in-game"
+  ClientNotInGame = "not-in-game",
+  RestarErrorRoomNotFilled = "not-all-players-in-game-to-request-restart",
+  RestarErrorGameNotStarted = "game-not-started-to-request-restart",
+  RestartNotRequested = "restart-not-requested",
+  CannotUpdateWhenRestartRequested = "cannot-update-game-when-restart-requested",
+  CannotEndWhenRestartRequested = "cannot-end-game-when-restart-requested"
 }

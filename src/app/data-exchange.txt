@@ -83,3 +83,23 @@ MESSAGES IN:
   }
 }
 
+
+{
+  "type": "game-restart-request"
+}
+
+{
+  "type": "game-restart-reject"
+}
+
+{
+  "type": "game-restart-reject"
+}
+
+{
+  "type": "game-restart-accept"
+}
+
+
+
+
