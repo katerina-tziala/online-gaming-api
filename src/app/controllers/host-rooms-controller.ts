@@ -73,7 +73,17 @@ export class HostRoomsController {
     return gameRoom;
   }
 
+
+  public openPrivateGameRoom(client: Client, config: GameConfig, expectedPlayers: Client[]): void {
+    console.log(client.info);
+    console.log(config);
+    config.playersAllowed = expectedPlayers.length + 1;
+    // const report = this.clients.map(client => client.info);
+    // console.log(report);
+  }
+
   public removeClientFromCurrentGame(client: Client): void {
+    // remove from private game
     const gameRoom = this.getGameRoomById(client.gameRoomId);
     if (!gameRoom) {
       return;

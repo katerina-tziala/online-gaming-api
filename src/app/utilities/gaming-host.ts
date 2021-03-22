@@ -55,13 +55,6 @@ export class GamingHost extends MainSession {
     this.addClient(client);
   }
 
-  private onOpenGameRoom(client: Client, msg: MessageIn): void {
-    this.GameRooms.removeClientFromCurrentGame(client);
-    const { settings, ...configData } = msg.data;
-    const gameRoom = this.GameRooms.joinOrOpenPublicRoom(configData, settings);
-    this.addClientInGameRoom(client, gameRoom);
-  }
-
   public onJoinClient(client: Client, msg: MessageIn): void {
     if (this.clientExists(client)) {
       client.sendError(MessageErrorType.JoinedAlready, msg);
@@ -110,24 +103,32 @@ export class GamingHost extends MainSession {
     }
   }
 
-
+  private onOpenGameRoom(client: Client, msg: MessageIn): void {
+    this.GameRooms.removeClientFromCurrentGame(client);
+    const { settings, ...configData } = msg.data;
+    const gameRoom = this.GameRooms.joinOrOpenPublicRoom(configData, settings);
+    this.addClientInGameRoom(client, gameRoom);
+  }
 
   private onOpenPrivateGameRoom(client: Client, msg: MessageIn): void {
-    const config: GameConfig = msg.data;
-    // config.playersExpected = this.getExpectedOpponents(client, msg.data.playersExpected);
+    this.GameRooms.removeClientFromCurrentGame(client);
+    const { playersExpected, ...config} = msg.data;
+    config.playersExpected = this.getExpectedOpponents(client, msg.data.playersExpected);
 
-    // if (!config.playersExpected.length) {
-    //   client.sendError(MessageErrorType.ExpectedPlayersNotSpecified, msg);
-    //   return;
-    // }
+    if (!config.playersExpected.length) {
+      client.sendError(MessageErrorType.ExpectedPlayersNotSpecified, msg);
+      return;
+    }
 
-    // const { potentialPlayers, errorType } = this.getPotentialOpponents(config.playersExpected);
-    // if (errorType) {
-    //   client.sendError(errorType, msg);
-    //   return;
-    // }
-    // this.openPrivateGameRoom(client, config, potentialPlayers);
-    this.openPrivateGameRoom(client, config, this.getClientPeers(client));
+    const { expectedPlayers, errorType } = this.getExpectedPlayers(config.playersExpected);
+    if (errorType) {
+      client.sendError(errorType, msg);
+      return;
+    }
+    // this.GameRooms.openPrivateGameRoom(client, config, potentialPlayers);
+
+    this.GameRooms.openPrivateGameRoom(client, config, this.getClientPeers(client));
+
   }
 
   private getExpectedOpponents(client: Client, playersExpected: string[] = []): string[] {
@@ -138,30 +139,16 @@ export class GamingHost extends MainSession {
     return expectedOpponents;
   }
 
-  private getPotentialOpponents(
-    playersExpected: string[] = []
-  ): { potentialPlayers: Client[]; errorType: MessageErrorType } {
-    const potentialPlayers: Client[] = this.getClientsByIds(playersExpected);
+  private getExpectedPlayers(playersExpected: string[] = []): { expectedPlayers: Client[]; errorType: MessageErrorType } {
+    const expectedPlayers: Client[] = this.getClientsByIds(playersExpected);
     let errorType;
-    if (!potentialPlayers.length) {
+    if (!expectedPlayers.length) {
       errorType = MessageErrorType.ExpectedPlayersNotConnected;
-    } else if (potentialPlayers.length !== playersExpected.length) {
+    } else if (expectedPlayers.length !== playersExpected.length) {
       errorType = MessageErrorType.SomeExpectedPlayersNotConnected;
     }
-    return { potentialPlayers, errorType };
+    return { expectedPlayers, errorType };
   }
-
-  private openPrivateGameRoom( client: Client, config: GameConfig, potentialPlayers: Client[]): void {
-    console.log(client.info);
-    console.log(config);
-
-    // const report = this.clients.map(client => client.info);
-    // console.log(report);
-  }
-
-
-
-
 
   public disconnectClient(client: Client): void {
     if (!client) {
