@@ -225,7 +225,7 @@ export class GameRoomSession extends Session {
 
   private onRequestRestartWhenRequestExists(player: Client): void {
     if (this.restartExpectedIds.includes(player.id)) {
-      this.onPlayerAcceptRestart(player);
+      this.onRestartAcceptedByPlayer(player);
     } else {
       this.broadcastRestartConfirmationWaiting(player);
     }
@@ -243,7 +243,7 @@ export class GameRoomSession extends Session {
    this.broadcastRestartStateToPeers(player, MessageOutType.GameRestartRequest);
   }
 
-  public broadcastRestartStateToPeers(player: Client, type: MessageOutType): void {
+  private broadcastRestartStateToPeers(player: Client, type: MessageOutType): void {
     const restartRequest = this.restartRequest;
     const game = this.info;
     this.broadcastToPeers(player, MessageOutType.GameRestartRequest, {restartRequest, game});
@@ -269,11 +269,11 @@ export class GameRoomSession extends Session {
     if (this.restartRequest.playerRequested.id === player.id || this.restartConfirmedIds.includes(player.id)) {
       this.broadcastRestartConfirmationWaiting(player);
     } else {
-      this.onPlayerAcceptRestart(player);
+      this.onRestartAcceptedByPlayer(player);
     }
   }
 
-  public onPlayerAcceptRestart(player: Client): void {
+  private onRestartAcceptedByPlayer(player: Client): void {
     this.restartRequest.playersConfirmed.push(player.info);
     this.restartRequest.playersExpectedToConfirm = this.restartRequest.playersExpectedToConfirm.filter(peerPlayer => peerPlayer.id !== player.id);
     this.broadcastAcceptedRestart();

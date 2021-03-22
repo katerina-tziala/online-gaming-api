@@ -101,5 +101,9 @@ MESSAGES IN:
 }
 
 
+{
+  "type": "user-info"
+}
+
 
 

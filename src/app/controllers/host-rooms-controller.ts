@@ -26,9 +26,6 @@ export class HostRoomsController {
     this.messageActionConfig.set(MessageInType.GameRestartRequest, this.onGameRestartRequest.bind(this));
     this.messageActionConfig.set(MessageInType.GameRestartReject, this.onGameRestartReject.bind(this));
     this.messageActionConfig.set(MessageInType.GameRestartAccept, this.onGameRestartAccept.bind(this));
-
-
-
   }
 
   public set addGameRoom(session: GameRoomSession) {

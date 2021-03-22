@@ -3,6 +3,7 @@ export enum MessageInType {
   Disconnect = "disconnect",
   Join = "join",
   UserUpdate = "user-update",
+  UserInfo = "user-info",
   PrivateMessage = "private-message",
   OpenGameRoom = "open-game-room",
   OpenPrivateGameRoom = "open-private-game-room",
@@ -13,7 +14,8 @@ export enum MessageInType {
   QuitGame = "quit-game",
   GameRestartRequest = "game-restart-request",
   GameRestartReject = "game-restart-reject",
-  GameRestartAccept = "game-restart-accept"
+  GameRestartAccept = "game-restart-accept",
+
 }
 
 export enum MessageOutType {
@@ -21,6 +23,7 @@ export enum MessageOutType {
   Joined = "user-joined",
   Peers = "peers-update",
   UserUpdate = "user-update",
+  UserInfo = "user-info",
   PrivateMessage = "private-message",
   GameEntranceForbidden = "game-entrance-forbidden",
   GameRoomOpened = "game-room-opened",

@@ -68,6 +68,7 @@ export class GamingHost extends MainSession {
       return;
     }
     this.joinClient(client, msg, () => {
+      client.setJoined();
       const { gameRoomId } = msg.data;
       this.checkJoinedClientForGameRoom(client, gameRoomId);
     });

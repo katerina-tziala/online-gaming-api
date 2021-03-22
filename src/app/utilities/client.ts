@@ -18,12 +18,17 @@ export class Client {
   private _properties: {};
   private _joinedAt: string;
 
-  constructor(conn: WebSocket, origin: string) {
+  constructor(conn: WebSocket, host: string) {
     this._conn = conn;
-    this._host = origin;
+    this._host = host;
     this._id = generateId();
     this._username = null;
     this._gameRoomId = null;
+    this._joinedAt = null;
+
+  }
+
+  public setJoined(): void {
     this._joinedAt = new Date().toString();
   }
 
@@ -104,4 +109,7 @@ export class Client {
     this.notify(MessageOutType.Error, { errorType, messageFailed });
   }
 
+  public sendUserInfo(): void {
+    this.notify(MessageOutType.UserInfo, this.info);
+  }
 }

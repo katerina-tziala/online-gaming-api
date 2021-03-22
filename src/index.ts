@@ -8,7 +8,7 @@ import { IncomingMessage, Server } from "http";
 import { GamingHost } from "./app/utilities/gaming-host";
 import { Client } from "./app/utilities/client";
 import { MessageIn } from "./app/messages/message.interface";
-import { MessageInType } from "./app/messages/message-types.enum";
+import { MessageInType, MessageOutType } from "./app/messages/message-types.enum";
 
 const server = new WebSocket.Server({ port: CONFIG.PORT });
 console.log(`Server is listening on port ${CONFIG.PORT}:)`);
@@ -61,17 +61,24 @@ function getClientHost(client: Client): GamingHost {
 }
 
 function messageHandler(client: Client, msg: MessageIn): void {
-  const { type, data } = msg;
-
-  // || !data
-  if (!client || !type ) {
+  const { type } = msg;
+  msg.data = msg.data || {};
+  //
+  if (!client || !type || !msg.data) {
     console.log("error on message");
     // throw Error("error on message");
+    return;
   }
 
   if (type === MessageInType.Disconnect) {
     disconnect(client);
+    return;
   }
+  if (type === MessageInType.UserInfo) {
+    client.sendUserInfo();
+    return;
+  }
+
   const host = getClientHost(client);
   if (type === MessageInType.Join) {
     host.onJoinClient(client, msg);
