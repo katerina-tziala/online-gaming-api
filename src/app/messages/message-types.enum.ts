@@ -15,6 +15,7 @@ export enum MessageInType {
   GameRestartRequest = "game-restart-request",
   GameRestartReject = "game-restart-reject",
   GameRestartAccept = "game-restart-accept",
+  GameInvitationAccept = "game-invitation-accept",
 
 }
 
@@ -39,6 +40,7 @@ export enum MessageOutType {
   GameRestartRejected = "game-restart-rejected",
   GameRestartWaitPlayers = "game-restart-wait-for-players",
   GameRestartAccepted = "game-restart-accepted",
+  GameInvitation = "game-invitation",
 
 }
 

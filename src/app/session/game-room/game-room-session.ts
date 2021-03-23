@@ -92,7 +92,7 @@ export class GameRoomSession extends Session {
   }
 
   public joinClient(client: Client): void {
-    if (!this.entranceAllowed) {
+    if (!this.entranceAllowed) {// client already in the game
       client.notify(MessageOutType.GameEntranceForbidden, this.info);
       return;
     }
@@ -144,9 +144,15 @@ export class GameRoomSession extends Session {
     }
   }
 
+  public init() {
+    this.restartRequest = undefined;
+    this.playerStartId = undefined;
+    this.startedAt = undefined;
+    this.endedAt = undefined;
+  }
   public startGame(): void {
     if (this.readyToStart) {
-      this.restartRequest = undefined;
+      this.init();
       const playersIds = this.clients.map((client) => client.id);
       this.playerStartId = getRandomValueFromArray(playersIds);
       this.startedAt = new Date().toString();
@@ -278,8 +284,7 @@ export class GameRoomSession extends Session {
     this.restartRequest.playersExpectedToConfirm = this.restartRequest.playersExpectedToConfirm.filter(peerPlayer => peerPlayer.id !== player.id);
     this.broadcastAcceptedRestart();
     if (!this.restartRequest.playersExpectedToConfirm.length) {
-      this.startedAt = undefined;
-      this.endedAt = undefined;
+      this.init();
       this.checkGameStart();
     }
   }

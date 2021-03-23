@@ -26,6 +26,7 @@ export class HostRoomsController {
     this.messageActionConfig.set(MessageInType.GameRestartRequest, this.onGameRestartRequest.bind(this));
     this.messageActionConfig.set(MessageInType.GameRestartReject, this.onGameRestartReject.bind(this));
     this.messageActionConfig.set(MessageInType.GameRestartAccept, this.onGameRestartAccept.bind(this));
+    this.messageActionConfig.set(MessageInType.GameInvitationAccept, this.onGameInvitationAccept.bind(this));
   }
 
   public set addGameRoom(session: GameRoomSession) {
@@ -62,8 +63,9 @@ export class HostRoomsController {
     }
   }
 
-  public joinOrOpenPublicRoom(configData: GameConfig, settings?: {}): GameRoomSession {
+  public joinOrOpenPublicRoom(configData: GameConfig, settings?: {}): GameRoomSession | PrivateGameRoomSession {
     const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
+    // if client already in game
     const gameKey = ConfigUtils.generateGameKey(config);
     let gameRoom = this._gameRooms.getAvailableGameRoomByKey(gameKey);
     if (!gameRoom) {
@@ -74,12 +76,14 @@ export class HostRoomsController {
   }
 
 
-  public openPrivateGameRoom(client: Client, config: GameConfig, expectedPlayers: Client[]): void {
-    console.log(client.info);
-    console.log(config);
+  public openPrivateGameRoom(client: Client, configData: GameConfig, expectedPlayers: Client[], settings: {}): GameRoomSession | PrivateGameRoomSession {
+    const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
     config.playersAllowed = expectedPlayers.length + 1;
-    // const report = this.clients.map(client => client.info);
-    // console.log(report);
+     // if client already in game
+    const gameRoom = new PrivateGameRoomSession(config, settings);
+    gameRoom.onOpen(client, expectedPlayers);
+    this.addPrivateGameRoom = gameRoom;
+    return gameRoom;
   }
 
   public removeClientFromCurrentGame(client: Client): void {
@@ -116,13 +120,19 @@ export class HostRoomsController {
     if (!this.clientAllowedToSendGameMessage(client, msg)) {
       return;
     }
-    const gameRoom = this.getGameRoomById(client.gameRoomId);
+    this.getGameForMessage(client, client.gameRoomId, msg, callBack);
+  }
+
+  public getGameForMessage(client: Client, gameRoomId: string, msg: MessageIn,
+    callBack: (gameRoom: GameRoomSession | PrivateGameRoomSession) => void): void {
+    const gameRoom = this.getGameRoomById(gameRoomId);
     if (!gameRoom) {
       client.sendError(MessageErrorType.GameNotFound, msg);
       return;
     }
     callBack(gameRoom);
   }
+
 
   private onGameMessage(client: Client, msg: MessageIn): void {
     this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
@@ -165,5 +175,21 @@ export class HostRoomsController {
       gameRoom.onRestartAccept(client);
     });
   }
+
+  private onGameInvitationAccept(client: Client, msg: MessageIn): void {
+    const { gameRoomId } = msg.data;
+   // console.log(client.info);
+   console.log(gameRoomId);
+
+
+
+    this.getGameForMessage(client, gameRoomId, msg, (gameRoom: PrivateGameRoomSession) => {
+      console.log("gameRoom");
+      console.log(gameRoom.info);
+      gameRoom.invitationAcceptanceAllowed(client);
+    });
+    // this.getGameForMessage(client, client.gameRoomId, msg, callBack);
+  }
+
 
 }

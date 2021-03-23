@@ -105,5 +105,14 @@ MESSAGES IN:
   "type": "user-info"
 }
 
+{
+  "type": "game-invitation-accept",
+  "data": {
+    "gameRoomId": "kN5b2FYh8feY0oH3hjnHr3WBso1kjEYq__1616527071289"
+  }
+}
+
+
+
 
 
