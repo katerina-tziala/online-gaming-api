@@ -1,13 +1,7 @@
 import { Client } from "../../utilities/client";
-import { Session } from "../session";
 import { MessageErrorType, MessageInType, MessageOutType } from "../../messages/message-types.enum";
-import { GameConfig, ConfigUtils } from "./game-config/game-config";
-import { GameInfo, GameInvitation, GameRoomOpened } from "./game.interfaces";
-import {
-  getDurationFromDates,
-  getRandomValueFromArray,
-} from "../../utilities/app-utils";
-import { Duration } from "../../interfaces/duration.interface";
+import { GameConfig } from "./game-config/game-config";
+import { GameInvitation, GameRoomOpened } from "./game.interfaces";
 import { GameRoomSession } from "./game-room-session";
 import { UserData } from "../../interfaces/user-data.interface";
 
@@ -98,8 +92,5 @@ export class PrivateGameRoomSession extends GameRoomSession {
     };
     this.broadcastToPeers(clientJoined, MessageOutType.PlayerJoined, data);
   }
-
-
-
 
 }
