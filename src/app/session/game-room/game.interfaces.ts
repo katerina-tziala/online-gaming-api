@@ -26,3 +26,12 @@ export interface GameInvitation {
   game: GameInfo;
   playersExpected?: ClientData[];
 }
+
+
+export interface GameRestart {
+  id: string;
+  createdAt: string;
+  playerRequested: ClientData;
+  playersConfirmed?: ClientData[];
+  playersExpectedToConfirm?: ClientData[];
+}

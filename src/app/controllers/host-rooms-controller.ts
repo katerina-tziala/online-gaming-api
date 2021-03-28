@@ -90,6 +90,7 @@ export class HostRoomsController {
       return;
     }
     gameRoom.onPlayerLeft(client);
+    // if client one?
     if (!gameRoom.hasClients) {
       this.deleteGameRoom(gameRoom);
     }

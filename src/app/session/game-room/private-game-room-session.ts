@@ -2,7 +2,7 @@ import { Client } from "../../utilities/client";
 import { Session } from "../session";
 import { MessageErrorType, MessageInType, MessageOutType } from "../../messages/message-types.enum";
 import { GameConfig, ConfigUtils } from "./game-config/game-config";
-import { GameInfo, GameInvitation, GameRoomOpened } from "./game-info.interface";
+import { GameInfo, GameInvitation, GameRoomOpened } from "./game.interfaces";
 import {
   getDurationFromDates,
   getRandomValueFromArray,
@@ -92,9 +92,11 @@ export class PrivateGameRoomSession extends GameRoomSession {
   }
 
   public broadcastPlayerEntrance(clientJoined: Client): void {
-    const playerJoined = clientJoined.info;
-    const playersExpected = this.expectedPlayersInfo;
-    this.broadcastToPeers(clientJoined, MessageOutType.PlayerJoined, { playerJoined, playersExpected });
+    const data = {
+      playerJoined: clientJoined.info,
+      playersExpected: this.expectedPlayersInfo
+    };
+    this.broadcastToPeers(clientJoined, MessageOutType.PlayerJoined, data);
   }
 
 

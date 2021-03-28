@@ -95,6 +95,12 @@ export class GamingHost extends MainSession {
       case MessageInType.GameInvitationAccept:
           this.onGameInvitationAccept(client, msg);
         break;
+      case MessageInType.GameInvitationCancel:
+        this.onGameInvitationCancel(client, msg);
+        break;
+      case MessageInType.GameInvitationReject:
+        this.onGameInvitationReject(client, msg);
+        break;
       default:
         console.log("message");
         console.log("-------------------------");
@@ -160,14 +166,31 @@ export class GamingHost extends MainSession {
 
   private onGameInvitationAccept(client: Client, msg: MessageIn): void {
     const { gameRoomId } = msg.data;
+    // if not gameroomid
     this.GameRooms.getGameForMessage(client, gameRoomId, msg, (gameRoom: PrivateGameRoomSession) => {
       if (gameRoom.invitationAcceptanceAllowed(client)) {
+        this.GameRooms.removeClientFromCurrentGame(client);
         gameRoom.addClient(client);
         this.broadcastPeersUpdate(client);
       }
     });
   }
 
+  private onGameInvitationCancel(client: Client, msg: MessageIn): void {
+    console.log("onGameInvitationCancel");
+    const { gameRoomId } = msg.data;
+
+
+
+  }
+
+  private onGameInvitationReject(client: Client, msg: MessageIn): void {
+    console.log("onGameInvitationReject");
+    const { gameRoomId } = msg.data;
+
+
+
+  }
 
   public disconnectClient(client: Client): void {
     if (!client) {

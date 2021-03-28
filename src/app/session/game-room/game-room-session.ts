@@ -2,14 +2,13 @@ import { Client } from "../../utilities/client";
 import { Session } from "../session";
 import { MessageErrorType, MessageInType, MessageOutType } from "../../messages/message-types.enum";
 import { GameConfig, ConfigUtils } from "./game-config/game-config";
-import { GameInfo, GameRoomOpened } from "./game-info.interface";
+import { GameInfo, GameRoomOpened, GameRestart } from "./game.interfaces";
 import {
   generateId,
   getDurationFromDates,
   getRandomValueFromArray,
 } from "../../utilities/app-utils";
 import { Duration } from "../../interfaces/duration.interface";
-import { GameRestart } from "./game-restart.interface";
 
 export class GameRoomSession extends Session {
   public startTimeout: ReturnType<typeof setTimeout>;
