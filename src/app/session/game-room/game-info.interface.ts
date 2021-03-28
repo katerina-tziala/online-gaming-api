@@ -15,10 +15,14 @@ export interface GameInfo extends GameConfig {
   expectedRestartCorfirmations?: string[];
 }
 
-export interface GameRestartRequest {
-  id: string;
-  createdAt: string;
-  playerRequested: ClientData;
-  playersConfirmed?: ClientData[];
-  playersExpectedToConfirm?: ClientData[];
+export interface GameRoomOpened {
+  user: ClientData;
+  game: GameInfo;
+  playersExpected?: ClientData[];
+}
+
+export interface GameInvitation {
+  creator: string;
+  game: GameInfo;
+  playersExpected?: ClientData[];
 }

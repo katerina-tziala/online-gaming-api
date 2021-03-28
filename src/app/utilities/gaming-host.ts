@@ -16,16 +16,11 @@ export class GamingHost extends MainSession {
   private GameRooms = new HostRoomsController();
   private gameMessages = [MessageInType.GameUpdate, MessageInType.GameOver,
     MessageInType.GameMessage, MessageInType.GameState, MessageInType.GameRestartRequest,
-    MessageInType.GameRestartReject, MessageInType.GameRestartAccept, MessageInType.GameInvitationAccept];
+    MessageInType.GameRestartReject, MessageInType.GameRestartAccept];
 
   constructor(id: string) {
     super();
     this.id = id;
-  }
-
-  private addClientInGameRoom(client: Client, gameRoom: GameRoomSession | PrivateGameRoomSession): void {
-    gameRoom.joinClient(client);
-    this.broadcastPeersUpdate(client);
   }
 
   private checkJoinedClientForGameRoom(client: Client, gameRoomId: string): void {
@@ -45,7 +40,8 @@ export class GamingHost extends MainSession {
       this.broadcastPeersUpdate(client);
       return;
     }
-    this.addClientInGameRoom(client, gameRoom);
+    gameRoom.joinClient(client);
+    this.broadcastPeersUpdate(client);
   }
 
   private onQuitGame(client: Client, msg: MessageIn): void {
@@ -53,6 +49,7 @@ export class GamingHost extends MainSession {
       return;
     }
     this.GameRooms.removeClientFromCurrentGame(client);
+    // an meinei enas monos tou na ton vgalw
     this.addClient(client);
   }
 
@@ -95,6 +92,9 @@ export class GamingHost extends MainSession {
       case MessageInType.QuitGame:
           this.onQuitGame(client, msg);
         break;
+      case MessageInType.GameInvitationAccept:
+          this.onGameInvitationAccept(client, msg);
+        break;
       default:
         console.log("message");
         console.log("-------------------------");
@@ -105,12 +105,17 @@ export class GamingHost extends MainSession {
   }
 
   private onOpenGameRoom(client: Client, msg: MessageIn): void {
-    // client already in same game
     this.GameRooms.removeClientFromCurrentGame(client);
     const { settings, ...configData } = msg.data;
     const gameRoom = this.GameRooms.joinOrOpenPublicRoom(configData, settings);
-    this.addClientInGameRoom(client, gameRoom);
+    gameRoom.joinClient(client);
+    this.broadcastPeersUpdate(client);
   }
+
+
+
+
+
 
   private onOpenPrivateGameRoom(client: Client, msg: MessageIn): void {
     // client already in same game
@@ -152,6 +157,17 @@ export class GamingHost extends MainSession {
     }
     return { expectedPlayers, errorType };
   }
+
+  private onGameInvitationAccept(client: Client, msg: MessageIn): void {
+    const { gameRoomId } = msg.data;
+    this.GameRooms.getGameForMessage(client, gameRoomId, msg, (gameRoom: PrivateGameRoomSession) => {
+      if (gameRoom.invitationAcceptanceAllowed(client)) {
+        gameRoom.addClient(client);
+        this.broadcastPeersUpdate(client);
+      }
+    });
+  }
+
 
   public disconnectClient(client: Client): void {
     if (!client) {

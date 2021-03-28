@@ -119,8 +119,4 @@ export class MainSession extends Session {
     });
   }
 
-  // private getAvailablePeers(client: Client): Client[] {
-  //   const peers = this.getClientPeers(client);
-  //   return peers.filter((peer) => !peer.gameRoomId);
-  // }
 }

@@ -2,7 +2,7 @@ import { Client } from "../../utilities/client";
 import { Session } from "../session";
 import { MessageErrorType, MessageInType, MessageOutType } from "../../messages/message-types.enum";
 import { GameConfig, ConfigUtils } from "./game-config/game-config";
-import { GameInfo } from "./game-info.interface";
+import { GameInfo, GameRoomOpened } from "./game-info.interface";
 import {
   generateId,
   getDurationFromDates,
@@ -92,7 +92,7 @@ export class GameRoomSession extends Session {
   }
 
   public joinClient(client: Client): void {
-    if (!this.entranceAllowed) {// client already in the game
+    if (!this.entranceAllowed) {
       client.notify(MessageOutType.GameEntranceForbidden, this.info);
       return;
     }
@@ -112,12 +112,15 @@ export class GameRoomSession extends Session {
     this.checkGameStart();
   }
 
-  public broadcastRoomOpened(client: Client): void {
-    const data = {
+  public getOpenedRoomData(client: Client): GameRoomOpened {
+    return {
       user: client.info,
       game: this.details,
     };
-    client.notify(MessageOutType.GameRoomOpened, data);
+  }
+
+  public broadcastRoomOpened(client: Client): void {
+    client.notify(MessageOutType.GameRoomOpened, this.getOpenedRoomData(client));
   }
 
   public broadcastPlayerEntrance(clientJoined: Client): void {
@@ -167,17 +170,6 @@ export class GameRoomSession extends Session {
     );
   }
 
-  public broadcastGameUpdate(player: Client, data: {}): void {
-    if (this.restartRequest) {
-      player.sendError(MessageErrorType.CannotUpdateWhenRestartRequested, { type: MessageInType.GameUpdate, data});
-      return;
-    }
-    if (!this.endedAt) {
-      const sender = player.info;
-      this.broadcastToPeers(player, MessageOutType.GameUpdate, { sender, data });
-    }
-  }
-
   public broadcastGameOver(player: Client, data: {}): void {
     const game = this.state;
     const sender = player.info;
@@ -190,7 +182,24 @@ export class GameRoomSession extends Session {
     this.endedAt = new Date().toString();
   }
 
+  public broadcastGameUpdate(player: Client, data: {}): void {
+    if (this.playersExpectedOnMessage(player, MessageInType.GameUpdate)) {
+      return;
+    }
+    if (this.restartRequest) {
+      player.sendError(MessageErrorType.CannotUpdateWhenRestartRequested, { type: MessageInType.GameUpdate, data});
+      return;
+    }
+    if (!this.endedAt) {
+      const sender = player.info;
+      this.broadcastToPeers(player, MessageOutType.GameUpdate, { sender, data });
+    }
+  }
+
   public onGameOver(player: Client, data: {}): void {
+    if (this.playersExpectedOnMessage(player, MessageInType.GameOver)) {
+      return;
+    }
     if (this.restartRequest) {
       player.sendError(MessageErrorType.CannotEndWhenRestartRequested, { type: MessageInType.GameOver, data});
       return;
@@ -213,15 +222,26 @@ export class GameRoomSession extends Session {
   }
 
   public broadcastGameMessage(player: Client, data: {}): void {
-    const sender = player.info;
-    this.broadcastToPeers(player, MessageOutType.GameMessage, { sender, data });
+    if (!this.playersExpectedOnMessage(player, MessageInType.GameMessage)) {
+      const sender = player.info;
+      this.broadcastToPeers(player, MessageOutType.GameMessage, { sender, data });
+    }
+  }
+
+  private playersExpectedOnMessage(player: Client, type: MessageInType): boolean {
+    if (!this.filled) {
+      player.sendError(MessageErrorType.WaitForPlayersToJoin, { type });
+      return true
+    }
+    return false;
   }
 
   public onRequestRestart(player: Client): void {
-    if (!this.filled) {
-      player.sendError(MessageErrorType.RestarErrorRoomNotFilled, { type: MessageInType.GameRestartRequest});
-    } else if (!this.startedAt) {
-      player.sendError(MessageErrorType.RestarErrorGameNotStarted, { type: MessageInType.GameRestartRequest});
+    if (this.playersExpectedOnMessage(player, MessageInType.GameRestartRequest)) {
+      return;
+    }
+    if (!this.startedAt) {
+      player.sendError(MessageErrorType.GameNotStarted, { type: MessageInType.GameRestartRequest});
     } else if (this.restartRequest) {
       this.onRequestRestartWhenRequestExists(player);
     } else {
@@ -256,8 +276,7 @@ export class GameRoomSession extends Session {
   }
 
   public onRestartReject(player: Client): void {
-    if (!this.restartRequest) {
-      player.sendError(MessageErrorType.RestartNotRequested, { type: MessageInType.GameRestartReject});
+    if (!this.restartRequestExistsOnAction(player, MessageInType.GameRestartReject)) {
       return;
     }
     const replyType = (this.restartRequest.playerRequested.id === player.id) ?
@@ -267,9 +286,16 @@ export class GameRoomSession extends Session {
     this.broadcastRestartRejection(player, replyType);
   }
 
-  public onRestartAccept(player: Client): void {
+  private restartRequestExistsOnAction(player: Client, type: MessageInType): boolean {
     if (!this.restartRequest) {
-      player.sendError(MessageErrorType.RestartNotRequested, { type: MessageInType.GameRestartReject});
+      player.sendError(MessageErrorType.RestartNotRequested, { type});
+      return false;
+    }
+    return true;
+  }
+
+  public onRestartAccept(player: Client): void {
+    if (!this.restartRequestExistsOnAction(player, MessageInType.GameRestartAccept)) {
       return;
     }
     if (this.restartRequest.playerRequested.id === player.id || this.restartConfirmedIds.includes(player.id)) {
@@ -299,7 +325,7 @@ export class GameRoomSession extends Session {
 
   private broadcastRestartRejection(player: Client, type: MessageOutType): void {
     const sender = player.info;
-    this.endedAt = undefined;
+    this.restartRequest = undefined;
     this.broadcastToPeers(player, type, { sender });
   }
 
@@ -308,4 +334,5 @@ export class GameRoomSession extends Session {
     const game = this.info;
     player.notify(MessageOutType.GameRestartWaitPlayers, { restartRequest, game});
   }
+
 }

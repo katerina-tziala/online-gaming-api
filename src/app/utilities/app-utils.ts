@@ -5,11 +5,10 @@ import { TYPOGRAPHY } from "./constants/typography.constants";
 export function generateId(): string {
   let idLength = CONFIG.ID_GENERATION.LENGTH;
   const chars = Array.from(CONFIG.ID_GENERATION.CHARS);
-  let id = TYPOGRAPHY.EMPTY_STRING;
+  let id = Date.now().toString() + TYPOGRAPHY.HYPHEN;
   while (idLength--) {
     id += getRandomValueFromArray<string>(chars);
   }
-  id += TYPOGRAPHY.UNDERSCORE_AND_UNDERSCORE + Date.now().toString();
   return id;
 }
 

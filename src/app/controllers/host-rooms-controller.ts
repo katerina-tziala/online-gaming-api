@@ -26,7 +26,7 @@ export class HostRoomsController {
     this.messageActionConfig.set(MessageInType.GameRestartRequest, this.onGameRestartRequest.bind(this));
     this.messageActionConfig.set(MessageInType.GameRestartReject, this.onGameRestartReject.bind(this));
     this.messageActionConfig.set(MessageInType.GameRestartAccept, this.onGameRestartAccept.bind(this));
-    this.messageActionConfig.set(MessageInType.GameInvitationAccept, this.onGameInvitationAccept.bind(this));
+   // this.messageActionConfig.set(MessageInType.GameInvitationAccept, this.onGameInvitationAccept.bind(this));
   }
 
   public set addGameRoom(session: GameRoomSession) {
@@ -65,7 +65,6 @@ export class HostRoomsController {
 
   public joinOrOpenPublicRoom(configData: GameConfig, settings?: {}): GameRoomSession | PrivateGameRoomSession {
     const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
-    // if client already in game
     const gameKey = ConfigUtils.generateGameKey(config);
     let gameRoom = this._gameRooms.getAvailableGameRoomByKey(gameKey);
     if (!gameRoom) {
@@ -75,11 +74,9 @@ export class HostRoomsController {
     return gameRoom;
   }
 
-
   public openPrivateGameRoom(client: Client, configData: GameConfig, expectedPlayers: Client[], settings: {}): GameRoomSession | PrivateGameRoomSession {
     const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
     config.playersAllowed = expectedPlayers.length + 1;
-     // if client already in game
     const gameRoom = new PrivateGameRoomSession(config, settings);
     gameRoom.onOpen(client, expectedPlayers);
     this.addPrivateGameRoom = gameRoom;
@@ -133,7 +130,6 @@ export class HostRoomsController {
     callBack(gameRoom);
   }
 
-
   private onGameMessage(client: Client, msg: MessageIn): void {
     this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
       gameRoom.broadcastGameMessage(client, msg.data);
@@ -175,21 +171,5 @@ export class HostRoomsController {
       gameRoom.onRestartAccept(client);
     });
   }
-
-  private onGameInvitationAccept(client: Client, msg: MessageIn): void {
-    const { gameRoomId } = msg.data;
-   // console.log(client.info);
-   console.log(gameRoomId);
-
-
-
-    this.getGameForMessage(client, gameRoomId, msg, (gameRoom: PrivateGameRoomSession) => {
-      console.log("gameRoom");
-      console.log(gameRoom.info);
-      gameRoom.invitationAcceptanceAllowed(client);
-    });
-    // this.getGameForMessage(client, client.gameRoomId, msg, callBack);
-  }
-
 
 }

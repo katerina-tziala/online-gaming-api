@@ -41,7 +41,7 @@ export enum MessageOutType {
   GameRestartWaitPlayers = "game-restart-wait-for-players",
   GameRestartAccepted = "game-restart-accepted",
   GameInvitation = "game-invitation",
-
+  GameAccessForbidden = "game-access-forbidden",
 }
 
 export enum MessageErrorType {
@@ -58,8 +58,11 @@ export enum MessageErrorType {
   GameNotFound = "game-not-found",
   ClientNotInGame = "not-in-game",
   RestarErrorRoomNotFilled = "not-all-players-in-game-to-request-restart",
-  RestarErrorGameNotStarted = "game-not-started-to-request-restart",
+  GameNotStarted = "game-not-started-to-request-restart",
   RestartNotRequested = "restart-not-requested",
   CannotUpdateWhenRestartRequested = "cannot-update-game-when-restart-requested",
-  CannotEndWhenRestartRequested = "cannot-end-game-when-restart-requested"
+  CannotEndWhenRestartRequested = "cannot-end-game-when-restart-requested",
+  WaitForPlayersToJoin = "wait-for-players-to-join",
+  GameActionForbidden = "game-action-forbidden",
+
 }
