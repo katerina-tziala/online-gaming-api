@@ -4,6 +4,7 @@ import { ErrorType } from "./error-type.enum";
 import { MessageInType } from "./messages/message-types/message-types.enum";
 import { MessageIn } from "./messages/message.interface";
 import { ClientData } from "./client/client-data.interface";
+import { Host } from "./session/host";
 
 export class OnlineGamingApp {
   private _ALLOWED_MESSAGES: string[] = Object.values(MessageInType);
@@ -13,10 +14,18 @@ export class OnlineGamingApp {
   > = new Map();
 
   // TODO: multiple hosts
+    private _host: Host;
 
   constructor() {
+
+    this._host = new Host();
+
     this._messageConfig.set(MessageInType.Join, this.onJoinClient.bind(this));
     this._messageConfig.set(MessageInType.UserInfo, this.onGetClientInfo.bind(this));
+  }
+
+  private getHost(): Host {
+    return  this._host;
   }
 
   private messageTypeAllowed(type: string): boolean {
@@ -41,10 +50,7 @@ export class OnlineGamingApp {
   }
 
   private onJoinClient(client: Client, data: ClientData): void {
-    console.log(client.info);
-    // console.log(msg);
-    console.log("-------");
-    console.log(data);
+    this.getHost().onJoinClient(client, data);
   }
 
   private onGetClientInfo(client: Client): void {

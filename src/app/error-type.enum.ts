@@ -2,9 +2,10 @@ export enum ErrorType {
   JSONDataExcpected = 'data-not-json-object',
   MessageTypeExpected = 'message-type-not-defined',
   MessageTypeAllowed = 'message-type-not-allowed',
-
+  JoinedAlready = 'joined-already',
   UsernameRequired = 'username-required',
-  // UsernameInvalid = 'username-invalid',
+  UsernameString = 'username-not-string',
+  UsernameInvalid = 'username-invalid',
   // UsernameInUse = 'username-in-use',
   // NotJoined = 'not-joined',
   // JoinedAlready = 'joined-already',
