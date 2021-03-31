@@ -5,7 +5,7 @@ import {
 } from "../messages/message-types.enum";
 import { MessageIn } from "../messages/message.interface";
 import { Client } from "../utilities/client";
-import { ClientUpdateData } from "./../interfaces/user-data.interface";
+import { ClientUpdateData } from "../interfaces/user-data.interface";
 import { Session } from "./session";
 
 

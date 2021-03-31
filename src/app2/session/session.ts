@@ -1,4 +1,4 @@
-import { ClientData } from "./../interfaces/user-data.interface";
+import { ClientData } from "../interfaces/user-data.interface";
 import { generateId } from "../utilities/app-utils";
 import { Client } from "../utilities/client";
 

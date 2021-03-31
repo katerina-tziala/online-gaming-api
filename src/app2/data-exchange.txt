@@ -1,0 +1,118 @@
+MESSAGES IN:
+{
+  "type": "join",
+  "data": {
+    "username": "kater",
+    "properties": {
+      "testprp" : "232323"
+    }
+  }
+}
+
+{
+  "type": "user-update",
+  "data": {
+    "username": "kater",
+    "properties": {
+      "testprp" : "232323"
+    }
+  }
+}
+
+{
+  "type": "private-message",
+  "data": {
+    "recipientId": "",
+    "content": {}
+  }
+}
+
+{
+  "type": "open-private-game-room",
+  "data": {
+    "playersExpected":[],
+    "settings": {},
+    "playersAllowed": 2,
+    "startWaitingTime": 8000
+  }
+}
+
+{
+  "type": "open-game-room",
+  "data": {
+    "playersAllowed": 2,
+    "startWaitingTime": 8000,
+    "roomType": "type1",
+    "settings": {}
+  }
+}
+
+{
+  "type": "game-update",
+  "data": {
+    "test": "test"
+  }
+}
+
+{
+  "type": "game-over",
+  "data": {
+    "test": "over"
+  }
+}
+
+
+{
+  "type": "quit-game",
+  "data": {
+    "test": "over"
+  }
+}
+
+{
+  "type": "game-message",
+  "data": {
+    "test": "lets"
+  }
+}
+
+{
+  "type": "game-state",
+  "data": {
+    "gameRoomId": "rrr"
+  }
+}
+
+
+{
+  "type": "game-restart-request"
+}
+
+{
+  "type": "game-restart-reject"
+}
+
+{
+  "type": "game-restart-reject"
+}
+
+{
+  "type": "game-restart-accept"
+}
+
+
+{
+  "type": "user-info"
+}
+
+{
+  "type": "game-invitation-accept",
+  "data": {
+    "gameRoomId": "kN5b2FYh8feY0oH3hjnHr3WBso1kjEYq__1616527071289"
+  }
+}
+
+
+
+
+

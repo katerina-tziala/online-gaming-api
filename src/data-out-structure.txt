@@ -1,0 +1,15 @@
+// MESSAGE OUT
+
+- UserInfo
+{
+  type: "user-info",
+  data ClientData {
+    id: string;
+    username: string;
+    gameRoomId: string;
+    joinedAt?: string;
+    properties?: {};
+  }
+};
+
+
