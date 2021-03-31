@@ -1,4 +1,8 @@
 export enum ErrorType {
+  JSONDataExcpected = 'data-not-json-object',
+  MessageTypeExpected = 'message-type-not-defined',
+  MessageTypeAllowed = 'message-type-not-allowed',
+
   UsernameRequired = 'username-required',
   // UsernameInvalid = 'username-invalid',
   // UsernameInUse = 'username-in-use',

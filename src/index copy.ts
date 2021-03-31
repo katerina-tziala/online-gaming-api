@@ -96,13 +96,6 @@ server.listen(port, () => {
 //   }
 // );
 
-// server.on('error', (event: any) => {
-//   console.log('websocket error');
-//   console.log(event);
-// });
-
-
-
 // function setGamingHost(host: GamingHost) {
 //   GamingHosts.set(host.id, host);
 // }

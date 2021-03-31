@@ -21,7 +21,10 @@ export class Client {
     this._id = IdGenerator.generate();
     this._username = null;
     this._gameRoomId = null;
-    this._joinedAt = null;
+  }
+
+  public get joined(): boolean {
+    return !!this._joinedAt;
   }
 
   public get id(): string {
@@ -61,14 +64,15 @@ export class Client {
       id: this.id,
       username: this.username,
       gameRoomId: this.gameRoomId,
+      joined: this.joined,
       joinedAt: this._joinedAt,
       properties: this.properties
     };
   }
 
-  // public setJoined(): void {
-  //   this._joinedAt = new Date().toString();
-  // }
+  public setJoined(): void {
+    this._joinedAt = new Date().toString();
+  }
 
   // public update(data: ClientUpdateData): void {
   //   this.username = data.username || this.username;
@@ -93,7 +97,7 @@ export class Client {
     this.send<MessageOut>({ type, data });
   }
 
-  public sendErrorMessage(errorType: ErrorType, data: {}): void {
+  public sendErrorMessage(errorType: ErrorType, data?: {}): void {
     const type = MessageOutType.Error;
     this.send<ErrorMessage>({ type, errorType, data });
   }

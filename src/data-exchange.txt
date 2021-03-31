@@ -1,13 +1,26 @@
-MESSAGES IN:
+// MESSAGE IN
+
+- JOIN USER
 {
   "type": "join",
   "data": {
-    "username": "kater",
+    "username": "kate",
     "properties": {
-      "testprp" : "232323"
+      "color" : "#808080"
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 {
   "type": "user-update",

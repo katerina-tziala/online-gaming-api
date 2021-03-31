@@ -6,3 +6,11 @@ export function randomFromArray<T>(arrayToChooseFrom: T[]): T {
   const randomIntex = randomInteger(arrayToChooseFrom.length);
   return arrayToChooseFrom[randomIntex];
 }
+
+export function stringToJSON<T>(stringToParse: string): T {
+  try {
+    return JSON.parse(stringToParse);
+  } catch (e) {
+      return undefined;
+  }
+}
