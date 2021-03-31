@@ -25,11 +25,6 @@ export class Client {
     this._username = null;
     this._gameRoomId = null;
     this._joinedAt = null;
-
-  }
-
-  public setJoined(): void {
-    this._joinedAt = new Date().toString();
   }
 
   public get host(): string {
@@ -82,6 +77,10 @@ export class Client {
     };
   }
 
+  public setJoined(): void {
+    this._joinedAt = new Date().toString();
+  }
+
   public update(data: ClientUpdateData): void {
     this.username = data.username || this.username;
     this.properties = data.properties || this.properties;
@@ -91,7 +90,7 @@ export class Client {
   private send(data: {}): void {
     this.conn.send(JSON.stringify(data), (error) => {
       if (error) {
-        console.log("client is not connected -> cannot deliver the message");
+        console.log("error in delivering the message");
         console.log(error);
       }
     });

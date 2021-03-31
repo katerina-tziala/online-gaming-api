@@ -9,7 +9,7 @@ import {
   GameConfig,
 } from "../session/game-room/game-config/game-config";
 import { GameRoomSession } from "../session/game-room/game-room-session";
-import { PrivateGameRoomSession } from "../session/game-room/private-game-room-session";
+import { PrivateGameSession } from "../session/game-room/private-game-session";
 import { Client } from "../utilities/client";
 import { GameRoomsController } from "./game-rooms-controller";
 
@@ -29,7 +29,7 @@ export class HostRoomsController {
    // this.messageActionConfig.set(MessageInType.GameInvitationAccept, this.onGameInvitationAccept.bind(this));
   }
 
-  public set addGameRoom(session: GameRoomSession) {
+  public set addGameRoom(session: PrivateGameSession | GameRoomSession) {
     this._gameRooms.addGameRoom = session;
   }
 
@@ -41,21 +41,18 @@ export class HostRoomsController {
     return this._gameRooms.hasGameRooms || this._privateGameRooms.hasGameRooms;
   }
 
-  public getGameRoomById(gameId: string): PrivateGameRoomSession | GameRoomSession {
+  public getGameRoomById(gameId: string): PrivateGameSession | GameRoomSession {
     return (
       this._privateGameRooms.getGameRoomById(gameId) ||
       this._gameRooms.getGameRoomById(gameId)
     );
   }
 
-  public getAvailableGameRoomByKey(gameKey: string): PrivateGameRoomSession | GameRoomSession {
-    return (
-      this._privateGameRooms.getAvailableGameRoomByKey(gameKey) ||
-      this._gameRooms.getAvailableGameRoomByKey(gameKey)
-    );
+  public getAvailableGameRoomByKey(gameKey: string): GameRoomSession {
+    return this._gameRooms.getAvailableGameRoomByKey(gameKey);
   }
 
-  public deleteGameRoom(session: GameRoomSession | PrivateGameRoomSession): void {
+  public deleteGameRoom(session: GameRoomSession | PrivateGameSession): void {
     if (this._privateGameRooms.gameRoomExists(session.id)) {
       this._privateGameRooms.deleteGameRoom(session);
     } else {
@@ -63,7 +60,7 @@ export class HostRoomsController {
     }
   }
 
-  public joinOrOpenPublicRoom(configData: GameConfig, settings?: {}): GameRoomSession | PrivateGameRoomSession {
+  public joinOrOpenPublicRoom(configData: GameConfig, settings?: {}): GameRoomSession | PrivateGameSession {
     const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
     const gameKey = ConfigUtils.generateGameKey(config);
     let gameRoom = this._gameRooms.getAvailableGameRoomByKey(gameKey);
@@ -74,10 +71,10 @@ export class HostRoomsController {
     return gameRoom;
   }
 
-  public openPrivateGameRoom(client: Client, configData: GameConfig, expectedPlayers: Client[], settings: {}): GameRoomSession | PrivateGameRoomSession {
+  public openPrivateGameRoom(client: Client, configData: GameConfig, expectedPlayers: Client[], settings: {}): GameRoomSession | PrivateGameSession {
     const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
     config.playersAllowed = expectedPlayers.length + 1;
-    const gameRoom = new PrivateGameRoomSession(config, settings);
+    const gameRoom = new PrivateGameSession(config, settings);
     gameRoom.onOpen(client, expectedPlayers);
     this.addPrivateGameRoom = gameRoom;
     return gameRoom;
@@ -114,7 +111,7 @@ export class HostRoomsController {
   }
 
   private checkAndGetGameOnClientMessage(client: Client, msg: MessageIn,
-    callBack: (gameRoom: GameRoomSession | PrivateGameRoomSession) => void): void {
+    callBack: (gameRoom: GameRoomSession | PrivateGameSession) => void): void {
     if (!this.clientAllowedToSendGameMessage(client, msg)) {
       return;
     }
@@ -122,7 +119,7 @@ export class HostRoomsController {
   }
 
   public getGameForMessage(client: Client, gameRoomId: string, msg: MessageIn,
-    callBack: (gameRoom: GameRoomSession | PrivateGameRoomSession) => void): void {
+    callBack: (gameRoom: GameRoomSession | PrivateGameSession) => void): void {
     const gameRoom = this.getGameRoomById(gameRoomId);
     if (!gameRoom) {
       client.sendError(MessageErrorType.GameNotFound, msg);

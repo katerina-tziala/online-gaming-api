@@ -37,7 +37,6 @@ export class Session {
   }
 
   public addInClients(client: Client): void {
-    this.removeFromClients(client);
     this._clients.set(client.id, client);
   }
 

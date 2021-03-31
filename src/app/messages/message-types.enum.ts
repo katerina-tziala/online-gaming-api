@@ -44,6 +44,10 @@ export enum MessageOutType {
   GameRestartAccepted = "game-restart-accepted",
   GameInvitation = "game-invitation",
   GameAccessForbidden = "game-access-forbidden",
+  GameRoomExited = "game-room-exited",
+  GameInvitationCanceled = "game-invitation-canceled",
+  GameInvitationRejected = "game-invitation-rejected",
+
 }
 
 export enum MessageErrorType {
@@ -66,5 +70,5 @@ export enum MessageErrorType {
   CannotEndWhenRestartRequested = "cannot-end-game-when-restart-requested",
   WaitForPlayersToJoin = "wait-for-players-to-join",
   GameActionForbidden = "game-action-forbidden",
-
+  GameEntranceForbidden = "game-entrance-forbidden",
 }

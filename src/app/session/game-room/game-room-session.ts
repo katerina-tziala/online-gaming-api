@@ -2,7 +2,7 @@ import { Client } from "../../utilities/client";
 import { Session } from "../session";
 import { MessageErrorType, MessageInType, MessageOutType } from "../../messages/message-types.enum";
 import { GameConfig, ConfigUtils } from "./game-config/game-config";
-import { GameInfo, GameRoomOpened, GameRestart } from "./game.interfaces";
+import { GameInfo, GameRoomOpened, GameRestart, PlayerEntrance } from "./game.interfaces";
 import {
   generateId,
   getDurationFromDates,
@@ -92,7 +92,7 @@ export class GameRoomSession extends Session {
 
   public joinClient(client: Client): void {
     if (!this.entranceAllowed) {
-      client.notify(MessageOutType.GameEntranceForbidden, this.info);
+      client.sendError(MessageErrorType.GameEntranceForbidden, this.info);
       return;
     }
     this.addClient(client);
@@ -122,11 +122,16 @@ export class GameRoomSession extends Session {
     client.notify(MessageOutType.GameRoomOpened, this.getOpenedRoomData(client));
   }
 
+  public getPlayerEntranceData(clientJoined: Client): PlayerEntrance {
+    return {
+      playerJoined: clientJoined.info,
+      game: this.details
+    };
+  }
+
   public broadcastPlayerEntrance(clientJoined: Client): void {
-    const playerJoined = clientJoined.info;
-    this.broadcastToPeers(clientJoined, MessageOutType.PlayerJoined, {
-      playerJoined,
-    });
+    const data = this.getPlayerEntranceData(clientJoined);
+    this.broadcastToPeers(clientJoined, MessageOutType.PlayerJoined, data);
   }
 
   public broadcastToPeers(initiator: Client, type: MessageOutType,  data: {}): void {
@@ -212,6 +217,7 @@ export class GameRoomSession extends Session {
     this.removeFromClients(client);
     this.restartRequest = undefined;
     this.broadcastPlayerLeft(client);
+    // if request restart notify the rest?
   }
 
   public broadcastPlayerLeft(playerLeft: Client): void {

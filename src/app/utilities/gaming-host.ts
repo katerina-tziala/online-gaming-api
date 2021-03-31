@@ -9,7 +9,7 @@ import {
 } from "../messages/message-types.enum";
 import { GameConfig, ConfigUtils } from "../session/game-room/game-config/game-config";
 import { HostRoomsController } from "../controllers/host-rooms-controller";
-import { PrivateGameRoomSession } from "../session/game-room/private-game-room-session";
+import { PrivateGameSession } from "../session/game-room/private-game-session";
 
 export class GamingHost extends MainSession {
   public id: string;
@@ -50,6 +50,7 @@ export class GamingHost extends MainSession {
     }
     this.GameRooms.removeClientFromCurrentGame(client);
     // an meinei enas monos tou na ton vgalw
+    // game exited
     this.addClient(client);
   }
 
@@ -167,29 +168,37 @@ export class GamingHost extends MainSession {
   private onGameInvitationAccept(client: Client, msg: MessageIn): void {
     const { gameRoomId } = msg.data;
     // if not gameroomid
-    this.GameRooms.getGameForMessage(client, gameRoomId, msg, (gameRoom: PrivateGameRoomSession) => {
+    this.GameRooms.getGameForMessage(client, gameRoomId, msg, (gameRoom: PrivateGameSession) => {
       if (gameRoom.invitationAcceptanceAllowed(client)) {
         this.GameRooms.removeClientFromCurrentGame(client);
-        gameRoom.addClient(client);
+        gameRoom.joinClient(client);
         this.broadcastPeersUpdate(client);
       }
     });
   }
 
   private onGameInvitationCancel(client: Client, msg: MessageIn): void {
-    console.log("onGameInvitationCancel");
     const { gameRoomId } = msg.data;
-
-
-
+    this.GameRooms.getGameForMessage(client, gameRoomId, msg, (gameRoom: PrivateGameSession) => {
+      const clientsForMainSession = gameRoom.cancelInvitation(client);
+      if (clientsForMainSession.length) {
+        this.addMultipleClients(clientsForMainSession, MessageOutType.GameRoomExited);
+        this.GameRooms.deleteGameRoom(gameRoom);
+      }
+    });
   }
 
   private onGameInvitationReject(client: Client, msg: MessageIn): void {
     console.log("onGameInvitationReject");
     const { gameRoomId } = msg.data;
-
-
-
+    this.GameRooms.getGameForMessage(client, gameRoomId, msg, (gameRoom: PrivateGameSession) => {
+      console.log(gameRoom.info);
+      const clientsForMainSession = gameRoom.rejectInvitation(client);
+      if (clientsForMainSession.length) {
+        this.addMultipleClients(clientsForMainSession, MessageOutType.GameRoomExited);
+        this.GameRooms.deleteGameRoom(gameRoom);
+      }
+    });
   }
 
   public disconnectClient(client: Client): void {

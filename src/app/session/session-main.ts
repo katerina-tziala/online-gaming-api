@@ -25,7 +25,7 @@ export class MainSession extends Session {
     return !usernamesInSession.includes(username);
   }
 
-  public notifyUser(client: Client, type: MessageOutType): void {
+  public notifyUser(client: Client, type = MessageOutType.Joined): void {
     const data = {
       user: client.info,
       peers: this.getPeersDetailsOfClient(client),
@@ -54,7 +54,7 @@ export class MainSession extends Session {
 
   public addClient(client: Client): void {
     this.addInClients(client);
-    this.notifyUser(client, MessageOutType.Joined);
+    this.notifyUser(client);
     this.broadcastPeersUpdate(client);
   }
 
@@ -113,10 +113,24 @@ export class MainSession extends Session {
 
   public broadcastPeersUpdate(clientToExclude: Client): void {
     const clientsToReceiveBroadcast = this.getClientPeers(clientToExclude);
-    clientsToReceiveBroadcast.forEach((client) => {
-      const peers = this.getPeersDetailsOfClient(client);
-      client.notify(MessageOutType.Peers, { peers });
-    });
+    this.broadcastPeersToClients(clientsToReceiveBroadcast);
   }
 
+  public notifyUserForPeersUpdate(client: Client): void {
+    const peers = this.getPeersDetailsOfClient(client);
+    client.notify(MessageOutType.Peers, { peers });
+  }
+
+  private broadcastPeersToClients(clients: Client[]): void {
+    clients.forEach((client) => this.notifyUserForPeersUpdate(client));
+  }
+
+  public addMultipleClients(clients: Client[], messageType: MessageOutType): void {
+    const clientsToAddIds = clients.map(client => client.id);
+    clients.forEach(client => this.addInClients(client));
+    // notify new clients after all are in the main session
+    clients.forEach(client => this.notifyUser(client, messageType));
+    const clientsToReceiveBroadcast = this.clients.filter(client => !clientsToAddIds.includes(client.id));
+    this.broadcastPeersToClients(clientsToReceiveBroadcast);
+  }
 }

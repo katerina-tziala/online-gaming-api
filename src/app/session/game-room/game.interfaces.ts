@@ -21,6 +21,13 @@ export interface GameRoomOpened {
   playersExpected?: ClientData[];
 }
 
+export interface PlayerEntrance {
+  playerJoined: ClientData;
+  game: GameInfo;
+  playersExpected?: ClientData[];
+}
+
+
 export interface GameInvitation {
   creator: string;
   game: GameInfo;
