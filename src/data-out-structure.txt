@@ -13,4 +13,20 @@
   }
 };
 
+- UserJoined
+{
+  "type": "user-joined",
+  "data": {
+    "user": ClientData,
+    "peers": [ClientData, ...]
+  }
+}
 
+
+- PeersUpdate
+{
+  "type":"peers-update",
+  "data": {
+    "peers":[ClientData, ...]
+  }
+}

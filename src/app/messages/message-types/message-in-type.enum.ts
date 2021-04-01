@@ -1,8 +1,10 @@
 export enum MessageInType {
   Join = 'join',
   UserInfo = 'user-info',
+  Disconnect = 'disconnect',
+  UserUpdate = 'user-update',
   // Connect = 'connect',
-  // Disconnect = 'disconnect',
+  //
   // Join = 'join',
   // UserUpdate = 'user-update',
   // UserInfo = 'user-info',

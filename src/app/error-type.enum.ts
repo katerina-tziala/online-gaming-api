@@ -6,7 +6,7 @@ export enum ErrorType {
   UsernameRequired = 'username-required',
   UsernameString = 'username-not-string',
   UsernameInvalid = 'username-invalid',
-  // UsernameInUse = 'username-in-use',
+  UsernameInUse = 'username-in-use',
   // NotJoined = 'not-joined',
   // JoinedAlready = 'joined-already',
   // MessageToSelf = 'cannot-send-message-to-yourself',

@@ -1,3 +1,4 @@
+
 import { IdGenerator } from "../..//utils/id-generator";
 import { Client } from "../client/client";
 import { ClientData } from "../client/client-data.interface";
@@ -57,4 +58,9 @@ export class Session {
   public addClient(client: Client): void {
     this._clients.set(client.id, client);
   }
+
+  public getPeersUsernames(client: Client): string[] {
+    return this.getClientPeers(client).map(peer => peer.username);
+  }
+
 }

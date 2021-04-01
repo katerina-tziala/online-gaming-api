@@ -6,26 +6,29 @@ export class UsernameValidator {
       return username.length ? new RegExp(/^(\w{4,})$/).test(username) : false;
     }
 
-    private static getValidationResult(value: any, validationError?: ErrorType): Validation {
+    public static getValidationResult(value: any, errorType?: ErrorType): Validation {
       return {
         type: 'string',
         value,
-        validationError
+        errorType
       }
     }
 
-    public static validate(value: any): Validation {
+    public static validate(value: any, forbiddenValues: string[] = []): Validation {
       if (!value) {
         return this.getValidationResult(value, ErrorType.UsernameRequired);
       } else if (typeof value !== 'string') {
         return this.getValidationResult(value, ErrorType.UsernameString);
       }
-      return this.validateString(value);
+      return this.validateUsername(value, forbiddenValues);
     }
 
-    public static validateString(username: string): Validation {
+    public static validateUsername(username: string, forbiddenValues: string[]): Validation {
       const value = username.trim();
-      const validationError = !this.usernameValid(value) ? ErrorType.UsernameInvalid : undefined;
+      let validationError = !this.usernameValid(value) ? ErrorType.UsernameInvalid : undefined;
+      if (!validationError) {
+        validationError = forbiddenValues.includes(username) ? ErrorType.UsernameInUse : undefined;
+      }
       return this.getValidationResult(value, validationError);
     }
 

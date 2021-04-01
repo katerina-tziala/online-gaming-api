@@ -11,17 +11,7 @@
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
+- UPDATE USER
 {
   "type": "user-update",
   "data": {
@@ -31,6 +21,18 @@
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 {
   "type": "private-message",

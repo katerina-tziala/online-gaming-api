@@ -1,8 +1,8 @@
 export enum MessageOutType {
   Error = 'error',
   UserInfo = 'user-info',
-  // Joined = 'user-joined',
-  // Peers = 'peers-update',
+  Joined = 'user-joined',
+  Peers = 'peers-update',
   // UserUpdate = 'user-update',
   // UserInfo = 'user-info',
   // PrivateMessage = 'private-message',

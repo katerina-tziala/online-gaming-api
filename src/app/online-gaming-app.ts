@@ -20,37 +20,26 @@ export class OnlineGamingApp {
 
     this._host = new Host();
 
-    this._messageConfig.set(MessageInType.Join, this.onJoinClient.bind(this));
-    this._messageConfig.set(MessageInType.UserInfo, this.onGetClientInfo.bind(this));
   }
 
   private getHost(): Host {
     return  this._host;
   }
 
-  private messageTypeAllowed(type: string): boolean {
-    return (
-      this._ALLOWED_MESSAGES.includes(type) && this._messageConfig.has(type)
-    );
+  private messageTypeAllowed(type: MessageInType): boolean {
+    return this._ALLOWED_MESSAGES.includes(type);
   }
+
 
   private handleMessage(client: Client, message: MessageIn): void {
-    const { type, data } = message;
-    if (!type) {
-      client.sendErrorMessage(ErrorType.MessageTypeExpected);
-      return;
+    const { type } = message;
+    if (type === MessageInType.UserInfo) {
+      this.onGetClientInfo(client);
+    } else if (type === MessageInType.Disconnect) {
+      console.log("disconnect from app");
+    } else {
+      this.getHost().onMessage(client, message);
     }
-
-    if (!this.messageTypeAllowed(type)) {
-      this.sendAllowedMessagesError(client);
-      return;
-    }
-
-    this._messageConfig.get(type)(client, data);
-  }
-
-  private onJoinClient(client: Client, data: ClientData): void {
-    this.getHost().onJoinClient(client, data);
   }
 
   private onGetClientInfo(client: Client): void {
@@ -59,11 +48,22 @@ export class OnlineGamingApp {
     }
   }
 
-  // CLIENT MESSAGES
   private sendAllowedMessagesError(client: Client): void {
     client.sendErrorMessage(ErrorType.MessageTypeAllowed, {
       allowedTypes: this._ALLOWED_MESSAGES,
     });
+  }
+
+  private messageTypeValid(client: Client, type: MessageInType): boolean {
+    if (!type) {
+      client.sendErrorMessage(ErrorType.MessageTypeExpected);
+      return false;
+    }
+    if (!this.messageTypeAllowed(type)) {
+      this.sendAllowedMessagesError(client);
+      return false;
+    }
+    return true;
   }
 
   public onMessage(client: Client, messageString: string): void {
@@ -72,8 +72,16 @@ export class OnlineGamingApp {
       client.sendErrorMessage(ErrorType.JSONDataExcpected);
       return;
     }
-    this.handleMessage(client, messageData);
+    const { type } = messageData;
+    if (this.messageTypeValid(client, type)) {
+      this.handleMessage(client, messageData);
+    }
   }
+
+
+
+
+
 
   public disconnect(client: Client): void {
     console.log("disconnect");
