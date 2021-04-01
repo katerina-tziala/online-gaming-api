@@ -7,7 +7,7 @@ import { ClientData } from './client-data.interface';
 import { MessageOutType } from '../messages/message-types/message-types.enum';
 import { ErrorType } from '../error-type.enum';
 import { ErrorMessage, MessageOut } from '../messages/message.interface';
-import { UsernameValidator } from '../username-validator/username-validator';
+import { UsernameValidator } from '../validators/username-validator';
 
 export class Client {
   private _conn: WebSocket;
@@ -128,7 +128,5 @@ export class Client {
     }
     return true;
   }
-
-
 
 }

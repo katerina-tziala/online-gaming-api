@@ -20,7 +20,7 @@ MESSAGES IN:
 }
 
 {
-  "type": "private-message",
+  "type": "private-chat",
   "data": {
     "recipientId": "",
     "content": {}

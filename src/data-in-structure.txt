@@ -22,8 +22,14 @@
   }
 }
 
-
-
+- PRIVATE CHAT
+{
+  "type": "private-chat",
+  "data": {
+    "recipientId": "",
+    "content": {}
+  }
+}
 
 
 

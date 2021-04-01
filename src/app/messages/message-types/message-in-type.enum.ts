@@ -3,12 +3,7 @@ export enum MessageInType {
   UserInfo = 'user-info',
   Disconnect = 'disconnect',
   UserUpdate = 'user-update',
-  // Connect = 'connect',
-  //
-  // Join = 'join',
-  // UserUpdate = 'user-update',
-  // UserInfo = 'user-info',
-  // PrivateMessage = 'private-message',
+  PrivateChat = 'private-chat',
   // OpenGameRoom = 'open-game-room',
   // OpenPrivateGameRoom = 'open-private-game-room',
   // GameUpdate = 'game-update',
@@ -21,6 +16,5 @@ export enum MessageInType {
   // GameRestartAccept = 'game-restart-accept',
   // GameInvitationAccept = 'game-invitation-accept',
   // GameInvitationReject = 'game-invitation-reject',
-  // GameInvitationCancel = 'game-invitation-cancel',
-
+  // GameInvitationCancel = 'game-invitation-cancel'
 }
