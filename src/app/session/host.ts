@@ -20,13 +20,7 @@ export class Host extends Session {
 
   private clientUsernameUpdated(client: Client, value: any): boolean {
     const usernamesInSession = this.getPeersUsernames(client);
-    const { errorType, ...validationData } = UsernameValidator.validate(value, usernamesInSession);
-    if (errorType) {
-      client.sendErrorMessage(errorType, validationData);
-      return false;
-    }
-    client.username = validationData.value;
-    return true;
+    return client.usernameUpdated(value, usernamesInSession);
   }
 
   private addInClients(client: Client): void {
@@ -34,24 +28,17 @@ export class Host extends Session {
     this.addClient(client);
   }
 
-  private broadcastPeersUpdate(clientToExclude: Client): void {
-    const clientsToReceiveBroadcast = this.getClientPeers(clientToExclude);
-    this.broadcastPeersToClients(clientsToReceiveBroadcast);
-  }
-
-  private broadcastPeersToClients(clients: Client[]): void {
-    clients.forEach((client) => this.notifyUserForPeersUpdate(client));
-  }
-
-  private notifyUserForPeersUpdate(client: Client): void {
-    const peers = this.getPeersDetailsOfClient(client);
-    client.sendMessage(MessageOutType.Peers, { peers });
-  }
-
-  private notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
-    const user = client.info;
-    const peers = this.getPeersDetailsOfClient(client);
-    client.sendMessage(type, { user, peers });
+  private onUpdateClient(client: Client, data: ClientData) {
+    // TODO: update client when in game
+    if (client.gameRoomId) {
+      console.log("onUpdateClient -- when client in game");
+      // console.log(client.info);
+    } else {
+      if (client.updated(data, this.getPeersUsernames(client))) {
+        this.notifyJoinedClient(client, MessageOutType.UserUpdated);
+        this.broadcastPeersUpdate(client);
+      }
+    }
   }
 
   private joinNewClient(client: Client, gameRoomId: string) {
@@ -61,6 +48,7 @@ export class Host extends Session {
       this.broadcastPeersUpdate(client);
       return;
     }
+    // TODO: join client in game
     console.log("join client in game");
     console.log(gameRoomId);
   }
@@ -73,30 +61,34 @@ export class Host extends Session {
     const { username, gameRoomId, properties } = data || {};
     if (this.clientUsernameUpdated(client, username)) {
       client.properties = properties;
+      client.setJoined();
       this.joinNewClient(client, gameRoomId);
     }
   }
 
-  private onUpdateClient(client: Client, data: ClientData) {
-    console.log("onUpdateClient");
-    console.log(client.info);
-
-  }
-
-
-
-
-
-
-
-
-  public onMessage(client: Client, message: MessageIn): void {
+  private handleMessageForJoinedClient(client: Client, message: MessageIn): void {
     const { type, data } = message;
+    if (!this.clientExists(client)) {
+      client.sendErrorMessage(ErrorType.NotJoined, message);
+      return;
+    }
+
     if (this._messageConfig.has(type)) {
-      this._messageConfig.get(type)(client, data);
+      this._messageConfig.get(type)(client, data || {});
     } else {
       console.log("method type not implemented");
     }
+  }
+
+  public onMessage(client: Client, message: MessageIn): void {
+    const { type, data } = message;
+
+    if (type === MessageInType.Join) {
+      this.onJoinClient(client, data);
+      return;
+    }
+
+    this.handleMessageForJoinedClient(client, message);
   }
 
 }

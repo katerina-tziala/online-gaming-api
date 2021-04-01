@@ -2,6 +2,7 @@
 import { IdGenerator } from "../..//utils/id-generator";
 import { Client } from "../client/client";
 import { ClientData } from "../client/client-data.interface";
+import { MessageOutType } from "../messages/message-types/message-out-type.enum";
 
 export class Session {
   public id: string;
@@ -63,4 +64,23 @@ export class Session {
     return this.getClientPeers(client).map(peer => peer.username);
   }
 
+  public broadcastPeersUpdate(clientToExclude: Client): void {
+    const clientsToReceiveBroadcast = this.getClientPeers(clientToExclude);
+    this.broadcastPeersToClients(clientsToReceiveBroadcast);
+  }
+
+  public broadcastPeersToClients(clients: Client[]): void {
+    clients.forEach((client) => this.notifyUserForPeersUpdate(client));
+  }
+
+  public notifyUserForPeersUpdate(client: Client): void {
+    const peers = this.getPeersDetailsOfClient(client);
+    client.sendMessage(MessageOutType.Peers, { peers });
+  }
+
+  public notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
+    const user = client.info;
+    const peers = this.getPeersDetailsOfClient(client);
+    client.sendMessage(type, { user, peers });
+  }
 }

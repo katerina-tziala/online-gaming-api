@@ -7,6 +7,7 @@ import { ClientData } from './client-data.interface';
 import { MessageOutType } from '../messages/message-types/message-types.enum';
 import { ErrorType } from '../error-type.enum';
 import { ErrorMessage, MessageOut } from '../messages/message.interface';
+import { UsernameValidator } from '../username-validator/username-validator';
 
 export class Client {
   private _conn: WebSocket;
@@ -52,7 +53,11 @@ export class Client {
   }
 
   public set properties(value: {}) {
-    this._properties = value;
+    if (value && typeof value === 'object') {
+      this._properties = value;
+    } else {
+      this._properties = undefined;
+    }
   }
 
   public get properties(): {} {
@@ -74,12 +79,7 @@ export class Client {
     this._joinedAt = new Date().toString();
   }
 
-  // public update(data: ClientUpdateData): void {
-  //   this.username = data.username || this.username;
-  //   this.properties = data.properties || this.properties;
-  // }
-
-  // /* ~~~~~~~~~~~~~~~~~~~~~~~ SEND CLIENT MESSAGES ~~~~~~~~~~~~~~~~~~~~~~~ */
+  /* ~~~~~~~~~~~~~~~~~~~~~~~ SEND CLIENT MESSAGES ~~~~~~~~~~~~~~~~~~~~~~~ */
   private send<T>(message: T): void {
     if (!this.connected) {
         console.log('client is not connected -> cannot deliver the message');
@@ -105,4 +105,30 @@ export class Client {
   public sendUserInfo(): void {
     this.sendMessage(MessageOutType.UserInfo, this.info);
   }
+
+  public usernameUpdated(value: any, prohibitedUsernames: string[] = []): boolean {
+    const { errorType, ...validationData } = UsernameValidator.validate(value, prohibitedUsernames);
+    if (errorType) {
+      this.sendErrorMessage(errorType, validationData);
+      return false;
+    }
+    this.username = validationData.value;
+    return true;
+  }
+
+  public updated(data: ClientData, prohibitedUsernames: string[] = []): boolean {
+    const { username, properties } = data;
+    if (!username && !properties) {
+      this.sendErrorMessage(ErrorType.UsernameOrPropertiesUpdate);
+      return false;
+    }
+    this.properties = properties;
+    if (username) {
+      return this.usernameUpdated(username, prohibitedUsernames);
+    }
+    return true;
+  }
+
+
+
 }

@@ -3,7 +3,7 @@ export enum MessageOutType {
   UserInfo = 'user-info',
   Joined = 'user-joined',
   Peers = 'peers-update',
-  // UserUpdate = 'user-update',
+  UserUpdated = 'user-updated',
   // UserInfo = 'user-info',
   // PrivateMessage = 'private-message',
   // GameEntranceForbidden = 'game-entrance-forbidden',
