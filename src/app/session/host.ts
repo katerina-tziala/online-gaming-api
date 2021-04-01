@@ -5,6 +5,7 @@ import { ErrorType } from '../error-type.enum';
 import { MessageOutType, MessageInType } from '../messages/message-types/message-types.enum';
 import { MessageIn } from '../messages/message.interface';
 import { Chat } from '../chat.interface';
+import { ChatValidator } from '../validators/chat-validator';
 
 export class Host extends Session {
   private _hostBaseMessaging: Map<
@@ -29,31 +30,34 @@ export class Host extends Session {
     this.addClient(client);
   }
 
-  private onPrivateChatMessage(client: Client, data: Chat) {
-    const { recipientId, content } = data;
-    console.log('onPrivateChatMessage');
-    console.log(data);
-
-    // const data: PrivateMessage = msg.data;
-    // if (sender.id === data.recipientId) {
-    //   // notify sender?
-    //   sender.sendError(MessageErrorType.MessageToSelf, msg);
-    //   return;
-    // }
-    // const recipient = this.findClientById(data.recipientId);
-    // if (!recipient) {
-    //   sender.sendError(MessageErrorType.RecipientNotConnected, msg);
-    //   return;
-    // }
-    // const messageToSend = {
-    //   content: data.content,
-    //   sender: sender.info,
-    //   deliveredAt: new Date().toString(),
-    // };
-    // recipient.notify(MessageOutType.PrivateMessage, messageToSend);
+  private onPrivateChatMessage(client: Client, data: Chat): void {
+    const { errorType } = ChatValidator.validate(data);
+    const type = MessageInType.PrivateChat;
+    const initialMessage = { type, data };
+    if (errorType) {
+      client.sendErrorMessage(errorType, initialMessage);
+    } else if (client.id === data.recipientId) {
+      client.sendErrorMessage(ErrorType.MessageToSelf, initialMessage);
+    } else {
+      this.sendPrivateChat(client, initialMessage);
+    }
   }
 
-  private onUpdateClient(client: Client, data: ClientData) {
+  private sendPrivateChat(client: Client, message: MessageIn): void {
+    const { data } = message;
+    const recipient = this.findClientById(data.recipientId.toString());
+    if (!recipient) {
+      client.sendErrorMessage(ErrorType.RecipientNotConnected, message);
+      return;
+    }
+    recipient.sendPrivateChat({
+      content: data.content,
+      sender: client.info,
+      deliveredAt: new Date().toString()
+    });
+  }
+
+  private onUpdateClient(client: Client, data: ClientData): void {
     // TODO: update client when in game
     if (client.gameRoomId) {
       console.log('onUpdateClient -- when client in game');

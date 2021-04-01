@@ -8,6 +8,7 @@ import { MessageOutType } from '../messages/message-types/message-types.enum';
 import { ErrorType } from '../error-type.enum';
 import { ErrorMessage, MessageOut } from '../messages/message.interface';
 import { UsernameValidator } from '../validators/username-validator';
+import { Chat } from '../chat.interface';
 
 export class Client {
   private _conn: WebSocket;
@@ -104,6 +105,10 @@ export class Client {
 
   public sendUserInfo(): void {
     this.sendMessage(MessageOutType.UserInfo, this.info);
+  }
+
+  public sendPrivateChat(chatMessage: Chat): void {
+    this.sendMessage(MessageOutType.PrivateChat, chatMessage);
   }
 
   public usernameUpdated(value: any, prohibitedUsernames: string[] = []): boolean {
