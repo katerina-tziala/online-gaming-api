@@ -82,8 +82,6 @@ export class HostRoomsController {
   //   return this._gameRooms.hasGameRooms || this._privateGameRooms.hasGameRooms;
   // }
 
-
-
   // public deleteGameRoom(session: GameRoomSession | PrivateGameSession): void {
   //   if (this._privateGameRooms.gameRoomExists(session.id)) {
   //     this._privateGameRooms.deleteGameRoom(session);
@@ -99,19 +97,6 @@ export class HostRoomsController {
   //   gameRoom.onOpen(client, expectedPlayers);
   //   this.addPrivateGameRoom = gameRoom;
   //   return gameRoom;
-  // }
-
-  // public removeClientFromCurrentGame(client: Client): void {
-  //   // remove from private game
-  //   const gameRoom = this.getGameRoomById(client.gameRoomId);
-  //   if (!gameRoom) {
-  //     return;
-  //   }
-  //   gameRoom.onPlayerLeft(client);
-  //   // if client one?
-  //   if (!gameRoom.hasClients) {
-  //     this.deleteGameRoom(gameRoom);
-  //   }
   // }
 
   // public handleMessage(client: Client, msg: MessageIn): void {

@@ -13,7 +13,7 @@ import { HostRoomsController } from "../controllers/host-rooms-controller";
 import { GameConfig } from "./game-room/game-config/game-config.inteface";
 
 export class Host extends Session {
-  private _hostBaseMessaging: Map<
+  private _messageConfig: Map<
     string,
     (client: Client, data?: {}) => void
   > = new Map();
@@ -21,10 +21,10 @@ export class Host extends Session {
 
   constructor() {
     super();
-    this._hostBaseMessaging.set(MessageInType.Join, this.onJoinClient.bind(this));
-    this._hostBaseMessaging.set(MessageInType.UserUpdate, this.onUpdateClient.bind(this));
-    this._hostBaseMessaging.set(MessageInType.PrivateChat, this.onPrivateChatMessage.bind(this));
-    this._hostBaseMessaging.set(MessageInType.EnterGame, this.onEnterGame.bind(this));
+    this._messageConfig.set(MessageInType.Join, this.onJoinClient.bind(this));
+    this._messageConfig.set(MessageInType.UserUpdate, this.onUpdateClient.bind(this));
+    this._messageConfig.set(MessageInType.PrivateChat, this.onPrivateChatMessage.bind(this));
+    this._messageConfig.set(MessageInType.EnterGame, this.onEnterGame.bind(this));
   }
 
   public onMessage(client: Client, message: MessageIn): void {
@@ -45,8 +45,8 @@ export class Host extends Session {
       return;
     }
 
-    if (this._hostBaseMessaging.has(type)) {
-      this._hostBaseMessaging.get(type)(client, data || {});
+    if (this._messageConfig.has(type)) {
+      this._messageConfig.get(type)(client, data || {});
     } else {
       console.log("method type not implemented");
     }
