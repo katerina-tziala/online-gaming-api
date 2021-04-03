@@ -1,6 +1,6 @@
 // MESSAGE OUT
 
-- UserInfo
+- USER INFO
 {
   type: "user-info",
   data ClientData {
@@ -13,7 +13,7 @@
   }
 };
 
-- UserJoined
+- USER JOINED
 {
   "type": "user-joined",
   "data": {
@@ -23,7 +23,7 @@
 }
 
 
-- PeersUpdate
+- PEERS UPDATE
 {
   "type":"peers-update",
   "data": {

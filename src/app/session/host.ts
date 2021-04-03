@@ -1,16 +1,22 @@
-import { Session } from './session';
-import { Client } from '../client/client';
-import { ClientData } from '../client/client-data.interface';
-import { ErrorType } from '../error-type.enum';
-import { MessageOutType, MessageInType } from '../messages/message-types/message-types.enum';
-import { MessageIn } from '../messages/message.interface';
-import { Chat } from '../chat.interface';
-import { ChatValidator } from '../validators/chat-validator';
-import { HostRoomsController } from '../controllers/host-rooms-controller';
-import { GameConfig } from './game-room/game-config/game-config.inteface';
+import { Session } from "./session";
+import { Client } from "../client/client";
+import { ClientData } from "../client/client-data.interface";
+import { ErrorType } from "../error-type.enum";
+import {
+  MessageOutType,
+  MessageInType,
+} from "../messages/message-types/message-types.enum";
+import { MessageIn } from "../messages/message.interface";
+import { Chat } from "../chat.interface";
+import { ChatValidator } from "../validators/chat-validator";
+import { HostRoomsController } from "../controllers/host-rooms-controller";
+import { GameConfig } from "./game-room/game-config/game-config.inteface";
 
 export class Host extends Session {
-  private _hostBaseMessaging: Map<string, (client: Client, data?: {}) => void> = new Map();
+  private _hostBaseMessaging: Map<
+    string,
+    (client: Client, data?: {}) => void
+  > = new Map();
   private _GameRoomsController = new HostRoomsController();
 
   constructor() {
@@ -32,7 +38,6 @@ export class Host extends Session {
     this.handleMessageForJoinedClient(client, message);
   }
 
-
   private handleMessageForJoinedClient(client: Client, message: MessageIn): void {
     const { type, data } = message;
     if (!this.clientExists(client)) {
@@ -43,7 +48,7 @@ export class Host extends Session {
     if (this._hostBaseMessaging.has(type)) {
       this._hostBaseMessaging.get(type)(client, data || {});
     } else {
-      console.log('method type not implemented');
+      console.log("method type not implemented");
     }
   }
 
@@ -57,6 +62,39 @@ export class Host extends Session {
       client.properties = properties;
       this.joinNewClient(client, gameRoomId);
     }
+  }
+
+  private joinNewClient(client: Client, gameRoomId: string) {
+    if (!gameRoomId) {
+      this.joinClientInHost(client);
+    } else {
+      this.joinClientInGame(client, gameRoomId);
+    }
+  }
+
+  private joinClientInGame(client: Client, gameRoomId: string): void {
+    const gameRoom = this._GameRoomsController.getGameRoomById(gameRoomId);
+    if (!gameRoom) {
+      client.sendGameNotFound(gameRoomId);
+      this.joinClientInHost(client);
+      return;
+    }
+
+    client.setJoined();
+    this.addInClients(client);
+    gameRoom.joinClient(client);
+
+    if (!client.gameRoomId) {
+      this.notifyJoinedClient(client);
+    }
+    this.broadcastPeersUpdate(client);
+  }
+
+  private joinClientInHost(client: Client): void {
+    client.setJoined();
+    this.addInClients(client);
+    this.notifyJoinedClient(client);
+    this.broadcastPeersUpdate(client);
   }
 
   private addInClients(client: Client): void {
@@ -87,14 +125,14 @@ export class Host extends Session {
     recipient.sendPrivateChat({
       content: data.content,
       sender: client.info,
-      deliveredAt: new Date().toString()
+      deliveredAt: new Date().toString(),
     });
   }
 
   private onUpdateClient(client: Client, data: ClientData): void {
     // TODO: update client when in game
     if (client.gameRoomId) {
-      console.log('onUpdateClient -- when client in game');
+      console.log("onUpdateClient -- when client in game");
       // console.log(client.info);
     } else {
       if (client.updated(data, this.getPeersUsernames(client))) {
@@ -104,26 +142,10 @@ export class Host extends Session {
     }
   }
 
-  private joinNewClient(client: Client, gameRoomId: string) {
-    client.setJoined();
-    if (!gameRoomId) {
-      this.addInClients(client);
-      this.notifyJoinedClient(client);
-      this.broadcastPeersUpdate(client);
-      return;
-    }
-    // TODO: join client in game
-    console.log('join client in game');
-    console.log(gameRoomId);
-  }
-
   private onEnterGame(client: Client, data: GameConfig): void {
     this._GameRoomsController.enterClientInGame(client, data);
     if (client.gameRoomId) {
       this.broadcastPeersUpdate(client);
     }
   }
-
-
-
 }

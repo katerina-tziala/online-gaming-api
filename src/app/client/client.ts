@@ -91,6 +91,10 @@ export class Client {
     this.send<ErrorMessage>({ type, errorType, data });
   }
 
+  public sendGameNotFound(gameRoomId: string): void {
+    this.sendErrorMessage(ErrorType.GameNotFound, { gameRoomId });
+  }
+
   public sendUserInfo(): void {
     this.sendMessage(MessageOutType.UserInfo, this.info);
   }
@@ -111,12 +115,19 @@ export class Client {
 
   public updated(data: ClientData, prohibitedUsernames: string[] = []): boolean {
     const { username, properties } = data;
+    if (this.updateDataDefined(username, properties)) {
+      this.properties = properties;
+      return username ? this.usernameUpdated(username, prohibitedUsernames) : true;
+    }
+    return false;
+  }
+
+  private updateDataDefined(username: any, properties: {}): boolean {
     if (!username && !properties) {
       this.sendErrorMessage(ErrorType.UsernameOrPropertiesUpdate);
       return false;
     }
-    this.properties = properties;
-    return username ? this.usernameUpdated(username, prohibitedUsernames) : true;
+    return true;
   }
 
 }

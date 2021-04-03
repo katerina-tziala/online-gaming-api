@@ -73,18 +73,9 @@ export class Session {
     return this.getClientPeers(client).map(peer => peer.username);
   }
 
-  public broadcastPeersUpdate(clientToExclude: Client): void {
-    const clientsToReceiveBroadcast = this.getClientPeers(clientToExclude);
-    this.broadcastPeersToClients(clientsToReceiveBroadcast);
-  }
-
-  public broadcastPeersToClients(clients: Client[]): void {
-    clients.forEach((client) => this.notifyUserForPeersUpdate(client));
-  }
-
-  public notifyUserForPeersUpdate(client: Client): void {
-    const peers = this.getPeersDetailsOfClient(client);
-    client.sendMessage(MessageOutType.Peers, { peers });
+  public broadcastPeersUpdate(client: Client): void {
+    const peers = this.getClientPeers(client);
+    peers.forEach(peer => this.notifyClientForPeersUpdate(peer));
   }
 
   public notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
@@ -93,7 +84,12 @@ export class Session {
     client.sendMessage(type, { user, peers });
   }
 
-  public broadcastToPeers(initiator: Client, type: MessageOutType, data: {}): void {
+  protected notifyClientForPeersUpdate(client: Client): void {
+    const peers = this.getPeersDetailsOfClient(client);
+    client.sendMessage(MessageOutType.Peers, { peers });
+  }
+
+  protected broadcastToPeers(initiator: Client, type: MessageOutType, data: {}): void {
     const peers = this.getClientPeers(initiator);
     peers.forEach((client) => client.sendMessage(type, data));
   }

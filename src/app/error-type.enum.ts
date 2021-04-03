@@ -14,10 +14,11 @@ export enum ErrorType {
   MessageToSelf = "cannot-send-message-to-yourself",
   RecipientNotConnected = "recipient-not-connected",
   GameEntranceForbidden = "game-entrance-forbidden",
+  GameNotFound = "game-not-found",
   // ExpectedPlayersNotSpecified = "expected-players-not-specified",
   // ExpectedPlayersNotConnected = "expected-players-not-connected",
   // SomeExpectedPlayersNotConnected = "some-expected-players-not-connected",
-  // GameNotFound = "game-not-found",
+  //
   // ClientNotInGame = "not-in-game",
   // RestarErrorRoomNotFilled = "not-all-players-in-game-to-request-restart",
   // GameNotStarted = "game-not-started-to-request-restart",

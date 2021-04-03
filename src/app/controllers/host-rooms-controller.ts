@@ -3,13 +3,16 @@ import {
   GameConfig,
   ConfigUtils,
 } from "../session/game-room/game-config/game-config";
-import { getValidRoomType, getValidPlayersAllowed } from "../session/game-room/game-config/game-config.utils";
+import {
+  getValidRoomType,
+  getValidPlayersAllowed,
+} from "../session/game-room/game-config/game-config.utils";
 import { GameRoom } from "../session/game-room/game-room";
 import { GameRoomsController } from "./game-rooms-controller";
 
 export class HostRoomsController {
   private _gameRooms: GameRoomsController = new GameRoomsController();
-  // private _privateGameRooms: GameRoomsController = new GameRoomsController();
+  private _privateGameRooms: GameRoomsController = new GameRoomsController();
   // private messageActionConfig: Map<string, (client: Client, msg: MessageIn) => void> = new Map();
 
   constructor() {
@@ -27,11 +30,22 @@ export class HostRoomsController {
     this._gameRooms.addGameRoom = session;
   }
 
+  public getAvailableGameRoomByKey(gameKey: string): GameRoom {
+    return this._gameRooms.getAvailableGameRoomByKey(gameKey);
+  }
+
+  public getGameRoomById(gameId: string): GameRoom {
+    return (
+      this._privateGameRooms.getGameRoomById(gameId) ||
+      this._gameRooms.getGameRoomById(gameId)
+    );
+  }
+
   private getGameToJoin(data: GameConfig): GameRoom {
     const config: GameConfig = ConfigUtils.getValidGameConfig(data);
     const { settings, ...gameConfig } = config;
     const gameKey = ConfigUtils.generateGameKey(gameConfig);
-    let gameRoom = this._gameRooms.getAvailableGameRoomByKey(gameKey);
+    let gameRoom = this.getAvailableGameRoomByKey(gameKey);
     if (!gameRoom) {
       gameRoom = new GameRoom(config, settings);
       this.addGameRoom = gameRoom;
@@ -40,38 +54,25 @@ export class HostRoomsController {
   }
 
   public enterClientInGame(client: Client, data: GameConfig): void {
+    this.removeClientFromCurrentGame(client);
     const gameRoom = this.getGameToJoin(data);
     gameRoom.joinClient(client);
   }
 
   public removeClientFromCurrentGame(client: Client): void {
+    const gameRoom = this.getGameRoomById(client.gameRoomId);
+    if (!gameRoom) {
+      return;
+    }
     console.log("removeClientFromCurrentGame");
     console.log(client.gameRoomId);
-
     // remove from private game
-    // const gameRoom = this.getGameRoomById(client.gameRoomId);
-    // if (!gameRoom) {
-    //   return;
-    // }
     // gameRoom.onPlayerLeft(client);
     // // if client one?
     // if (!gameRoom.hasClients) {
     //   this.deleteGameRoom(gameRoom);
     // }
   }
-
-  // public joinOrOpenPublicRoom(configData: GameConfig, settings?: {}): GameRoomSession | PrivateGameSession {
-  //   const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
-  //   const gameKey = ConfigUtils.generateGameKey(config);
-  //   let gameRoom = this._gameRooms.getAvailableGameRoomByKey(gameKey);
-  //   if (!gameRoom) {
-  //     gameRoom = new GameRoomSession(config, settings);
-  //     this.addGameRoom = gameRoom;
-  //   }
-  //   return gameRoom;
-  // }
-
-
 
   // public set addPrivateGameRoom(session: GameRoomSession) {
   //   this._privateGameRooms.addGameRoom = session;
@@ -81,16 +82,7 @@ export class HostRoomsController {
   //   return this._gameRooms.hasGameRooms || this._privateGameRooms.hasGameRooms;
   // }
 
-  // public getGameRoomById(gameId: string): PrivateGameSession | GameRoomSession {
-  //   return (
-  //     this._privateGameRooms.getGameRoomById(gameId) ||
-  //     this._gameRooms.getGameRoomById(gameId)
-  //   );
-  // }
 
-  // public getAvailableGameRoomByKey(gameKey: string): GameRoomSession {
-  //   return this._gameRooms.getAvailableGameRoomByKey(gameKey);
-  // }
 
   // public deleteGameRoom(session: GameRoomSession | PrivateGameSession): void {
   //   if (this._privateGameRooms.gameRoomExists(session.id)) {
