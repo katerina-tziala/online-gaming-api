@@ -119,15 +119,12 @@ export class Client {
       this.properties = properties;
       return username ? this.usernameUpdated(username, prohibitedUsernames) : true;
     }
+    this.sendErrorMessage(ErrorType.UsernameOrPropertiesUpdate);
     return false;
   }
 
   private updateDataDefined(username: any, properties: {}): boolean {
-    if (!username && !properties) {
-      this.sendErrorMessage(ErrorType.UsernameOrPropertiesUpdate);
-      return false;
-    }
-    return true;
+    return (username || properties) ? true : false;
   }
 
 }
