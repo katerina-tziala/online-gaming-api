@@ -1,14 +1,12 @@
 
-import * as WebSocket from 'ws';
-import { IdGenerator } from '../../utils/id-generator';
-
-import { ClientData } from './client-data.interface';
-
-import { MessageOutType } from '../messages/message-types/message-types.enum';
-import { ErrorType } from '../error-type.enum';
-import { ErrorMessage, MessageOut } from '../messages/message.interface';
-import { UsernameValidator } from '../validators/username-validator';
-import { Chat } from '../chat.interface';
+import * as WebSocket from "ws";
+import { IdGenerator } from "../../utils/id-generator";
+import { ClientData } from "./client-data.interface";
+import { MessageOutType } from "../messages/message-types/message-types.enum";
+import { ErrorType } from "../error-type.enum";
+import { ErrorMessage, MessageOut } from "../messages/message.interface";
+import { UsernameValidator, validObject } from "../validators/validators";
+import { Chat } from "../chat.interface";
 
 export class Client {
   private _conn: WebSocket;
@@ -54,11 +52,7 @@ export class Client {
   }
 
   public set properties(value: {}) {
-    if (value && typeof value === 'object') {
-      this._properties = value;
-    } else {
-      this._properties = undefined;
-    }
+    this._properties = validObject(value) ? value : undefined;
   }
 
   public get properties(): {} {
@@ -80,16 +74,15 @@ export class Client {
     this._joinedAt = new Date().toString();
   }
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~ SEND CLIENT MESSAGES ~~~~~~~~~~~~~~~~~~~~~~~ */
   private send<T>(message: T): void {
     if (!this.connected) {
-        console.log('client is not connected -> cannot deliver the message');
+        console.log("client is not connected -> cannot deliver the message");
         return;
       }
 
     this._conn.send(JSON.stringify(message), (error) => {
       if (error) {
-        console.log('error in delivering the message -> ', error);
+        console.log("error in delivering the message -> ", error);
       }
     });
   }
@@ -128,10 +121,7 @@ export class Client {
       return false;
     }
     this.properties = properties;
-    if (username) {
-      return this.usernameUpdated(username, prohibitedUsernames);
-    }
-    return true;
+    return username ? this.usernameUpdated(username, prohibitedUsernames) : true;
   }
 
 }

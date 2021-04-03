@@ -21,6 +21,11 @@ export class Session {
   public get clients(): Client[] {
     return Array.from(this._clients.values());
   }
+
+  public get clientsInfo(): ClientData[] {
+    return this.clients.map((peer) => peer.info);
+  }
+
   public getClientPeers(client: Client): Client[] {
     if (!client) {
       return this.clients;

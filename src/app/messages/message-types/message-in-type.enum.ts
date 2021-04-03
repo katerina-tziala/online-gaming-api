@@ -4,6 +4,7 @@ export enum MessageInType {
   Disconnect = 'disconnect',
   UserUpdate = 'user-update',
   PrivateChat = 'private-chat',
+  EnterGame = 'enter-game',
   // OpenGameRoom = 'open-game-room',
   // OpenPrivateGameRoom = 'open-private-game-room',
   // GameUpdate = 'game-update',

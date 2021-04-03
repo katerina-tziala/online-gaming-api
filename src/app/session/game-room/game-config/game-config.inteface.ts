@@ -3,4 +3,5 @@ export interface GameConfig {
   startWaitingTime?: number;
   roomType?: string;
   playersExpected?: string[];
+  settings?: {};
 }

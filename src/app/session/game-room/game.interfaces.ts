@@ -9,7 +9,6 @@ export interface GameInfo extends GameConfig {
   createdAt: string;
   startedAt?: string;
   endedAt?: string;
-  settings?: {};
   playerStartId?: string;
   players?: ClientData[];
   completedIn?: Duration;

@@ -6,23 +6,57 @@ import { MessageOutType, MessageInType } from '../messages/message-types/message
 import { MessageIn } from '../messages/message.interface';
 import { Chat } from '../chat.interface';
 import { ChatValidator } from '../validators/chat-validator';
+import { HostRoomsController } from '../controllers/host-rooms-controller';
+import { GameConfig } from './game-room/game-config/game-config.inteface';
 
 export class Host extends Session {
-  private _hostBaseMessaging: Map<
-    string,
-    (client: Client, data?: {}) => void
-  > = new Map();
+  private _hostBaseMessaging: Map<string, (client: Client, data?: {}) => void> = new Map();
+  private _GameRoomsController = new HostRoomsController();
 
   constructor() {
     super();
     this._hostBaseMessaging.set(MessageInType.Join, this.onJoinClient.bind(this));
     this._hostBaseMessaging.set(MessageInType.UserUpdate, this.onUpdateClient.bind(this));
     this._hostBaseMessaging.set(MessageInType.PrivateChat, this.onPrivateChatMessage.bind(this));
+    this._hostBaseMessaging.set(MessageInType.EnterGame, this.onEnterGame.bind(this));
   }
 
-  private clientUsernameUpdated(client: Client, value: any): boolean {
-    const usernamesInSession = this.getPeersUsernames(client);
-    return client.usernameUpdated(value, usernamesInSession);
+  public onMessage(client: Client, message: MessageIn): void {
+    const { type, data } = message;
+
+    if (type === MessageInType.Join) {
+      this.onJoinClient(client, data);
+      return;
+    }
+
+    this.handleMessageForJoinedClient(client, message);
+  }
+
+
+  private handleMessageForJoinedClient(client: Client, message: MessageIn): void {
+    const { type, data } = message;
+    if (!this.clientExists(client)) {
+      client.sendErrorMessage(ErrorType.NotJoined, message);
+      return;
+    }
+
+    if (this._hostBaseMessaging.has(type)) {
+      this._hostBaseMessaging.get(type)(client, data || {});
+    } else {
+      console.log('method type not implemented');
+    }
+  }
+
+  private onJoinClient(client: Client, data: ClientData): void {
+    if (this.clientExists(client)) {
+      client.sendErrorMessage(ErrorType.JoinedAlready);
+      return;
+    }
+    const { username, gameRoomId, properties } = data || {};
+    if (client.usernameUpdated(username, this.getPeersUsernames(client))) {
+      client.properties = properties;
+      this.joinNewClient(client, gameRoomId);
+    }
   }
 
   private addInClients(client: Client): void {
@@ -83,41 +117,17 @@ export class Host extends Session {
     console.log(gameRoomId);
   }
 
-  private onJoinClient(client: Client, data: ClientData): void {
-    if (this.clientExists(client)) {
-      client.sendErrorMessage(ErrorType.JoinedAlready);
-      return;
-    }
-    const { username, gameRoomId, properties } = data || {};
-    if (this.clientUsernameUpdated(client, username)) {
-      client.properties = properties;
-      this.joinNewClient(client, gameRoomId);
-    }
+
+  private onEnterGame(client: Client, data: GameConfig): void {
+    this._GameRoomsController.enterClientInGame(client, data);
+    // const { settings, ...configData } = data;
+    // this.GameRooms.removeClientFromCurrentGame(client);
+    // const { settings, ...configData } = msg.data;
+    // const gameRoom = this.GameRooms.joinOrOpenPublicRoom(configData, settings);
+    // gameRoom.joinClient(client);
+    // this.broadcastPeersUpdate(client);
   }
 
-  private handleMessageForJoinedClient(client: Client, message: MessageIn): void {
-    const { type, data } = message;
-    if (!this.clientExists(client)) {
-      client.sendErrorMessage(ErrorType.NotJoined, message);
-      return;
-    }
 
-    if (this._hostBaseMessaging.has(type)) {
-      this._hostBaseMessaging.get(type)(client, data || {});
-    } else {
-      console.log('method type not implemented');
-    }
-  }
-
-  public onMessage(client: Client, message: MessageIn): void {
-    const { type, data } = message;
-
-    if (type === MessageInType.Join) {
-      this.onJoinClient(client, data);
-      return;
-    }
-
-    this.handleMessageForJoinedClient(client, message);
-  }
 
 }

@@ -1,8 +1,8 @@
-import { getDurationFromDates } from '../../../utils/utils';
-import { Duration } from '../../duration.interface';
-import { Session } from '../session';
-import { ConfigUtils, GameConfig } from './game-config/game-config';
-import { GameInfo } from './game.interfaces';
+import { getDurationFromDates } from "../../../utils/utils";
+import { Duration } from "../../duration.interface";
+import { Session } from "../session";
+import { ConfigUtils, GameConfig } from "./game-config/game-config";
+import { GameInfo } from "./game.interfaces";
 
 export class GameRoom extends Session {
   public startTimeout: ReturnType<typeof setTimeout>;
@@ -41,6 +41,12 @@ export class GameRoom extends Session {
     return !this.filled && this.idle;
   }
 
+  public get completedIn(): Duration {
+    const start = this.startedAt ? new Date(this.startedAt) : undefined;
+    const end = this.endedAt ? new Date(this.endedAt) : undefined;
+    return getDurationFromDates(start, end);
+  }
+
   public get info(): GameInfo {
     return {
       id: this.id,
@@ -57,25 +63,22 @@ export class GameRoom extends Session {
     return {
       ...this.info,
       settings: this.settings,
+      players: this.clientsInfo,
+      playerStartId: this.playerStartId,
       startedAt: this.startedAt,
       endedAt: this.endedAt,
-      players: this.clients.map((client) => client.info),
-      playerStartId: this.playerStartId,
-    };
-  }
-
-  public get state(): GameInfo {
-    return {
-      ...this.details,
       completedIn: this.completedIn
     };
   }
 
-  public get completedIn(): Duration {
-    const start = this.startedAt ? new Date(this.startedAt): undefined;
-    const end = this.endedAt ? new Date(this.endedAt): undefined;
-    return getDurationFromDates(start, end);
-  }
+
+
+
+
+
+
+
+
 
   // private get restartConfirmedIds(): string[] {
   //   return this.restartRequest ? [] : this.restartRequest.playersConfirmed.map(peerPlayer => peerPlayer.id);
@@ -334,5 +337,4 @@ export class GameRoom extends Session {
   //   const game = this.info;
   //   player.notify(MessageOutType.GameRestartWaitPlayers, { restartRequest, game});
   // }
-
 }
