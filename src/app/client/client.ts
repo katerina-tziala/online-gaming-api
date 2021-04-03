@@ -23,10 +23,6 @@ export class Client {
     this._gameRoomId = null;
   }
 
-  public get joined(): boolean {
-    return !!this._joinedAt;
-  }
-
   public get id(): string {
     return this._id;
   }
@@ -64,7 +60,6 @@ export class Client {
       id: this.id,
       username: this.username,
       gameRoomId: this.gameRoomId,
-      joined: this.joined,
       joinedAt: this._joinedAt,
       properties: this.properties
     };

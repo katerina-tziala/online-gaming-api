@@ -117,15 +117,11 @@ export class Host extends Session {
     console.log(gameRoomId);
   }
 
-
   private onEnterGame(client: Client, data: GameConfig): void {
     this._GameRoomsController.enterClientInGame(client, data);
-    // const { settings, ...configData } = data;
-    // this.GameRooms.removeClientFromCurrentGame(client);
-    // const { settings, ...configData } = msg.data;
-    // const gameRoom = this.GameRooms.joinOrOpenPublicRoom(configData, settings);
-    // gameRoom.joinClient(client);
-    // this.broadcastPeersUpdate(client);
+    if (client.gameRoomId) {
+      this.broadcastPeersUpdate(client);
+    }
   }
 
 

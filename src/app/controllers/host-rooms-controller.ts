@@ -41,10 +41,7 @@ export class HostRoomsController {
 
   public enterClientInGame(client: Client, data: GameConfig): void {
     const gameRoom = this.getGameToJoin(data);
-    console.log(gameRoom.details);
-
-
-    // return gameRoom;
+    gameRoom.joinClient(client);
   }
 
   public removeClientFromCurrentGame(client: Client): void {

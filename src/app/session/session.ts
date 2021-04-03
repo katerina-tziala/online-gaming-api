@@ -22,6 +22,10 @@ export class Session {
     return Array.from(this._clients.values());
   }
 
+  public get numberOfClients(): number {
+    return this._clients.size;
+  }
+
   public get clientsInfo(): ClientData[] {
     return this.clients.map((peer) => peer.info);
   }
@@ -87,5 +91,10 @@ export class Session {
     const user = client.info;
     const peers = this.getPeersDetailsOfClient(client);
     client.sendMessage(type, { user, peers });
+  }
+
+  public broadcastToPeers(initiator: Client, type: MessageOutType, data: {}): void {
+    const peers = this.getClientPeers(initiator);
+    peers.forEach((client) => client.sendMessage(type, data));
   }
 }
