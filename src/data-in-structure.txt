@@ -36,15 +36,17 @@
   "type": "enter-game",
   "data": {
     "playersAllowed": 2,
-    "startWaitingTime": 8000,
+    "startWaitingTime": 2000,
     "roomType": "type1",
     "settings": {}
   }
 }
 
 
-
-
+- QUIT GAME
+{
+  "type": "quit-game"
+}
 
 
 
@@ -75,12 +77,7 @@
 }
 
 
-{
-  "type": "quit-game",
-  "data": {
-    "test": "over"
-  }
-}
+
 
 {
   "type": "game-message",

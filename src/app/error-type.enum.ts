@@ -15,11 +15,12 @@ export enum ErrorType {
   RecipientNotConnected = "recipient-not-connected",
   GameEntranceForbidden = "game-entrance-forbidden",
   GameNotFound = "game-not-found",
+  NotInGame = "not-in-game",
+
+
   // ExpectedPlayersNotSpecified = "expected-players-not-specified",
   // ExpectedPlayersNotConnected = "expected-players-not-connected",
   // SomeExpectedPlayersNotConnected = "some-expected-players-not-connected",
-  //
-  // ClientNotInGame = "not-in-game",
   // RestarErrorRoomNotFilled = "not-all-players-in-game-to-request-restart",
   // GameNotStarted = "game-not-started-to-request-restart",
   // RestartNotRequested = "restart-not-requested",

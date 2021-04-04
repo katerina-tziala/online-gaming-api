@@ -10,17 +10,15 @@ import { MessageOutType } from "../../messages/message-types/message-types.enum"
 export class GameRoom extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
   private _config: GameConfig;
-  private _settings: {} = {};
   private startedAt: string;
   private endedAt: string;
   private playerStartId: string;
   public key: string;
 
-  constructor(config: GameConfig, settings?: {}) {
+  constructor(config: GameConfig) {
     super();
     this._config = ConfigUtils.getValidGameConfig(config);
     this.key = ConfigUtils.generateGameKey(config);
-    this._settings = settings;
     this.init();
   }
   // protected
@@ -62,7 +60,7 @@ export class GameRoom extends Session {
   public get details(): GameInfo {
     return {
       ...this.info,
-      settings: this._settings,
+      settings: this._config.settings,
       players: this.clientsInfo,
       playerStartId: this.playerStartId,
       startedAt: this.startedAt,
@@ -107,7 +105,7 @@ export class GameRoom extends Session {
   }
 
   public joinClient(client: Client): void {
-    !this.entranceAllowed ?this.broadcastForbiddenEntrance(client) : this.addPlayer(client);
+    !this.entranceAllowed ? this.broadcastForbiddenEntrance(client) : this.addPlayer(client);
   }
 
   public onPlayerLeft(client: Client): void {

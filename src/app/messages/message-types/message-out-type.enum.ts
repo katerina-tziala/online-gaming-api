@@ -9,9 +9,10 @@ export enum MessageOutType {
   PlayerJoined = "player-joined",
   PlayerLeft = "player-left",
   GameStart = "game-start",
+  GameExited = "game-exited",
+
   // GameUpdate = "game-update",
   // GameOver = "game-over",
-  //
   // GameMessage = "game-message",
   // GameState = "game-state",
   // GameRestartRequest = "game-restart-request",
@@ -21,7 +22,7 @@ export enum MessageOutType {
   // GameRestartAccepted = "game-restart-accepted",
   // GameInvitation = "game-invitation",
   // GameAccessForbidden = "game-access-forbidden",
-  // GameRoomExited = "game-room-exited",
+  //
   // GameInvitationCanceled = "game-invitation-canceled",
   // GameInvitationRejected = "game-invitation-rejected",
 }

@@ -52,11 +52,10 @@ export class HostRoomsController {
 
   private getGameToJoin(data: GameConfig): GameRoom {
     const config: GameConfig = ConfigUtils.getValidGameConfig(data);
-    const { settings, ...gameConfig } = config;
-    const gameKey = ConfigUtils.generateGameKey(gameConfig);
+    const gameKey = ConfigUtils.generateGameKey(config);
     let gameRoom = this.getAvailableGameRoomByKey(gameKey);
     if (!gameRoom) {
-      gameRoom = new GameRoom(config, settings);
+      gameRoom = new GameRoom(config);
       this.addGameRoom = gameRoom;
     }
     return gameRoom;
@@ -90,6 +89,7 @@ export class HostRoomsController {
 
     // this.handleMessageForJoinedClient(client, message);
   }
+
 
 
 

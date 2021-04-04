@@ -13,10 +13,7 @@ import { HostRoomsController } from "../controllers/host-rooms-controller";
 import { GameConfig } from "./game-room/game-config/game-config.inteface";
 
 export class Host extends Session {
-  private _messageConfig: Map<
-    string,
-    (client: Client, data?: {}) => void
-  > = new Map();
+  private _messageConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
   private _GameRoomsController = new HostRoomsController();
 
   constructor() {
@@ -25,6 +22,7 @@ export class Host extends Session {
     this._messageConfig.set(MessageInType.UserUpdate, this.onUpdateClient.bind(this));
     this._messageConfig.set(MessageInType.PrivateChat, this.onPrivateChatMessage.bind(this));
     this._messageConfig.set(MessageInType.EnterGame, this.onEnterGame.bind(this));
+    this._messageConfig.set(MessageInType.QuitGame, this.onQuitGame.bind(this));
   }
 
   private broadcastPeersUpdate(client: Client): void {
@@ -155,6 +153,14 @@ export class Host extends Session {
     }
   }
 
+  private onQuitGame(client: Client): void {
+    if (client.allowedToSendGameMessage(MessageInType.QuitGame)) {
+      this._GameRoomsController.removeClientFromCurrentGame(client);
+      this.addInClients(client);
+      this.notifyJoinedClient(client, MessageOutType.GameExited);
+      this.broadcastPeersUpdate(client);
+    }
+  }
 
   public disconnectClient(client: Client): void {
     if (!client) {

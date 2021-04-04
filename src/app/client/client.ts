@@ -2,9 +2,9 @@
 import * as WebSocket from "ws";
 import { IdGenerator } from "../../utils/id-generator";
 import { ClientData } from "./client-data.interface";
-import { MessageOutType } from "../messages/message-types/message-types.enum";
+import { MessageInType, MessageOutType } from "../messages/message-types/message-types.enum";
 import { ErrorType } from "../error-type.enum";
-import { ErrorMessage, MessageOut } from "../messages/message.interface";
+import { ErrorMessage, MessageIn, MessageOut } from "../messages/message.interface";
 import { UsernameValidator, validObject } from "../validators/validators";
 import { Chat } from "../chat.interface";
 
@@ -91,8 +91,8 @@ export class Client {
     this.send<ErrorMessage>({ type, errorType, data });
   }
 
-  public sendGameNotFound(gameRoomId: string): void {
-    this.sendErrorMessage(ErrorType.GameNotFound, { gameRoomId });
+  public sendGameNotFound(gameRoomId: string, messageType = MessageInType.Join): void {
+    this.sendErrorMessage(ErrorType.GameNotFound, { gameRoomId, messageType });
   }
 
   public sendUserInfo(): void {
@@ -125,6 +125,14 @@ export class Client {
 
   private updateDataDefined(username: any, properties: {}): boolean {
     return (username || properties) ? true : false;
+  }
+
+  public allowedToSendGameMessage(messageType: MessageInType): boolean {
+    if (!this.gameRoomId) {
+      this.sendErrorMessage(ErrorType.NotInGame, { messageType });
+      return false;
+    }
+    return true;
   }
 
 }
