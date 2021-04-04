@@ -15,6 +15,7 @@ import { GameConfig } from "./game-room/game-config/game-config.inteface";
 export class Host extends Session {
   private _messageConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
   private _GameRoomsController = new HostRoomsController();
+  private _gameMessages = [MessageInType.GameState, MessageInType.GameChat, MessageInType.GameUpdate, MessageInType.GameOver];
 
   constructor() {
     super();
@@ -25,6 +26,9 @@ export class Host extends Session {
     this._messageConfig.set(MessageInType.QuitGame, this.onQuitGame.bind(this));
   }
 
+  private messageHandledByGame(type: MessageInType): boolean {
+    return this._gameMessages.includes(type);
+  }
   private broadcastPeersUpdate(client: Client): void {
     let peers = this.getClientPeers(client);
     peers = peers.filter(peer => !peer.gameRoomId);
@@ -38,18 +42,18 @@ export class Host extends Session {
       this.onJoinClient(client, data);
       return;
     }
-
+    if (!this.clientExists(client)) {
+      client.sendErrorMessage(ErrorType.NotJoined, message);
+      return;
+    }
     this.handleMessageForJoinedClient(client, message);
   }
 
   private handleMessageForJoinedClient(client: Client, message: MessageIn): void {
     const { type, data } = message;
-    if (!this.clientExists(client)) {
-      client.sendErrorMessage(ErrorType.NotJoined, message);
-      return;
-    }
-
-    if (this._messageConfig.has(type)) {
+    if (this.messageHandledByGame(type)) {
+      this._GameRoomsController.onGameBasedMessage(client, message);
+    } else if (this._messageConfig.has(type)) {
       this._messageConfig.get(type)(client, data || {});
     } else {
       console.log("method type not implemented");

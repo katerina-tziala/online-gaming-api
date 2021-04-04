@@ -5,14 +5,13 @@ export enum MessageInType {
   PrivateChat = "private-chat",
   EnterGame = "enter-game",
   QuitGame = "quit-game",
-  // GameChat = "game-chat",
-  // GameUpdate = "game-update",
-  // GameOver = "game-over",
-  // GameState = "game-state",
+  GameState = "game-state",
+  GameChat = "game-chat",
+  GameUpdate = "game-update",
+  GameOver = "game-over",
 
-  // Disconnect = "disconnect",
+
   // OpenGameRoom = "open-game-room",
-  //
   // GameRestartRequest = "game-restart-request",
   // GameRestartReject = "game-restart-reject",
   // GameRestartAccept = "game-restart-accept",
