@@ -3,7 +3,7 @@ import { getDurationFromDates, randomFromArray } from "../../../utils/utils";
 import { Duration } from "../../duration.interface";
 import { Session } from "../session";
 import { ConfigUtils, GameConfig } from "./game-config/game-config";
-import { GameInfo, PlayerEntrance } from "./game.interfaces";
+import { GameInfo, PlayerInOut } from "./game.interfaces";
 import { ErrorType } from "../../error-type.enum";
 import { MessageOutType } from "../../messages/message-types/message-types.enum";
 
@@ -81,15 +81,11 @@ export class GameRoom extends Session {
     this.endedAt = undefined;
   }
 
-  public joinClient(client: Client): void {
-      !this.entranceAllowed ?this.broadcastForbiddenEntrance(client) : this.addPlayer(client);
-  }
-
   private addPlayer(client: Client): void {
     client.gameRoomId = this.id;
     this.addClient(client);
     this.broadcastRoomOpened(client);
-    this.broadcastPlayerEntrance(client);
+    this.broadcastPlayerInOut(client, MessageOutType.PlayerJoined);
     this.checkGameStart();
   }
 
@@ -110,10 +106,21 @@ export class GameRoom extends Session {
     }
   }
 
+  public joinClient(client: Client): void {
+    !this.entranceAllowed ?this.broadcastForbiddenEntrance(client) : this.addPlayer(client);
+  }
+
+  public onPlayerLeft(client: Client): void {
+    clearTimeout(this.startTimeout);
+    client.gameRoomId = null;
+    this.removeClient(client);
+    this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
+  }
+
   // MESSAGE BROADCAST
-  private getPlayerEntranceData(client: Client): PlayerEntrance {
+  private getPlayerInOutData(client: Client): PlayerInOut {
     return {
-      playerJoined: client.info,
+      player: client.info,
       game: this.details,
     };
   }
@@ -123,12 +130,7 @@ export class GameRoom extends Session {
   }
 
   private broadcastRoomOpened(client: Client): void {
-    client.sendMessage(MessageOutType.GameRoomOpened, this.getPlayerEntranceData(client));
-  }
-
-  private broadcastPlayerEntrance(clientJoined: Client): void {
-    const data = this.getPlayerEntranceData(clientJoined);
-    this.broadcastToPeers(clientJoined, MessageOutType.PlayerJoined, data);
+    client.sendMessage(MessageOutType.GameRoomOpened, this.getPlayerInOutData(client));
   }
 
   private broadcastGameStart(): void {
@@ -136,4 +138,10 @@ export class GameRoom extends Session {
       client.sendMessage(MessageOutType.GameStart, this.details)
     );
   }
+
+  private broadcastPlayerInOut(client: Client, type: MessageOutType): void {
+    const data = this.getPlayerInOutData(client);
+    this.broadcastToPeers(client,type, data);
+  }
+
 }

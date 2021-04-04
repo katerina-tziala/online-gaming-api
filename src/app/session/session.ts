@@ -41,7 +41,7 @@ export class Session {
     return this._clients.has(client.id);
   }
 
-  public getPeersDetailsOfClient(client: Client): ClientData[] {
+  public getPeersDetails(client: Client): ClientData[] {
     return this.getClientPeers(client).map((peer) => peer.info);
   }
 
@@ -73,19 +73,14 @@ export class Session {
     return this.getClientPeers(client).map(peer => peer.username);
   }
 
-  public broadcastPeersUpdate(client: Client): void {
-    const peers = this.getClientPeers(client);
-    peers.forEach(peer => this.notifyClientForPeersUpdate(peer));
-  }
-
   public notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
     const user = client.info;
-    const peers = this.getPeersDetailsOfClient(client);
+    const peers = this.getPeersDetails(client);
     client.sendMessage(type, { user, peers });
   }
 
-  protected notifyClientForPeersUpdate(client: Client): void {
-    const peers = this.getPeersDetailsOfClient(client);
+  public notifyClientForPeersUpdate(client: Client): void {
+    const peers = this.getPeersDetails(client);
     client.sendMessage(MessageOutType.Peers, { peers });
   }
 

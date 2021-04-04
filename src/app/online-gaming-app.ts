@@ -8,37 +8,29 @@ import { Host } from "./session/host";
 
 export class OnlineGamingApp {
   private _ALLOWED_MESSAGES: string[] = Object.values(MessageInType);
-  private _messageConfig: Map<
-    string,
-    (client: Client, data?: {}) => void
-  > = new Map();
+  private _messageConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
 
   // TODO: multiple hosts
-    private _host: Host;
+  private _host: Host;
 
   constructor() {
-
     this._host = new Host();
-
   }
 
-  private getHost(): Host {
-    return  this._host;
+  private getClientHost(): Host {
+    return this._host;
   }
 
   private messageTypeAllowed(type: MessageInType): boolean {
     return this._ALLOWED_MESSAGES.includes(type);
   }
 
-
   private handleMessage(client: Client, message: MessageIn): void {
     const { type } = message;
     if (type === MessageInType.UserInfo) {
       this.onGetClientInfo(client);
-    } else if (type === MessageInType.Disconnect) {
-      console.log("disconnect from app");
     } else {
-      this.getHost().onMessage(client, message);
+      this.getClientHost().onMessage(client, message);
     }
   }
 
@@ -54,16 +46,15 @@ export class OnlineGamingApp {
     });
   }
 
-  private messageTypeValid(client: Client, type: MessageInType): boolean {
+  private checkMessageTypeAndHandle(client: Client, message: MessageIn): void {
+    const { type } = message;
     if (!type) {
       client.sendErrorMessage(ErrorType.MessageTypeExpected);
-      return false;
-    }
-    if (!this.messageTypeAllowed(type)) {
+    } else if(!this.messageTypeAllowed(type)) {
       this.sendAllowedMessagesError(client);
-      return false;
+    } else {
+      this.handleMessage(client, message);
     }
-    return true;
   }
 
   public onMessage(client: Client, messageString: string): void {
@@ -72,29 +63,18 @@ export class OnlineGamingApp {
       client.sendErrorMessage(ErrorType.JSONDataExcpected);
       return;
     }
-    const { type } = messageData;
-    if (this.messageTypeValid(client, type)) {
-      this.handleMessage(client, messageData);
-    }
+    this.checkMessageTypeAndHandle(client, messageData);
   }
-
-
-
-
-
 
   public disconnect(client: Client): void {
-    console.log("disconnect");
-    console.log(client.info);
+    if (!client) {
+      return;
+    }
+    const host = this.getClientHost();
+    host.disconnectClient(client);
+    if (!host.hasClients) {
+      // TODO:
+      console.log("when multiple remove host");
+    }
   }
-  // function disconnect(client: Client): void {
-  //   if (!client) {
-  //     return;
-  //   }
-  //   const host = getClientHost(client);
-  //   host.disconnectClient(client);
-  //   if (!host.hasClients) {
-  //     GamingHosts.delete(host.id);
-  //   }
-  // }
 }

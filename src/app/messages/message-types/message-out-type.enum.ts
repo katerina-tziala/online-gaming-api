@@ -7,10 +7,11 @@ export enum MessageOutType {
   PrivateChat = "private-chat",
   GameRoomOpened = "game-room-opened",
   PlayerJoined = "player-joined",
+  PlayerLeft = "player-left",
   GameStart = "game-start",
   // GameUpdate = "game-update",
   // GameOver = "game-over",
-  // PlayerLeft = "player-left",
+  //
   // GameMessage = "game-message",
   // GameState = "game-state",
   // GameRestartRequest = "game-restart-request",

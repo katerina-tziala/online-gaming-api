@@ -27,6 +27,12 @@ export class Host extends Session {
     this._messageConfig.set(MessageInType.EnterGame, this.onEnterGame.bind(this));
   }
 
+  private broadcastPeersUpdate(client: Client): void {
+    let peers = this.getClientPeers(client);
+    peers = peers.filter(peer => !peer.gameRoomId);
+    peers.forEach(peer => this.notifyClientForPeersUpdate(peer));
+  }
+
   public onMessage(client: Client, message: MessageIn): void {
     const { type, data } = message;
 
@@ -147,5 +153,15 @@ export class Host extends Session {
     if (client.gameRoomId) {
       this.broadcastPeersUpdate(client);
     }
+  }
+
+
+  public disconnectClient(client: Client): void {
+    if (!client) {
+      return;
+    }
+    this._GameRoomsController.removeClientFromCurrentGame(client);
+    this.removeClient(client);
+    this.broadcastPeersUpdate(client);
   }
 }

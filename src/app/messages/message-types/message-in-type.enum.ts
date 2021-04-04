@@ -1,7 +1,7 @@
 export enum MessageInType {
   Join = "join",
   UserInfo = "user-info",
-  Disconnect = "disconnect",
+ // Disconnect = "disconnect",
   UserUpdate = "user-update",
   PrivateChat = "private-chat",
   EnterGame = "enter-game",

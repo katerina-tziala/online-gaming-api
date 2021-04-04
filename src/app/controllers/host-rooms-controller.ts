@@ -1,4 +1,5 @@
 import { Client } from "../client/client";
+import { MessageIn } from "../messages/message.interface";
 import {
   GameConfig,
   ConfigUtils,
@@ -28,6 +29,14 @@ export class HostRoomsController {
 
   private set addGameRoom(session: GameRoom) {
     this._gameRooms.addGameRoom = session;
+  }
+
+  public deleteGameRoom(session: GameRoom): void {
+    if (this._privateGameRooms.gameRoomExists(session.id)) {
+      this._privateGameRooms.deleteGameRoom(session);
+    } else {
+      this._gameRooms.deleteGameRoom(session);
+    }
   }
 
   public getAvailableGameRoomByKey(gameKey: string): GameRoom {
@@ -64,15 +73,28 @@ export class HostRoomsController {
     if (!gameRoom) {
       return;
     }
-    console.log("removeClientFromCurrentGame");
-    console.log(client.gameRoomId);
-    // remove from private game
-    // gameRoom.onPlayerLeft(client);
-    // // if client one?
-    // if (!gameRoom.hasClients) {
-    //   this.deleteGameRoom(gameRoom);
-    // }
+    gameRoom.onPlayerLeft(client);
+    if (!gameRoom.hasClients) {
+      this.deleteGameRoom(gameRoom);
+    }
   }
+
+
+  public onGameBasedMessage(client: Client, message: MessageIn): void {
+    const { type, data } = message;
+
+    // if (type === MessageInType.Join) {
+    //   this.onJoinClient(client, data);
+    //   return;
+    // }
+
+    // this.handleMessageForJoinedClient(client, message);
+  }
+
+
+
+
+
 
   // public set addPrivateGameRoom(session: GameRoomSession) {
   //   this._privateGameRooms.addGameRoom = session;

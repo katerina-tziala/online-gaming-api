@@ -15,8 +15,8 @@ export interface GameInfo extends GameConfig {
   expectedRestartCorfirmations?: string[];
 }
 
-export interface PlayerEntrance {
-  playerJoined: ClientData;
+export interface PlayerInOut {
+  player: ClientData;
   game: GameInfo;
   playersExpected?: ClientData[];
 }
