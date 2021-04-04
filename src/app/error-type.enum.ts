@@ -16,7 +16,7 @@ export enum ErrorType {
   GameEntranceForbidden = "game-entrance-forbidden",
   GameNotFound = "game-not-found",
   NotInGame = "not-in-game",
-
+  WaitForPlayers = "wait-for-players-to-join",
 
   // ExpectedPlayersNotSpecified = "expected-players-not-specified",
   // ExpectedPlayersNotConnected = "expected-players-not-connected",
@@ -26,7 +26,7 @@ export enum ErrorType {
   // RestartNotRequested = "restart-not-requested",
   // CannotUpdateWhenRestartRequested = "cannot-update-game-when-restart-requested",
   // CannotEndWhenRestartRequested = "cannot-end-game-when-restart-requested",
-  // WaitForPlayersToJoin = "wait-for-players-to-join",
+  //
   // GameActionForbidden = "game-action-forbidden",
   //
 }

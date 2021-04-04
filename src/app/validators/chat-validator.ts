@@ -15,9 +15,9 @@ export class ChatValidator {
     public static validate(chatData: Chat): Validation {
       const { recipientId, content } = chatData;
       if (!recipientId || !recipientId.toString().length) {
-        return this.getValidationResult(chatData,  ErrorType.RecipientNotDefined);
+        return this.getValidationResult(chatData, ErrorType.RecipientNotDefined);
       } else if (!content) {
-        return this.getValidationResult(chatData,  ErrorType.ChatContentNotDefined);
+        return this.getValidationResult(chatData, ErrorType.ChatContentNotDefined);
       }
      return this.getValidationResult(chatData);
     }

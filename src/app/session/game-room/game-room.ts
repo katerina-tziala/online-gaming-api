@@ -7,6 +7,7 @@ import { GameInfo, PlayerInOut } from "./game.interfaces";
 import { ErrorType } from "../../error-type.enum";
 import { MessageInType, MessageOutType } from "../../messages/message-types/message-types.enum";
 import { MessageIn } from "../../messages/message.interface";
+import { Chat } from "../../chat.interface";
 
 export class GameRoom extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
@@ -136,9 +137,30 @@ export class GameRoom extends Session {
     client.sendMessage(MessageOutType.GameState, this.details);
   }
 
-  private onGameChat(client: Client, data: {}): void {
-    console.log("onGameChat");
-    console.log(client.info);
+  private onGameChat(client: Client, data: Chat): void {
+    const messageType = MessageInType.GameChat;
+    if (this.playersExpectedOnMessage(client, messageType)) {
+      return;
+    }
+    if (!data.content) {
+      client.sendErrorMessage(ErrorType.ChatContentNotDefined, { messageType });
+      return;
+    }
+
+    const message = {
+      sender: client.info,
+      content: data.content,
+      deliveredAt: new Date().toString()
+    };
+    this.broadcastToPeers(client, MessageOutType.GameChat, message);
+  }
+
+  private playersExpectedOnMessage(client: Client, messageType: MessageInType): boolean {
+    if (!this.filled) {
+      client.sendErrorMessage(ErrorType.WaitForPlayers, { messageType });
+      return true
+    }
+    return false;
   }
 
   private onGameUpdate(client: Client, data: {}): void {
@@ -150,6 +172,12 @@ export class GameRoom extends Session {
     console.log("onGameOver");
     console.log(client.info);
   }
+
+
+
+
+
+
 
   // MESSAGE BROADCAST
   private getPlayerInOutData(client: Client): PlayerInOut {
