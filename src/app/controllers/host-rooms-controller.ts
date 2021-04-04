@@ -80,14 +80,19 @@ export class HostRoomsController {
 
 
   public onGameBasedMessage(client: Client, message: MessageIn): void {
-    const { type, data } = message;
+    const { type } = message;
 
-    // if (type === MessageInType.Join) {
-    //   this.onJoinClient(client, data);
-    //   return;
-    // }
+    if (!client.allowedToSendGameMessage(type)) {
+      return;
+    }
 
-    // this.handleMessageForJoinedClient(client, message);
+    const gameRoom = this.getGameRoomById(client.gameRoomId);
+    if (!gameRoom) {
+      client.sendGameNotFound(client.gameRoomId, type);
+      return;
+    }
+
+    gameRoom.onMessage(client, message);
   }
 
 

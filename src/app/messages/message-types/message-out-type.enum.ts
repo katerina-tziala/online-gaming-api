@@ -10,11 +10,11 @@ export enum MessageOutType {
   PlayerLeft = "player-left",
   GameStart = "game-start",
   GameExited = "game-exited",
+  GameState = "game-state",
 
   // GameUpdate = "game-update",
   // GameOver = "game-over",
   // GameMessage = "game-message",
-  // GameState = "game-state",
   // GameRestartRequest = "game-restart-request",
   // GameRestartCanceled = "game-restart-canceled",
   // GameRestartRejected = "game-restart-rejected",
@@ -22,7 +22,6 @@ export enum MessageOutType {
   // GameRestartAccepted = "game-restart-accepted",
   // GameInvitation = "game-invitation",
   // GameAccessForbidden = "game-access-forbidden",
-  //
   // GameInvitationCanceled = "game-invitation-canceled",
   // GameInvitationRejected = "game-invitation-rejected",
 }

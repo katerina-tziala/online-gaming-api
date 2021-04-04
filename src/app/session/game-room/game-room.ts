@@ -5,7 +5,8 @@ import { Session } from "../session";
 import { ConfigUtils, GameConfig } from "./game-config/game-config";
 import { GameInfo, PlayerInOut } from "./game.interfaces";
 import { ErrorType } from "../../error-type.enum";
-import { MessageOutType } from "../../messages/message-types/message-types.enum";
+import { MessageInType, MessageOutType } from "../../messages/message-types/message-types.enum";
+import { MessageIn } from "../../messages/message.interface";
 
 export class GameRoom extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
@@ -14,14 +15,23 @@ export class GameRoom extends Session {
   private endedAt: string;
   private playerStartId: string;
   public key: string;
+  private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
 
   constructor(config: GameConfig) {
     super();
+    this.setMessageHandling();
     this._config = ConfigUtils.getValidGameConfig(config);
     this.key = ConfigUtils.generateGameKey(config);
     this.init();
   }
-  // protected
+
+  protected setMessageHandling(): void {
+    this._messageHandlingConfig.set(MessageInType.GameState, this.onGetGameState.bind(this));
+    this._messageHandlingConfig.set(MessageInType.GameChat, this.onGameChat.bind(this));
+    this._messageHandlingConfig.set(MessageInType.GameUpdate, this.onGameUpdate.bind(this));
+    this._messageHandlingConfig.set(MessageInType.GameOver, this.onGameOver.bind(this));
+  }
+
   private setStartingPlayer(): void {
     const playersIds = this.clients.map((client) => client.id);
     this.playerStartId = randomFromArray<string>(playersIds);
@@ -110,9 +120,35 @@ export class GameRoom extends Session {
 
   public onPlayerLeft(client: Client): void {
     clearTimeout(this.startTimeout);
-    client.gameRoomId = null;
     this.removeClient(client);
+    client.gameRoomId = null;
     this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
+  }
+
+  public onMessage(client: Client, message: MessageIn): void {
+    const { type, data } = message;
+    if (this._messageHandlingConfig.has(type)) {
+      this._messageHandlingConfig.get(type)(client, data || {});
+    }
+  }
+
+  private onGetGameState(client: Client): void {
+    client.sendMessage(MessageOutType.GameState, this.details);
+  }
+
+  private onGameChat(client: Client, data: {}): void {
+    console.log("onGameChat");
+    console.log(client.info);
+  }
+
+  private onGameUpdate(client: Client, data: {}): void {
+    console.log("onGameUpdate");
+    console.log(client.info);
+  }
+
+  private onGameOver(client: Client, data: {}): void {
+    console.log("onGameOver");
+    console.log(client.info);
   }
 
   // MESSAGE BROADCAST

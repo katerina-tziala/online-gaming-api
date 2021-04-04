@@ -11,6 +11,7 @@
   }
 }
 
+
 - UPDATE USER
 {
   "type": "user-update",
@@ -22,6 +23,7 @@
   }
 }
 
+
 - PRIVATE CHAT
 {
   "type": "private-chat",
@@ -30,6 +32,7 @@
     "content": {}
   }
 }
+
 
 - ENTER GAME
 {
@@ -49,6 +52,39 @@
 }
 
 
+- GAME STATE
+{
+  "type": "game-state"
+}
+
+
+- GAME CHAT
+{
+  "type": "game-chat",
+  "data": {
+    "test": "lets chat"
+  }
+}
+
+
+- GAME UPDATE
+{
+  "type": "game-update",
+  "data": {
+    "test": "test"
+  }
+}
+
+
+- GAME OVER
+{
+  "type": "game-over",
+  "data": {
+    "test": "over"
+  }
+}
+
+
 
 {
   "type": "open-private-game-room",
@@ -62,36 +98,13 @@
 
 
 
-{
-  "type": "game-update",
-  "data": {
-    "test": "test"
-  }
-}
-
-{
-  "type": "game-over",
-  "data": {
-    "test": "over"
-  }
-}
 
 
 
 
-{
-  "type": "game-message",
-  "data": {
-    "test": "lets"
-  }
-}
 
-{
-  "type": "game-state",
-  "data": {
-    "gameRoomId": "rrr"
-  }
-}
+
+
 
 
 {

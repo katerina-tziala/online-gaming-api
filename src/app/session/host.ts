@@ -26,7 +26,7 @@ export class Host extends Session {
     this._messageConfig.set(MessageInType.QuitGame, this.onQuitGame.bind(this));
   }
 
-  private messageHandledByGame(type: MessageInType): boolean {
+  private gameBasedMessage(type: MessageInType): boolean {
     return this._gameMessages.includes(type);
   }
   private broadcastPeersUpdate(client: Client): void {
@@ -50,10 +50,17 @@ export class Host extends Session {
   }
 
   private handleMessageForJoinedClient(client: Client, message: MessageIn): void {
-    const { type, data } = message;
-    if (this.messageHandledByGame(type)) {
+    const { type } = message;
+    if (this.gameBasedMessage(type)) {
       this._GameRoomsController.onGameBasedMessage(client, message);
-    } else if (this._messageConfig.has(type)) {
+    } else {
+      this.onHostBeasedMessage(client, message);
+    }
+  }
+
+  private onHostBeasedMessage(client: Client, message: MessageIn): void {
+    const { type, data } = message;
+    if (this._messageConfig.has(type)) {
       this._messageConfig.get(type)(client, data || {});
     } else {
       console.log("method type not implemented");
