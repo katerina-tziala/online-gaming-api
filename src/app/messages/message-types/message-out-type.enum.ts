@@ -8,6 +8,7 @@ export enum MessageOutType {
   GameRoomOpened = "game-room-opened",
   PlayerJoined = "player-joined",
   PlayerLeft = "player-left",
+  PlayerUpdate = "player-update",
   GameStart = "game-start",
   GameExited = "game-exited",
   GameState = "game-state",

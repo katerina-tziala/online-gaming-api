@@ -1,18 +1,24 @@
 import { Duration } from "../../duration.interface";
 import { GameConfig } from "./game-config/game-config.inteface";
 import { ClientData } from "../../client/client-data.interface";
-
-export interface GameInfo extends GameConfig {
+export interface GameRoomInfo {
   id: string;
-  filled: boolean;
-  idle: boolean;
   createdAt: string;
-  startedAt?: string;
-  endedAt?: string;
-  playerStartId?: string;
-  players?: ClientData[];
+  key: string;
+  config: GameConfig;
+  filled: boolean;
+}
+
+export interface GameState {
+  idle: boolean;
+  startedAt: string;
+  endedAt: string;
+  playerStartId: string;
+  players: ClientData[];
   completedIn?: Duration;
-  expectedRestartCorfirmations?: string[];
+}
+export interface GameInfo extends GameRoomInfo {
+  gameState: GameState
 }
 
 export interface PlayerInOut {

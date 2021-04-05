@@ -145,15 +145,11 @@ export class Host extends Session {
   }
 
   private onUpdateClient(client: Client, data: ClientData): void {
-    // TODO: update client when in game
-    if (client.gameRoomId) {
-      console.log("onUpdateClient -- when client in game");
-      // console.log(client.info);
-    } else {
-      if (client.updated(data, this.getPeersUsernames(client))) {
-        this.notifyJoinedClient(client, MessageOutType.UserUpdated);
-        this.broadcastPeersUpdate(client);
-      }
+    const gameRoom = this._GameRoomsController.getGameRoomById(client.gameRoomId);
+    if (client.updated(data, this.getPeersUsernames(client))) {
+      gameRoom ? gameRoom.broadcastPlayerUpdate(client) : this.addInClients(client);
+      this.notifyJoinedClient(client, MessageOutType.UserUpdated);
+      this.broadcastPeersUpdate(client);
     }
   }
 

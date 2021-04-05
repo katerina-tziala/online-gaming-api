@@ -3,7 +3,7 @@ import { getDurationFromDates, randomFromArray } from "../../../utils/utils";
 import { Duration } from "../../duration.interface";
 import { Session } from "../session";
 import { ConfigUtils, GameConfig } from "./game-config/game-config";
-import { GameInfo, PlayerInOut, PlayerMesssage } from "./game.interfaces";
+import { GameInfo, GameRoomInfo, GameState, PlayerInOut, PlayerMesssage } from "./game.interfaces";
 import { ErrorType } from "../../error-type.enum";
 import { MessageInType, MessageOutType } from "../../messages/message-types/message-types.enum";
 import { MessageIn } from "../../messages/message.interface";
@@ -57,27 +57,31 @@ export class GameRoom extends Session {
     return !this.filled && this.idle;
   }
 
-  public get info(): GameInfo {
+  public get info(): GameRoomInfo {
     return {
       id: this.id,
       createdAt: this.createdAt,
+      key: this.key,
+      config: this._config,
       filled: this.filled,
+    };
+  }
+
+  public get gameState(): GameState {
+    return {
       idle: this.idle,
-      roomType: this._config.roomType,
-      playersAllowed: this._config.playersAllowed,
-      startWaitingTime: this._config.startWaitingTime,
+      startedAt: this.startedAt,
+      endedAt: this.endedAt,
+      playerStartId: this.playerStartId,
+      players: this.clientsInfo,
+      completedIn: this.completedIn
     };
   }
 
   public get details(): GameInfo {
     return {
       ...this.info,
-      settings: this._config.settings,
-      players: this.clientsInfo,
-      playerStartId: this.playerStartId,
-      startedAt: this.startedAt,
-      endedAt: this.endedAt,
-      completedIn: this.completedIn,
+      gameState: this.gameState
     };
   }
 
@@ -174,12 +178,6 @@ export class GameRoom extends Session {
     }
   }
 
-
-
-
-
-
-
   // MESSAGE BROADCAST
   private getPlayerMessage(client: Client, data?: {}): PlayerMesssage {
     return {
@@ -221,6 +219,10 @@ export class GameRoom extends Session {
       deliveredAt: new Date().toString()
     };
     this.broadcastToPeers(client, MessageOutType.GameChat, message);
+  }
+
+  public broadcastPlayerUpdate(client: Client): void {
+    this.broadcastToPeers(client, MessageOutType.PlayerUpdate, client.details);
   }
 
   private broadcastGameOver(client: Client, data: {}): void {
