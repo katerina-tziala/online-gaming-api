@@ -11,7 +11,7 @@ export class GameMessagingChecker {
   private static gameStartError(gameState: GameInfo): ErrorType {
     return !gameState.startedAt ? ErrorType.GameStart : undefined;
   }
-  private static gameOverError(gameState: GameInfo): ErrorType {
+  private static gameEndedError(gameState: GameInfo): ErrorType {
     return gameState.endedAt ? ErrorType.GameOver : undefined;
   }
 
@@ -19,7 +19,7 @@ export class GameMessagingChecker {
     return (
       GameMessagingChecker.playersJoinedError(gameState) ||
       GameMessagingChecker.gameStartError(gameState) ||
-      GameMessagingChecker.gameOverError(gameState)
+      GameMessagingChecker.gameEndedError(gameState)
     );
   }
 
@@ -33,6 +33,13 @@ export class GameMessagingChecker {
 
   public static gameUpdateError(gameState: GameInfo, data: {}): ErrorType {
     return GameMessagingChecker.updateDataErrorType(data) || GameMessagingChecker.gameUpdateBasedOnStateError(gameState);
+  }
+
+  public static gameOverError(gameState: GameInfo): ErrorType {
+    return (
+      GameMessagingChecker.playersJoinedError(gameState) ||
+      GameMessagingChecker.gameStartError(gameState)
+    );
   }
 
 }

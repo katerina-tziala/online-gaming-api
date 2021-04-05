@@ -3,7 +3,7 @@ import { getDurationFromDates, randomFromArray } from "../../../utils/utils";
 import { Duration } from "../../duration.interface";
 import { Session } from "../session";
 import { ConfigUtils, GameConfig } from "./game-config/game-config";
-import { GameInfo, PlayerInOut } from "./game.interfaces";
+import { GameInfo, PlayerInOut, PlayerMesssage } from "./game.interfaces";
 import { ErrorType } from "../../error-type.enum";
 import { MessageInType, MessageOutType } from "../../messages/message-types/message-types.enum";
 import { MessageIn } from "../../messages/message.interface";
@@ -91,6 +91,11 @@ export class GameRoom extends Session {
     this.endedAt = undefined;
   }
 
+  private endGame(): void {
+    clearTimeout(this.startTimeout);
+    this.endedAt = new Date().toString();
+  }
+
   private addPlayer(client: Client): void {
     client.gameRoomId = this.id;
     this.addClient(client);
@@ -154,14 +159,19 @@ export class GameRoom extends Session {
     if (errorType) {
       client.sendErrorMessage(errorType, { messageType });
     } else {
-      const sender = client.info;
-      this.broadcastToPeers(client, MessageOutType.GameUpdate, { sender, data });
+      this.broadcastToPeers(client, MessageOutType.GameUpdate, this.getPlayerMessage(client, data));
     }
   }
 
   private onGameOver(client: Client, data: {}): void {
-    console.log("onGameOver");
-    console.log(client.details);
+    const messageType = MessageInType.GameOver;
+    const errorType = GameMessagingChecker.gameOverError(this.details);
+    if (errorType) {
+      client.sendErrorMessage(errorType, { messageType });
+    } else {
+      this.endGame();
+      this.broadcastGameOver(client, data);
+    }
   }
 
 
@@ -171,6 +181,13 @@ export class GameRoom extends Session {
 
 
   // MESSAGE BROADCAST
+  private getPlayerMessage(client: Client, data?: {}): PlayerMesssage {
+    return {
+      sender: client.info,
+      data,
+    };
+  }
+
   private getPlayerInOutData(client: Client): PlayerInOut {
     return {
       player: client.info,
@@ -204,5 +221,11 @@ export class GameRoom extends Session {
       deliveredAt: new Date().toString()
     };
     this.broadcastToPeers(client, MessageOutType.GameChat, message);
+  }
+
+  private broadcastGameOver(client: Client, data: {}): void {
+    const message = this.getPlayerMessage(client, data);
+    message.game = this.details;
+    this.broadcastToPeers(client, MessageOutType.GameOver, message);
   }
 }

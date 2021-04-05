@@ -13,8 +13,8 @@ export enum MessageOutType {
   GameState = "game-state",
   GameChat = "game-chat",
   GameUpdate = "game-update",
-  //
-  // GameOver = "game-over",
+  GameOver = "game-over",
+
   // GameRestartRequest = "game-restart-request",
   // GameRestartCanceled = "game-restart-canceled",
   // GameRestartRejected = "game-restart-rejected",

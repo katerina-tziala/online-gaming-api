@@ -21,6 +21,15 @@ export interface PlayerInOut {
   playersExpected?: ClientData[];
 }
 
+export interface PlayerMesssage {
+  sender: ClientData;
+  data: {};
+  game?: GameInfo;
+}
+
+
+
+
 // export interface GameInvitation {
 //   creator: string;
 //   game: GameInfo;
