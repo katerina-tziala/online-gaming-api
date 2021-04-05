@@ -149,29 +149,19 @@ export class GameRoom extends Session {
   }
 
   private onGameUpdate(client: Client, data: {}): void {
-    console.log("onGameUpdate");
-    console.log(client.info);
     const messageType = MessageInType.GameUpdate;
     const errorType = GameMessagingChecker.gameUpdateError(this.details, data);
-
-    console.log(errorType);
-    console.log(data);
-
-    // if (this.restartRequest) {
-    //   player.sendError(MessageErrorType.CannotUpdateWhenRestartRequested, { type: MessageInType.GameUpdate, data});
-    //   return;
-    // }
-    // if (!this.endedAt) {
-    //   const sender = player.info;
-    //   this.broadcastToPeers(player, MessageOutType.GameUpdate, { sender, data });
-    // }
-
-
+    if (errorType) {
+      client.sendErrorMessage(errorType, { messageType });
+    } else {
+      const sender = client.info;
+      this.broadcastToPeers(client, MessageOutType.GameUpdate, { sender, data });
+    }
   }
 
   private onGameOver(client: Client, data: {}): void {
     console.log("onGameOver");
-    console.log(client.info);
+    console.log(client.details);
   }
 
 

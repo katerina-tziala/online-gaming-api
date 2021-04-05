@@ -59,9 +59,14 @@ export class Client {
     return {
       id: this.id,
       username: this.username,
-      gameRoomId: this.gameRoomId,
-      joinedAt: this._joinedAt,
       properties: this.properties
+    };
+  }
+
+  public get details(): ClientData {
+    return {
+      ...this.info,
+      joinedAt: this._joinedAt
     };
   }
 

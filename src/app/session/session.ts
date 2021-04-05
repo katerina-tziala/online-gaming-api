@@ -26,6 +26,10 @@ export class Session {
     return this._clients.size;
   }
 
+  public get clientsDetails(): ClientData[] {
+    return this.clients.map((peer) => peer.details);
+  }
+
   public get clientsInfo(): ClientData[] {
     return this.clients.map((peer) => peer.info);
   }
@@ -42,7 +46,7 @@ export class Session {
   }
 
   public getPeersDetails(client: Client): ClientData[] {
-    return this.getClientPeers(client).map((peer) => peer.info);
+    return this.getClientPeers(client).map((peer) => peer.details);
   }
 
   public findClientById(clientId: string): Client {
@@ -74,7 +78,7 @@ export class Session {
   }
 
   public notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
-    const user = client.info;
+    const user = client.details;
     const peers = this.getPeersDetails(client);
     client.sendMessage(type, { user, peers });
   }

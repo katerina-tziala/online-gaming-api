@@ -20,7 +20,7 @@ export enum ErrorType {
   WaitForPlayers = "wait-for-players-to-join",
   GameOver = "game-is-over",
   GameStart = "game-not-started",
-  UpdateData = "update-data-not-defined",
+  UpdateData = "update-data-not-object",
 
 
 
