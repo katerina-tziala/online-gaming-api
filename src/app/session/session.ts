@@ -2,12 +2,14 @@
 import { IdGenerator } from "../..//utils/id-generator";
 import { Client } from "../client/client";
 import { ClientData } from "../client/client-data.interface";
+import { ClientsController } from "../controllers/clients-controller";
 import { MessageOutType } from "../messages/message-types/message-out-type.enum";
 
 export class Session {
   public id: string;
   public createdAt: string = null;
-  public _clients: Map<string, Client> = new Map();
+  protected _clients: Map<string, Client> = new Map();
+  private _ClientsController: ClientsController = new ClientsController();
 
   constructor() {
     this.id = IdGenerator.generate();
@@ -15,19 +17,23 @@ export class Session {
   }
 
   public get hasClients(): boolean {
-    return !!this._clients.size;
+    return this._ClientsController.hasClients;
   }
 
   public get clients(): Client[] {
-    return Array.from(this._clients.values());
+    return this._ClientsController.clients;
   }
 
-  public get numberOfClients(): number {
-    return this._clients.size;
+  protected get numberOfClients(): number {
+    return this._ClientsController.numberOfClients;
   }
 
   public get clientsDetails(): ClientData[] {
     return this.clients.map((peer) => peer.details);
+  }
+
+  public get clientsIds(): string[] {
+    return this._ClientsController.clientsIds;
   }
 
   public get clientsInfo(): ClientData[] {
@@ -35,14 +41,11 @@ export class Session {
   }
 
   public getClientPeers(client: Client): Client[] {
-    if (!client) {
-      return this.clients;
-    }
-    return this.clients.filter((peer) => peer.id !== client.id);
+    return this._ClientsController.getClientPeers(client);
   }
 
   public clientExists(client: Client): boolean {
-    return this._clients.has(client.id);
+    return this._ClientsController.clientExists(client);
   }
 
   public getPeersDetails(client: Client): ClientData[] {
@@ -50,31 +53,23 @@ export class Session {
   }
 
   public findClientById(clientId: string): Client {
-    return this._clients.get(clientId);
+    return this._ClientsController.findClientById(clientId);
   }
 
   public getClientsByIds(clientIds: string[]): Client[] {
-    const clients: Client[] = [];
-    clientIds.forEach(clientId => {
-      if (this._clients.has(clientId)) {
-        clients.push(this._clients.get(clientId));
-      }
-    });
-    return clients;
+    return this._ClientsController.getClientsByIds(clientIds);
   }
 
   public removeClient(client: Client): void {
-    if (this.clientExists(client)) {
-      this._clients.delete(client.id);
-    }
+    this._ClientsController.removeClient(client);
   }
 
   public addClient(client: Client): void {
-    this._clients.set(client.id, client);
+    this._ClientsController.addClient(client);
   }
 
   public getPeersUsernames(client: Client): string[] {
-    return this.getClientPeers(client).map(peer => peer.username);
+    return this._ClientsController.getPeersUsernames(client);
   }
 
   public notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
@@ -92,4 +87,5 @@ export class Session {
     const peers = this.getClientPeers(initiator);
     peers.forEach((client) => client.sendMessage(type, data));
   }
+
 }

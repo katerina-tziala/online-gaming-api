@@ -3,10 +3,10 @@ import { GameConfig } from "./game-config/game-config.inteface";
 import { ClientData } from "../../client/client-data.interface";
 export interface GameRoomInfo {
   id: string;
-  createdAt: string;
-  key: string;
-  config: GameConfig;
-  filled: boolean;
+  createdAt?: string;
+  key?: string;
+  config?: GameConfig;
+  filled?: boolean;
 }
 
 export interface GameState {
@@ -14,9 +14,10 @@ export interface GameState {
   startedAt: string;
   endedAt: string;
   playerStartId: string;
-  players: ClientData[];
+  players?: ClientData[];
   completedIn?: Duration;
 }
+
 export interface GameInfo extends GameRoomInfo {
   gameState: GameState
 }

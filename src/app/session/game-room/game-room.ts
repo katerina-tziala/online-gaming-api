@@ -1,6 +1,5 @@
 import { Client } from "../../client/client";
-import { getDurationFromDates, randomFromArray } from "../../../utils/utils";
-import { Duration } from "../../duration.interface";
+import { ClientData } from "../../client/client-data.interface";
 import { Session } from "../session";
 import { ConfigUtils, GameConfig } from "./game-config/game-config";
 import { GameInfo, GameRoomInfo, GameState, PlayerInOut, PlayerMesssage } from "./game.interfaces";
@@ -9,22 +8,21 @@ import { MessageInType, MessageOutType } from "../../messages/message-types/mess
 import { MessageIn } from "../../messages/message.interface";
 import { Chat } from "../../chat.interface";
 import { GameMessagingChecker } from "./game-messaging-checker";
+import { GameController } from "../../controllers/game-controller";
 
 export class GameRoom extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
   private _config: GameConfig;
-  private startedAt: string;
-  private endedAt: string;
-  private playerStartId: string;
   public key: string;
   private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
+  private _Game: GameController;
 
   constructor(config: GameConfig) {
     super();
     this.setMessageHandling();
     this._config = ConfigUtils.getValidGameConfig(config);
     this.key = ConfigUtils.generateGameKey(config);
-    this.init();
+    this._Game = new GameController(true);
   }
 
   protected setMessageHandling(): void {
@@ -34,23 +32,12 @@ export class GameRoom extends Session {
     this._messageHandlingConfig.set(MessageInType.GameOver, this.onGameOver.bind(this));
   }
 
-  private setStartingPlayer(): void {
-    const playersIds = this.clients.map((client) => client.id);
-    this.playerStartId = randomFromArray<string>(playersIds);
-  }
-
   private get filled(): boolean {
     return this.numberOfClients === this._config.playersAllowed;
   }
 
   private get idle(): boolean {
-    return !this.startedAt && !this.endedAt;
-  }
-
-  private get completedIn(): Duration {
-    const start = this.startedAt ? new Date(this.startedAt) : undefined;
-    const end = this.endedAt ? new Date(this.endedAt) : undefined;
-    return getDurationFromDates(start, end);
+    return this._Game.idle;
   }
 
   public get entranceAllowed(): boolean {
@@ -68,14 +55,13 @@ export class GameRoom extends Session {
   }
 
   public get gameState(): GameState {
-    return {
-      idle: this.idle,
-      startedAt: this.startedAt,
-      endedAt: this.endedAt,
-      playerStartId: this.playerStartId,
-      players: this.clientsInfo,
-      completedIn: this.completedIn
-    };
+    const gameState = this._Game.state;
+    gameState.players = this.playersInfo;
+    return gameState;
+  }
+
+  public get playersInfo(): ClientData[] {
+    return this.clients.map(client => this._Game.getPlayerInfo(client));
   }
 
   public get details(): GameInfo {
@@ -89,15 +75,9 @@ export class GameRoom extends Session {
     return this.filled && this.idle;
   }
 
-  private init(): void {
-    this.playerStartId = undefined;
-    this.startedAt = undefined;
-    this.endedAt = undefined;
-  }
-
   private endGame(): void {
     clearTimeout(this.startTimeout);
-    this.endedAt = new Date().toString();
+    this._Game.endGame();
   }
 
   private addPlayer(client: Client): void {
@@ -118,9 +98,7 @@ export class GameRoom extends Session {
   private startGame(): void {
     clearTimeout(this.startTimeout);
     if (this.startAllowed) {
-      this.init();
-      this.setStartingPlayer();
-      this.startedAt = new Date().toString();
+      this._Game.start(this.clientsIds);
       this.broadcastGameStart();
     }
   }
@@ -202,8 +180,12 @@ export class GameRoom extends Session {
   }
 
   private broadcastGameStart(): void {
+    const data = {
+      id: this.id,
+      gameState: this.gameState
+    };
     this.clients.forEach((client) =>
-      client.sendMessage(MessageOutType.GameStart, this.details)
+      client.sendMessage(MessageOutType.GameStart, data)
     );
   }
 
@@ -222,7 +204,7 @@ export class GameRoom extends Session {
   }
 
   public broadcastPlayerUpdate(client: Client): void {
-    this.broadcastToPeers(client, MessageOutType.PlayerUpdate, client.details);
+    this.broadcastToPeers(client, MessageOutType.PlayerUpdate, this._Game.getPlayerInfo(client));
   }
 
   private broadcastGameOver(client: Client, data: {}): void {

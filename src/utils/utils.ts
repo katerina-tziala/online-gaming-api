@@ -45,3 +45,12 @@ export const getDurationFromDates = (endDate: Date, startDate: Date): Duration =
   return getDuration(differenceInSeconds);
 };
 
+export function arrayDifference<T>(arrayA: T[], arrayB: T[]): T[] {
+  const setB = new Set(arrayB);
+  return arrayA.filter(value => !setB.has(value));
+}
+
+export function isOdd(numberToCheck: number): boolean {
+  return numberToCheck % 2 === 0;
+}
+
