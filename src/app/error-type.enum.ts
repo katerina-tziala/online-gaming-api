@@ -9,7 +9,8 @@ export enum ErrorType {
   UsernameInUse = "username-in-use",
   NotJoined = "not-joined",
   UsernameOrPropertiesUpdate = "username-or-properties-update-allowed",
-  RecipientNotDefined = "recipient-not-defined",
+  ChatRecipientNotDefined = "chat-recipient-not-defined",
+  ChatDataObject = "chat-data-not-object",
   ChatContentNotDefined = "chat-content-not-defined",
   MessageToSelf = "cannot-send-message-to-yourself",
   RecipientNotConnected = "recipient-not-connected",
@@ -17,6 +18,11 @@ export enum ErrorType {
   GameNotFound = "game-not-found",
   NotInGame = "not-in-game",
   WaitForPlayers = "wait-for-players-to-join",
+  GameOver = "game-is-over",
+  GameStart = "game-not-started",
+  UpdateData = "update-data-not-defined",
+
+
 
   // ExpectedPlayersNotSpecified = "expected-players-not-specified",
   // ExpectedPlayersNotConnected = "expected-players-not-connected",

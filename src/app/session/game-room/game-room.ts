@@ -8,6 +8,7 @@ import { ErrorType } from "../../error-type.enum";
 import { MessageInType, MessageOutType } from "../../messages/message-types/message-types.enum";
 import { MessageIn } from "../../messages/message.interface";
 import { Chat } from "../../chat.interface";
+import { GameMessagingChecker } from "./game-messaging-checker";
 
 export class GameRoom extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
@@ -129,7 +130,7 @@ export class GameRoom extends Session {
   public onMessage(client: Client, message: MessageIn): void {
     const { type, data } = message;
     if (this._messageHandlingConfig.has(type)) {
-      this._messageHandlingConfig.get(type)(client, data || {});
+      this._messageHandlingConfig.get(type)(client, data);
     }
   }
 
@@ -139,33 +140,33 @@ export class GameRoom extends Session {
 
   private onGameChat(client: Client, data: Chat): void {
     const messageType = MessageInType.GameChat;
-    if (this.playersExpectedOnMessage(client, messageType)) {
-      return;
+    const errorType = GameMessagingChecker.gameChatError(this.info, data);
+    if (errorType) {
+      client.sendErrorMessage(errorType, { messageType });
+    } else {
+      this.broadcastGameChat(client, data);
     }
-    if (!data.content) {
-      client.sendErrorMessage(ErrorType.ChatContentNotDefined, { messageType });
-      return;
-    }
-
-    const message = {
-      sender: client.info,
-      content: data.content,
-      deliveredAt: new Date().toString()
-    };
-    this.broadcastToPeers(client, MessageOutType.GameChat, message);
-  }
-
-  private playersExpectedOnMessage(client: Client, messageType: MessageInType): boolean {
-    if (!this.filled) {
-      client.sendErrorMessage(ErrorType.WaitForPlayers, { messageType });
-      return true
-    }
-    return false;
   }
 
   private onGameUpdate(client: Client, data: {}): void {
     console.log("onGameUpdate");
     console.log(client.info);
+    const messageType = MessageInType.GameUpdate;
+    const errorType = GameMessagingChecker.gameUpdateError(this.details, data);
+
+    console.log(errorType);
+    console.log(data);
+
+    // if (this.restartRequest) {
+    //   player.sendError(MessageErrorType.CannotUpdateWhenRestartRequested, { type: MessageInType.GameUpdate, data});
+    //   return;
+    // }
+    // if (!this.endedAt) {
+    //   const sender = player.info;
+    //   this.broadcastToPeers(player, MessageOutType.GameUpdate, { sender, data });
+    // }
+
+
   }
 
   private onGameOver(client: Client, data: {}): void {
@@ -206,4 +207,12 @@ export class GameRoom extends Session {
     this.broadcastToPeers(client,type, data);
   }
 
+  private broadcastGameChat(client: Client, data: Chat): void {
+    const message = {
+      sender: client.info,
+      content: data.content,
+      deliveredAt: new Date().toString()
+    };
+    this.broadcastToPeers(client, MessageOutType.GameChat, message);
+  }
 }

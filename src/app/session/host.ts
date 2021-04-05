@@ -54,11 +54,11 @@ export class Host extends Session {
     if (this.gameBasedMessage(type)) {
       this._GameRoomsController.onGameBasedMessage(client, message);
     } else {
-      this.onHostBeasedMessage(client, message);
+      this.onHostBasedMessage(client, message);
     }
   }
 
-  private onHostBeasedMessage(client: Client, message: MessageIn): void {
+  private onHostBasedMessage(client: Client, message: MessageIn): void {
     const { type, data } = message;
     if (this._messageConfig.has(type)) {
       this._messageConfig.get(type)(client, data || {});
@@ -118,7 +118,7 @@ export class Host extends Session {
   }
 
   private onPrivateChatMessage(client: Client, data: Chat): void {
-    const { errorType } = ChatValidator.validate(data);
+    const errorType = ChatValidator.privateChatErrorType(data);
     const type = MessageInType.PrivateChat;
     const initialMessage = { type, data };
     if (errorType) {

@@ -1,25 +1,36 @@
-import { Chat } from '../chat.interface';
-import { ErrorType } from '../error-type.enum';
-import { Validation } from './validation-interface';
+import { Chat } from "../chat.interface";
+import { ErrorType } from "../error-type.enum";
+import { validObject } from "./validator-type";
 
 export class ChatValidator {
+  private static chatDatatErrorType(data: Chat): ErrorType {
+    return !validObject(data) ? ErrorType.ChatDataObject : undefined;
+  }
 
-    private static getValidationResult(value: Chat, errorType?: ErrorType): Validation {
-      return {
-        type: 'Chat interface',
-        value,
-        errorType
-      }
-    }
+  private static chatContentErrorType(data: Chat): ErrorType {
+    return !data.content ? ErrorType.ChatContentNotDefined : undefined;
+  }
 
-    public static validate(chatData: Chat): Validation {
-      const { recipientId, content } = chatData;
-      if (!recipientId || !recipientId.toString().length) {
-        return this.getValidationResult(chatData, ErrorType.RecipientNotDefined);
-      } else if (!content) {
-        return this.getValidationResult(chatData, ErrorType.ChatContentNotDefined);
-      }
-     return this.getValidationResult(chatData);
-    }
+  private static chatRecipientErrorType(data: Chat): ErrorType {
+    const { recipientId } = data;
+    return !recipientId || !recipientId.toString().length
+      ? ErrorType.ChatRecipientNotDefined
+      : undefined;
+  }
+
+  public static privateChatErrorType(data: Chat): ErrorType {
+    return (
+      ChatValidator.chatDatatErrorType(data) ||
+      ChatValidator.chatRecipientErrorType(data) ||
+      ChatValidator.chatContentErrorType(data)
+    );
+  }
+
+  public static chatErrorType(data: Chat): ErrorType {
+    return (
+      ChatValidator.chatDatatErrorType(data) ||
+      ChatValidator.chatContentErrorType(data)
+    );
+  }
 
 }
