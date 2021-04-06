@@ -183,7 +183,7 @@ export class GameRoom extends Session {
     };
   }
 
-  private getPlayerInOutData(client: Client): PlayerInOut {
+  protected getPlayerInOutData(client: Client): PlayerInOut {
     return {
       player: client.info,
       game: this.details,

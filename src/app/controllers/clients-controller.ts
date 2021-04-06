@@ -16,8 +16,9 @@ export class ClientsController {
     return Array.from(this._clients.values());
   }
 
-  public set clientsMap(clients: Map<string, Client>) {
-    this._clients = clients;
+  public set clients(clients: Client[]) {
+    this._clients = new Map();
+    clients.forEach(client => this.addClient(client));
   }
 
   public get clientsIds(): string[] {

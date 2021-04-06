@@ -34,7 +34,8 @@
 }
 
 
-- ENTER GAME
+- ENTER GAME / OPEN GAME ROOM
+//open-game-room
 {
   "type": "enter-game",
   "data": {
@@ -93,10 +94,7 @@
   }
 }
 
-
-
-//
-
+-  OPEN  PRIVATE GAME ROOM
 {
   "type": "open-private-game-room",
   "data": {

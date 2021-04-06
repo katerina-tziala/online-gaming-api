@@ -6,6 +6,7 @@ import {
 } from "../session/game-room/game-config/game-config";
 
 import { GameRoom } from "../session/game-room/game-room";
+import { GameRoomPrivate } from "../session/game-room/game-room-private";
 import { GameRoomsController } from "./game-rooms-controller";
 
 export class HostRoomsController {
@@ -14,10 +15,6 @@ export class HostRoomsController {
   // private messageActionConfig: Map<string, (client: Client, msg: MessageIn) => void> = new Map();
 
   constructor() {
-    // this.messageActionConfig.set(MessageInType.GameMessage, this.onGameMessage.bind(this));
-    // this.messageActionConfig.set(MessageInType.GameUpdate, this.onGameUpdate.bind(this));
-    // this.messageActionConfig.set(MessageInType.GameOver, this.onGameOver.bind(this));
-    // this.messageActionConfig.set(MessageInType.GameState, this.onGameState.bind(this));
     // this.messageActionConfig.set(MessageInType.GameRestartRequest, this.onGameRestartRequest.bind(this));
     // this.messageActionConfig.set(MessageInType.GameRestartReject, this.onGameRestartReject.bind(this));
     // this.messageActionConfig.set(MessageInType.GameRestartAccept, this.onGameRestartAccept.bind(this));
@@ -28,7 +25,15 @@ export class HostRoomsController {
     this._gameRooms.addGameRoom = session;
   }
 
-  public deleteGameRoom(session: GameRoom): void {
+  public set addPrivateGameRoom(session: GameRoomPrivate) {
+    this._privateGameRooms.addGameRoom = session;
+  }
+
+  public get hasGameRooms(): boolean {
+    return this._gameRooms.hasGameRooms || this._privateGameRooms.hasGameRooms;
+  }
+
+  public deleteGameRoom(session: GameRoom | GameRoomPrivate): void {
     if (this._privateGameRooms.gameRoomExists(session.id)) {
       this._privateGameRooms.deleteGameRoom(session);
     } else {
@@ -40,7 +45,7 @@ export class HostRoomsController {
     return this._gameRooms.getAvailableGameRoomByKey(gameKey);
   }
 
-  public getGameRoomById(gameId: string): GameRoom {
+  public getGameRoomById(gameId: string): GameRoomPrivate | GameRoom {
     return (
       this._privateGameRooms.getGameRoomById(gameId) ||
       this._gameRooms.getGameRoomById(gameId)
@@ -50,8 +55,6 @@ export class HostRoomsController {
   private getGameToJoin(data: GameConfig): GameRoom {
     const config: GameConfig = ConfigUtils.getValidGameConfig(data);
     const gameKey = ConfigUtils.generateGameKey(config);
-     console.log(config, gameKey);
-
     let gameRoom = this.getAvailableGameRoomByKey(gameKey);
     if (!gameRoom) {
       gameRoom = this.createNewGame(data);
@@ -89,7 +92,6 @@ export class HostRoomsController {
     }
   }
 
-
   public onGameBasedMessage(client: Client, message: MessageIn): void {
     const { type } = message;
 
@@ -106,111 +108,20 @@ export class HostRoomsController {
     gameRoom.onMessage(client, message);
   }
 
+  public openPrivateGameRoom(client: Client, configData: GameConfig, expectedPlayers: Client[]): void {
+    this.removeClientFromCurrentGame(client);
+    const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
+    config.playersRequired = expectedPlayers.length + 1;
+    const gameRoom = new GameRoomPrivate(config, client, expectedPlayers);
 
 
 
+    //
+    // gameRoom.onOpen(client, expectedPlayers);
+    // this.addPrivateGameRoom = gameRoom;
+    // return gameRoom;
 
 
 
-  // public set addPrivateGameRoom(session: GameRoomSession) {
-  //   this._privateGameRooms.addGameRoom = session;
-  // }
-
-  // public get hasGameRooms(): boolean {
-  //   return this._gameRooms.hasGameRooms || this._privateGameRooms.hasGameRooms;
-  // }
-
-  // public deleteGameRoom(session: GameRoomSession | PrivateGameSession): void {
-  //   if (this._privateGameRooms.gameRoomExists(session.id)) {
-  //     this._privateGameRooms.deleteGameRoom(session);
-  //   } else {
-  //     this._gameRooms.deleteGameRoom(session);
-  //   }
-  // }
-
-  // public openPrivateGameRoom(client: Client, configData: GameConfig, expectedPlayers: Client[], settings: {}): GameRoomSession | PrivateGameSession {
-  //   const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
-  //   config.playersAllowed = expectedPlayers.length + 1;
-  //   const gameRoom = new PrivateGameSession(config, settings);
-  //   gameRoom.onOpen(client, expectedPlayers);
-  //   this.addPrivateGameRoom = gameRoom;
-  //   return gameRoom;
-  // }
-
-  // public handleMessage(client: Client, msg: MessageIn): void {
-  //   if (this.messageActionConfig.get(msg.type)) {
-  //     this.messageActionConfig.get(msg.type)(client, msg);
-  //   } else {
-  //     console.log("not implemented");
-  //     console.log(msg);
-  //   }
-  // }
-
-  // public clientAllowedToSendGameMessage(client: Client, msg: MessageIn): boolean {
-  //   if (!client.gameRoomId) {
-  //     client.sendError(MessageErrorType.ClientNotInGame, msg);
-  //     return false;
-  //   }
-  //   return true;
-  // }
-
-  // private checkAndGetGameOnClientMessage(client: Client, msg: MessageIn,
-  //   callBack: (gameRoom: GameRoomSession | PrivateGameSession) => void): void {
-  //   if (!this.clientAllowedToSendGameMessage(client, msg)) {
-  //     return;
-  //   }
-  //   this.getGameForMessage(client, client.gameRoomId, msg, callBack);
-  // }
-
-  // public getGameForMessage(client: Client, gameRoomId: string, msg: MessageIn,
-  //   callBack: (gameRoom: GameRoomSession | PrivateGameSession) => void): void {
-  //   const gameRoom = this.getGameRoomById(gameRoomId);
-  //   if (!gameRoom) {
-  //     client.sendError(MessageErrorType.GameNotFound, msg);
-  //     return;
-  //   }
-  //   callBack(gameRoom);
-  // }
-
-  // private onGameMessage(client: Client, msg: MessageIn): void {
-  //   this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
-  //     gameRoom.broadcastGameMessage(client, msg.data);
-  //   });
-  // }
-
-  // private onGameOver(client: Client, msg: MessageIn): void {
-  //   this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
-  //     gameRoom.onGameOver(client, msg.data);
-  //   });
-  // }
-
-  // private onGameUpdate(client: Client, msg: MessageIn): void {
-  //   this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
-  //     gameRoom.broadcastGameUpdate(client, msg.data);
-  //   });
-  // }
-
-  // private onGameState(client: Client, msg: MessageIn): void {
-  //   this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
-  //     client.notify(MessageOutType.GameState, gameRoom.state);
-  //   });
-  // }
-
-  // private onGameRestartRequest(client: Client, msg: MessageIn): void {
-  //   this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
-  //     gameRoom.onRequestRestart(client);
-  //   });
-  // }
-
-  // private onGameRestartReject(client: Client, msg: MessageIn): void {
-  //   this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
-  //     gameRoom.onRestartReject(client);
-  //   });
-  // }
-
-  // private onGameRestartAccept(client: Client, msg: MessageIn): void {
-  //   this.checkAndGetGameOnClientMessage(client, msg, (gameRoom) => {
-  //     gameRoom.onRestartAccept(client);
-  //   });
-  // }
+  }
 }
