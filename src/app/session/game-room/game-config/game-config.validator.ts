@@ -2,7 +2,7 @@
 
 import { ValidTypes } from "../../../validators/validators";
 import { GameConfig } from "./game-config.inteface";
-import { TurnsSwitchType } from "../../../game/turns/turns-switch.enum";
+import { TurnsSwitch } from "../../../game/turns/turns-switch.enum";
 export class GameConfigValidator {
   private static _DEFAULT_GAME_CONFIG = {
     playersAllowed: 2,
@@ -46,13 +46,13 @@ export class GameConfigValidator {
     return playersAllowed > 1 ? playersAllowed : this._DEFAULT_GAME_CONFIG.playersAllowed;
   }
 
-  private static getValidTurnsSwitch(value: TurnsSwitchType): TurnsSwitchType {
-    const allowedValues: string[] = Object.values(TurnsSwitchType);
+  private static getValidTurnsSwitch(value: TurnsSwitch): TurnsSwitch {
+    const allowedValues: string[] = Object.values(TurnsSwitch);
     return allowedValues.includes(value) ? value : undefined;
   }
 
 
-  private static getValidTurnsRandomStart(value: boolean, turnsSwitch: TurnsSwitchType) {
+  private static getValidTurnsRandomStart(value: boolean, turnsSwitch: TurnsSwitch) {
     if (!turnsSwitch) {
       return undefined;
     }

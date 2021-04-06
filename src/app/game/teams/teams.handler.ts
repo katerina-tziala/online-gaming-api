@@ -2,11 +2,6 @@ import { arrayDifference, randomFromArray } from "../../../utils/utils";
 
 export class TeamsHandler {
 
-  public static teamsConfigurationValid(numberOfPlayers: number, numberOfTeams = 2): boolean {
-    const playersInTeam = this.numberOfPlayersPerTeam(numberOfPlayers, numberOfTeams);
-    return Number.isInteger(playersInTeam) && playersInTeam > 2;
-  }
-
   public static numberOfPlayersPerTeam(numberOfPlayers: number, numberOfTeams = 2): number {
     return numberOfPlayers / numberOfTeams;
   }

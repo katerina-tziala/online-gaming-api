@@ -1,26 +1,26 @@
 import { ArraySuffling } from "../../../utils/array-suffling";
 import { positionInArray } from "../../../utils/utils";
-import { TurnsSwitchType } from "./turns-switch.enum";
+import { TurnsSwitch } from "./turns-switch.enum";
 
 export class TurnsHandler {
-  private _turnsConfig: Map<TurnsSwitchType, (arrayToSuffle: string[]) => string[]> = new Map();
+  private _turnsConfig: Map<TurnsSwitch, (arrayToSuffle: string[]) => string[]> = new Map();
   private _turnsIndex: string[] = [];
   private _teamsTurns: string[] = [];
   private _playersIds: string[] = [];
   private _teamsMap: Map<string, string[]>;
-  private _turnsSwitchType = TurnsSwitchType.LeftWise;
+  private _turnsSwitchType = TurnsSwitch.LeftWise;
   private _randomStart = true;
 
-  constructor(switchType: TurnsSwitchType, randomStart = true) {
+  constructor(switchType: TurnsSwitch, randomStart = true) {
     this._turnsSwitchType = switchType;
     this._randomStart = randomStart;
     this.setTurnsConfig();
   }
 
   private setTurnsConfig(): void {
-    this._turnsConfig.set(TurnsSwitchType.RightWise, this.getRightWiseTurns.bind(this));
-    this._turnsConfig.set(TurnsSwitchType.LeftWise, this.getLeftWiseTurns.bind(this));
-    this._turnsConfig.set(TurnsSwitchType.Random, this.getRandomTurns.bind(this));
+    this._turnsConfig.set(TurnsSwitch.RightWise, this.getRightWiseTurns.bind(this));
+    this._turnsConfig.set(TurnsSwitch.LeftWise, this.getLeftWiseTurns.bind(this));
+    this._turnsConfig.set(TurnsSwitch.Random, this.getRandomTurns.bind(this));
   }
 
   public get startingPlayer(): string {
