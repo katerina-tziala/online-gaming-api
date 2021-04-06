@@ -1,35 +1,34 @@
-import { GameConfig } from "./game-config.inteface";
-import { GameConfigValidator } from "./game-config.validator";
+import { GameConfig, TeamsConfig } from "./game-config.inteface";
+import { GameConfigValidator } from "./game-config-validators/game-config.validator";
 
 export function getValidGameConfig(config: GameConfig): GameConfig {
-  return GameConfigValidator.getValidGameConfig(config);
+  return GameConfigValidator.getValidConfig(config);
 }
 
 export function generateGameKey(config: GameConfig): string {
-  const { roomType, startWaitingTime, playersAllowed } = config;
-  let gameKey = `${roomType}|${startWaitingTime}|${playersAllowed}`;
-  const optionalGameKey = optionalSettingsKeyPart(config);
-  if (optionalGameKey) {
-    gameKey += `|${optionalGameKey}`;
+  const { roomType, startWaitingTime, playersRequired } = config;
+  const turnsKey = getTurnsKey(config);
+  const teamsKey = getTeamsKey(config.teams);
+
+  let gameKey = `${roomType}|${startWaitingTime}|${playersRequired}|${turnsKey}|${teamsKey}`;
+  if (config.settings) {
+    gameKey += "|cs";
   }
   return gameKey;
 }
 
-
-const optionalSettingsKeyPart = (config: GameConfig): string => {
-  const keyParts: string[] = [];
-
-  if (config.turnsSwitch) {
-    keyParts.push(config.turnsSwitch);
+function getTurnsKey(config: GameConfig): string {
+  if (!config.turnsSwitch) {
+    return "turns-none";
   }
+  const turnsRandomStart = config.turnsRandomStart ? "random" : "first";
+  return `turns-${config.turnsSwitch}-${turnsRandomStart}`;
+}
 
-  if (config.turnsRandomStart) {
-    keyParts.push("trs");
+function getTeamsKey(config: TeamsConfig): string{
+  if (!config) {
+   return "teams-none";
   }
-
-  if (config.settings) {
-    keyParts.push("cs");
-  }
-
-  return keyParts.length ? keyParts.join("|") : undefined;
+  const { numberOfTeams, playersPerTeam, joinTeams } = config;
+  return `teams-${numberOfTeams}-${playersPerTeam}-${joinTeams}`;
 }

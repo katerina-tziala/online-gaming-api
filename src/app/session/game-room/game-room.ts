@@ -8,21 +8,21 @@ import { MessageInType, MessageOutType } from "../../messages/message-types/mess
 import { MessageIn } from "../../messages/message.interface";
 import { Chat } from "../../chat.interface";
 import { GameMessagingChecker } from "./game-messaging-checker";
-import { GameController } from "../../controllers/game-controller";
+import { Game } from "../../game/game";
 
 export class GameRoom extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
   private _config: GameConfig;
   public key: string;
   private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
-  private _Game: GameController;
+  private _Game: Game;
 
   constructor(config: GameConfig) {
     super();
     this.setMessageHandling();
     this._config = ConfigUtils.getValidGameConfig(config);
     this.key = ConfigUtils.generateGameKey(config);
-    this._Game = new GameController(this._config);
+    this._Game = new Game(this._config);
   }
 
   protected setMessageHandling(): void {
@@ -34,7 +34,7 @@ export class GameRoom extends Session {
   }
 
   private get filled(): boolean {
-    return this.numberOfClients === this._config.playersAllowed;
+    return this.numberOfClients === this._config.playersRequired;
   }
 
   private get idle(): boolean {

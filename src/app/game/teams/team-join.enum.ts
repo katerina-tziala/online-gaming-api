@@ -1,4 +1,4 @@
 export enum TeamJoin {
-  JoinOrder = "joinorder",
+  JoinTime = "jointime",
   Random = "random"
 }

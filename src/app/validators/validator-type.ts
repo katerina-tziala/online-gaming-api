@@ -3,7 +3,7 @@ export const typeOfObject = (value: any): boolean => {
 };
 
 export const positiveInteger = (value: number): number => {
-  return Math.abs(value);
+  return value ? Math.abs(value) : 0;
 };
 
 export const typeOfNumber = (value: any): boolean => {

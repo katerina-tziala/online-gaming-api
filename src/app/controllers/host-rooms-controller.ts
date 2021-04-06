@@ -50,7 +50,7 @@ export class HostRoomsController {
   private getGameToJoin(data: GameConfig): GameRoom {
     const config: GameConfig = ConfigUtils.getValidGameConfig(data);
     const gameKey = ConfigUtils.generateGameKey(config);
-    console.log(config, gameKey);
+     console.log(config, gameKey);
 
     let gameRoom = this.getAvailableGameRoomByKey(gameKey);
     if (!gameRoom) {

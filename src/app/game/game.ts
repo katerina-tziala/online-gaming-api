@@ -1,36 +1,28 @@
-import {
-  arrayDifference,
-  getDurationFromDates,
-  isOdd,
-  randomFromArray,
-} from "../../utils/utils";
+import { getDurationFromDates } from "../../utils/utils";
 import { Client } from "../client/client";
 import { ClientData } from "../client/client-data.interface";
 import { Duration } from "../duration.interface";
-import { TurnsHandler } from "../game/turns/turns-handler";
+import { TeamsHandler } from "./teams/teams.handler";
+import { TurnsHandler } from "./turns/turns-handler";
 import { GameConfig } from "../session/game-room/game-config/game-config";
+import { TeamsConfig } from "../session/game-room/game-config/game-config.inteface";
 import { GameState } from "../session/game-room/game.interfaces";
 
-export class GameController {
+export class Game {
+  private _teamsConfig: TeamsConfig;
+  private _TurnsHandler: TurnsHandler;
+  private _teams: Map<string, string[]>;
+  private _players: ClientData[] = [];
   private startedAt: string;
   private endedAt: string;
 
-  public players: ClientData[] = [];
-  private _teamsRequired: boolean;
-
-  private _TurnsHandler: TurnsHandler;
-  private _teams: Map<string, string[]>;
-
   constructor(config: GameConfig) {
-    this.init();
+    this._teamsConfig = config.teams;
     if (config.turnsSwitch) {
       this._TurnsHandler = new TurnsHandler(config.turnsSwitch, config.turnsRandomStart);
     }
-
-   console.log(config);
-
+    this.init();
   }
-
 
   public get turnsConfigured(): boolean {
     return !!this._TurnsHandler;
@@ -87,11 +79,11 @@ export class GameController {
   }
 
   public get playersIds(): string[] {
-    return this.players.map(player => player.id);
+    return this._players.map(player => player.id);
   }
 
   public get playerOnTurn(): ClientData {
-    return this.players.find(player => player.turn);
+    return this._players.find(player => player.turn);
   }
 
   public getPlayerInfo(client: Client): ClientData {
@@ -102,10 +94,8 @@ export class GameController {
 
   public start(playersIds: string[]): void {
     this.setUpPlayers(playersIds);
-    // this.assignTeams();
+    this.assignTeams();
     this.initGameState();
-    console.log("start game");
-
   }
 
   public endGame(): void {
@@ -115,12 +105,7 @@ export class GameController {
   public initGameState(): void {
     this.init();
     this.setUpTurns();
-
     this.startedAt = new Date().toString();
-    // this.setStartingPlayer();
-    // this.setPlayerOnTurn(this.playerStartId);
-    // console.log(this.playerStartId);
-    // console.log(this.players);
   }
 
   public switchTurns(): void {
@@ -135,13 +120,13 @@ export class GameController {
 
   private setUpPlayers(playersIds: string[]): void {
     const turn = this.turnsConfigured ? false : undefined;
-    this.players = playersIds.map(id => {
+    this._players = playersIds.map(id => {
       return  { id, turn };
     });
   }
 
   private getPlayerById(playerId: string): ClientData {
-    return this.players.find(player => player.id === playerId);
+    return this._players.find(player => player.id === playerId);
   }
 
   private setUpTurns(): void {
@@ -152,48 +137,18 @@ export class GameController {
   }
 
   private setPlayerOnTurn(playerOnTurnId: string): void {
-    this.players.forEach(player => player.turn = player.id === playerOnTurnId);
+    this._players.forEach(player => player.turn = player.id === playerOnTurnId);
   }
 
+  private assignTeams(): void {
+    if (this._teamsConfig) {
+      this._teams = TeamsHandler.createTeams(this.playersIds, this._teamsConfig);
+      this._players.forEach(player => player.team = this.getPlayerTeam(player.id));
+    }
+  }
 
+  private getPlayerTeam(playerOnTurnId: string): string {
+    return this._teams ? TeamsHandler.getPlayerTeam(this._teams, playerOnTurnId): undefined;
+  }
 
-
-
-
-
-
-
-
-
-  // private assignTeams(): void {
-  //   const teams: any = this.createTeams();
-  //   const teamNames = Object.keys(teams);
-  //   this.players = this.players.map(player => {
-  //     player.team = teamNames.find(teamName => teams[teamName].includes(player.id))
-  //     return player;
-  //   });
-  // }
-
-  // private createTeams(): { teamA: string[]; teamB: string[] } {
-  //   const playersIds = this.playersIds;
-  //   let teamA: string[] = [];
-  //   let teamB: string[] = [];
-  //   if (this._teamsRequired && playersIds.length && isOdd(playersIds.length)) {
-  //     const playersPerTeam = Math.floor(playersIds.length / 2);
-  //     teamA = this.getTeamPlayers(playersIds, playersPerTeam);
-  //     teamB = arrayDifference<string>(playersIds, teamA);
-  //   }
-  //   return { teamA, teamB };
-  // }
-
-  // private getTeamPlayers(playersIds: string[], playersPerTeam = 1): string[] {
-  //   const playersInTeam: string[] = [];
-  //   while (playersInTeam.length < playersPerTeam) {
-  //     const selectedPlayerId = randomFromArray<string>(playersIds);
-  //     if (!playersInTeam.includes(selectedPlayerId)) {
-  //       playersInTeam.push(selectedPlayerId);
-  //     }
-  //   }
-  //   return playersInTeam;
-  // }
 }

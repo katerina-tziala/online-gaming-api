@@ -1,4 +1,4 @@
-import { GameConfig } from "./game-config.inteface";
+import { GameConfig, TeamsConfig } from "./game-config.inteface";
 import * as ConfigUtils from "./game-config.utils";
 
-export { GameConfig, ConfigUtils };
+export { GameConfig, TeamsConfig, ConfigUtils };

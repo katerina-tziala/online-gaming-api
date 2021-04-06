@@ -56,6 +56,8 @@ export class TurnsHandler {
     const teamsIds = Array.from(this._teamsMap.keys());
     this._teamsTurns = this.getTurnsIndex(teamsIds);
 
+    console.log(this._teamsTurns);
+
     const playersPerTeam = this.getTeamPlayers(this._teamsTurns[0]).length;
     this.setTurnsInTeams();
 
