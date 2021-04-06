@@ -34,7 +34,7 @@ export class Host extends Session {
   }
   private broadcastPeersUpdate(client: Client): void {
     let peers = this.getClientPeers(client);
-    peers = peers.filter(peer => !peer.gameRoomId);
+    peers = peers.filter(peer => !peer.gameId);
     peers.forEach(peer => this.notifyClientForPeersUpdate(peer));
   }
 
@@ -75,10 +75,10 @@ export class Host extends Session {
       client.sendErrorMessage(ErrorType.JoinedAlready);
       return;
     }
-    const { username, gameRoomId, properties } = data || {};
+    const { username, gameId, properties } = data || {};
     if (client.usernameUpdated(username, this.getPeersUsernames(client))) {
       client.properties = properties;
-      this.joinNewClient(client, gameRoomId);
+      this.joinNewClient(client, gameId);
     }
   }
 
@@ -102,7 +102,7 @@ export class Host extends Session {
     this.addInClients(client);
     gameRoom.joinClient(client);
 
-    if (!client.gameRoomId) {
+    if (!client.gameId) {
       this.notifyJoinedClient(client);
     }
     this.broadcastPeersUpdate(client);
@@ -116,7 +116,7 @@ export class Host extends Session {
   }
 
   private addInClients(client: Client): void {
-    client.gameRoomId = null;
+    client.gameId = null;
     this.addClient(client);
   }
 
@@ -148,7 +148,7 @@ export class Host extends Session {
   }
 
   private onUpdateClient(client: Client, data: ClientData): void {
-    const gameRoom = this._GameRoomsController.getGameRoomById(client.gameRoomId);
+    const gameRoom = this._GameRoomsController.getGameRoomById(client.gameId);
     if (client.updated(data, this.getPeersUsernames(client))) {
       gameRoom ? gameRoom.broadcastPlayerUpdate(client) : this.addInClients(client);
       this.notifyJoinedClient(client, MessageOutType.UserUpdated);
@@ -158,14 +158,14 @@ export class Host extends Session {
 
   private onEnterGame(client: Client, data: GameConfig): void {
     this._GameRoomsController.enterClientInGame(client, data);
-    if (client.gameRoomId) {
+    if (client.gameId) {
       this.broadcastPeersUpdate(client);
     }
   }
 
   private onOpenGame(client: Client, data: GameConfig): void {
     this._GameRoomsController.enterClientInNewGame(client, data);
-    if (client.gameRoomId) {
+    if (client.gameId) {
       this.broadcastPeersUpdate(client);
     }
   }

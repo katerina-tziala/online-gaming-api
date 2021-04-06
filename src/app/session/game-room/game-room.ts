@@ -78,12 +78,12 @@ export class GameRoom extends Session {
   }
 
   private endGame(): void {
-    clearTimeout(this.startTimeout);
+    this.clearStartTimeout();
     this._Game.endGame();
   }
 
   protected addPlayer(client: Client): void {
-    client.gameRoomId = this.id;
+    client.gameId = this.id;
     this.addClient(client);
     this.broadcastRoomOpened(client);
     this.broadcastPlayerInOut(client, MessageOutType.PlayerJoined);
@@ -91,14 +91,14 @@ export class GameRoom extends Session {
   }
 
   private checkGameStart(): void {
-    clearTimeout(this.startTimeout);
+    this.clearStartTimeout();
     if (this.startAllowed) {
       this.startTimeout = setTimeout(() => this.startGame(), this._config.startWaitingTime);
     }
   }
 
   private startGame(): void {
-    clearTimeout(this.startTimeout);
+    this.clearStartTimeout();
     if (this.startAllowed) {
       this._Game.start(this.clientsIds);
       this.broadcastGameStart();
@@ -110,10 +110,18 @@ export class GameRoom extends Session {
   }
 
   public onPlayerLeft(client: Client): void {
-    clearTimeout(this.startTimeout);
-    this.removeClient(client);
-    client.gameRoomId = null;
+    this.removePlayer(client);
     this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
+  }
+
+  protected clearStartTimeout(): void {
+    clearTimeout(this.startTimeout);
+  }
+
+  protected removePlayer(client: Client): void {
+    this.clearStartTimeout();
+    this.removeClient(client);
+    client.gameId = null;
   }
 
   public onMessage(client: Client, message: MessageIn): void {

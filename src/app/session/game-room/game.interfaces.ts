@@ -21,7 +21,8 @@ export interface GameState {
 }
 
 export interface GameInfo extends GameRoomInfo {
-  state: GameState
+  state: GameState;
+  playersExpected?: ClientData[];
 }
 
 export interface PlayerInOut {
@@ -40,7 +41,6 @@ export interface PlayerMesssage {
 export interface GameInvitation {
   creator: string;
   game: GameInfo;
-  playersExpected?: ClientData[];
 }
 
 // export interface GameRestart {

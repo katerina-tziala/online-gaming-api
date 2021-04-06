@@ -17,6 +17,7 @@ export enum MessageOutType {
   GameOver = "game-over",
   PlayerTurnMove = "player-turn-move",
   GameInvitation = "game-invitation",
+  GameInvitationRejected = "game-invitation-rejected",
   // GameRestartRequest = "game-restart-request",
   // GameRestartCanceled = "game-restart-canceled",
   // GameRestartRejected = "game-restart-rejected",
@@ -25,5 +26,5 @@ export enum MessageOutType {
   //
   // GameAccessForbidden = "game-access-forbidden",
   // GameInvitationCanceled = "game-invitation-canceled",
-  // GameInvitationRejected = "game-invitation-rejected",
+  //
 }

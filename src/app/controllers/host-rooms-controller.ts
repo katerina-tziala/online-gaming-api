@@ -82,7 +82,7 @@ export class HostRoomsController {
   }
 
   public removeClientFromCurrentGame(client: Client): void {
-    const gameRoom = this.getGameRoomById(client.gameRoomId);
+    const gameRoom = this.getGameRoomById(client.gameId);
     if (!gameRoom) {
       return;
     }
@@ -99,9 +99,9 @@ export class HostRoomsController {
       return;
     }
 
-    const gameRoom = this.getGameRoomById(client.gameRoomId);
+    const gameRoom = this.getGameRoomById(client.gameId);
     if (!gameRoom) {
-      client.sendGameNotFound(client.gameRoomId, type);
+      client.sendGameNotFound(client.gameId, type);
       return;
     }
 

@@ -1,7 +1,8 @@
 export interface ClientData {
   id: string;
   username?: string;
-  gameRoomId?: string;
+  inGame?: boolean;
+  gameId?: string;
   joinedAt?: string;
   properties?: {};
   team?: string;

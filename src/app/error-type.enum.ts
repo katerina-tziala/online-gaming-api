@@ -23,7 +23,7 @@ export enum ErrorType {
   DataRequired = "data-required",
   TurnsSwitchNotConfigured = "turns-switch-not-configured",
   PlayerOnTurn = "not-player-turn",
-
+  GameActionForbidden = "game-action-forbidden",
 
 
   // ExpectedPlayersNotSpecified = "expected-players-not-specified",
@@ -35,6 +35,6 @@ export enum ErrorType {
   // CannotUpdateWhenRestartRequested = "cannot-update-game-when-restart-requested",
   // CannotEndWhenRestartRequested = "cannot-end-game-when-restart-requested",
   //
-  // GameActionForbidden = "game-action-forbidden",
+  //
   //
 }

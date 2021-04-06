@@ -12,7 +12,7 @@ export class Client {
   private _conn: WebSocket;
   private _id: string;
   private _username: string;
-  private _gameRoomId: string;
+  private _gameId: string;
   private _joinedAt: string;
   private _properties: {};
 
@@ -20,7 +20,7 @@ export class Client {
     this._conn = conn;
     this._id = IdGenerator.generate();
     this._username = null;
-    this._gameRoomId = null;
+    this._gameId = null;
   }
 
   public get id(): string {
@@ -35,12 +35,12 @@ export class Client {
     return this._username;
   }
 
-  public set gameRoomId(value: string) {
-    this._gameRoomId = value;
+  public set gameId(value: string) {
+    this._gameId = value;
   }
 
-  public get gameRoomId(): string {
-    return this._gameRoomId;
+  public get gameId(): string {
+    return this._gameId;
   }
 
   public get connected(): boolean {
@@ -59,6 +59,7 @@ export class Client {
     return {
       id: this.id,
       username: this.username,
+      inGame: !!this.gameId,
       properties: this.properties
     };
   }
@@ -133,7 +134,7 @@ export class Client {
   }
 
   public allowedToSendGameMessage(messageType: MessageInType): boolean {
-    if (!this.gameRoomId) {
+    if (!this.gameId) {
       this.sendErrorMessage(ErrorType.NotInGame, { messageType });
       return false;
     }
