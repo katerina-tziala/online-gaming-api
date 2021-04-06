@@ -1,10 +1,10 @@
 import { Chat } from "../chat.interface";
 import { ErrorType } from "../error-type.enum";
-import { validObject } from "./validator-type";
+import { typeOfObject } from "./validator-type";
 
 export class ChatValidator {
   private static chatDatatErrorType(data: Chat): ErrorType {
-    return !validObject(data) ? ErrorType.ChatDataObject : undefined;
+    return !typeOfObject(data) ? ErrorType.ChatDataObject : undefined;
   }
 
   private static chatContentErrorType(data: Chat): ErrorType {

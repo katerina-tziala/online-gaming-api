@@ -20,7 +20,9 @@ export enum ErrorType {
   WaitForPlayers = "wait-for-players-to-join",
   GameOver = "game-is-over",
   GameStart = "game-not-started",
-  UpdateData = "update-data-not-object",
+  DataRequired = "data-required",
+  TurnsSwitchNotConfigured = "turns-switch-not-configured",
+  PlayerOnTurn = "not-player-turn",
 
 
 

@@ -15,7 +15,8 @@ import { GameConfig } from "./game-room/game-config/game-config.inteface";
 export class Host extends Session {
   private _messageConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
   private _GameRoomsController = new HostRoomsController();
-  private _gameMessages = [MessageInType.GameState, MessageInType.GameChat, MessageInType.GameUpdate, MessageInType.GameOver];
+  private _gameMessages = [MessageInType.GameState, MessageInType.GameChat, MessageInType.GameUpdate,
+    MessageInType.GameOver, MessageInType.PlayerTurnMove];
 
   constructor() {
     super();

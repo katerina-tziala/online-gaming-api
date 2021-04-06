@@ -5,7 +5,7 @@ import { ClientData } from "./client-data.interface";
 import { MessageInType, MessageOutType } from "../messages/message-types/message-types.enum";
 import { ErrorType } from "../error-type.enum";
 import { ErrorMessage, MessageIn, MessageOut } from "../messages/message.interface";
-import { UsernameValidator, validObject } from "../validators/validators";
+import { UsernameValidator, ValidTypes } from "../validators/validators";
 import { Chat } from "../chat.interface";
 
 export class Client {
@@ -48,7 +48,7 @@ export class Client {
   }
 
   public set properties(value: {}) {
-    this._properties = validObject(value) ? value : undefined;
+    this._properties = ValidTypes.typeOfObject(value) ? value : undefined;
   }
 
   public get properties(): {} {

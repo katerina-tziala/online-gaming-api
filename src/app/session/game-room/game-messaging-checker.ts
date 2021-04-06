@@ -1,7 +1,7 @@
 import { GameInfo, GameRoomInfo, GameState } from "./game.interfaces";
 import { ErrorType } from "../../error-type.enum";
 import { Chat } from "../../chat.interface";
-import { ChatValidator, validObject } from "../../validators/validators";
+import { ChatValidator, ValidTypes } from "../../validators/validators";
 
 export class GameMessagingChecker {
   private static playersJoinedError(gameState: GameRoomInfo): ErrorType {
@@ -15,6 +15,10 @@ export class GameMessagingChecker {
     return gameState.endedAt ? ErrorType.GameOver : undefined;
   }
 
+  private static updateDataErrorType(data: {}): ErrorType {
+    return !ValidTypes.typeOfObject(data) ? ErrorType.DataRequired : undefined;
+  }
+
   private static gameUpdateBasedOnStateError(gameInfo: GameInfo): ErrorType {
     return (
       GameMessagingChecker.playersJoinedError(gameInfo) ||
@@ -23,16 +27,30 @@ export class GameMessagingChecker {
     );
   }
 
-  private static updateDataErrorType(data: {}): ErrorType {
-    return !validObject(data) ? ErrorType.UpdateData : undefined;
-  }
-
   public static gameChatError(gameState: GameRoomInfo, data: Chat): ErrorType {
-    return ChatValidator.chatErrorType(data) || GameMessagingChecker.playersJoinedError(gameState);
+    return (
+      ChatValidator.chatErrorType(data) ||
+      GameMessagingChecker.playersJoinedError(gameState)
+    );
   }
 
-  public static gameUpdateError(gameInfo: GameInfo, data: {}): ErrorType {
-    return GameMessagingChecker.updateDataErrorType(data) || GameMessagingChecker.gameUpdateBasedOnStateError(gameInfo);
+  public static gameUpdateError(gameInfo: GameInfo, playerOnTurn: boolean, data: {}): ErrorType {
+    return (
+      GameMessagingChecker.updateDataErrorType(data) ||
+      GameMessagingChecker.gameUpdateBasedOnStateError(gameInfo) ||
+      GameMessagingChecker.turnError(playerOnTurn)
+    );
+  }
+
+  public static turnsSwitchError(playerOnTurn: boolean, gameInfo: GameInfo): ErrorType {
+    return (
+      GameMessagingChecker.gameUpdateBasedOnStateError(gameInfo) ||
+      GameMessagingChecker.turnError(playerOnTurn)
+    );
+  }
+
+  private static turnError(playerOnTurn: boolean): ErrorType {
+    return playerOnTurn ? ErrorType.PlayerOnTurn : undefined;
   }
 
   public static gameOverError(gameInfo: GameInfo): ErrorType {
@@ -41,5 +59,4 @@ export class GameMessagingChecker {
       GameMessagingChecker.gameStartError(gameInfo.gameState)
     );
   }
-
 }

@@ -9,7 +9,7 @@ export enum MessageInType {
   GameChat = "game-chat",
   GameUpdate = "game-update",
   GameOver = "game-over",
-
+  PlayerTurnMove = "player-turn-move",
 
   // OpenGameRoom = "open-game-room",
   // GameRestartRequest = "game-restart-request",

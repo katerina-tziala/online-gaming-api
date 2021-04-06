@@ -4,10 +4,7 @@ import {
   GameConfig,
   ConfigUtils,
 } from "../session/game-room/game-config/game-config";
-import {
-  getValidRoomType,
-  getValidPlayersAllowed,
-} from "../session/game-room/game-config/game-config.utils";
+
 import { GameRoom } from "../session/game-room/game-room";
 import { GameRoomsController } from "./game-rooms-controller";
 
@@ -52,6 +49,11 @@ export class HostRoomsController {
 
   private getGameToJoin(data: GameConfig): GameRoom {
     const config: GameConfig = ConfigUtils.getValidGameConfig(data);
+
+    // console.log(config);
+
+
+
     const gameKey = ConfigUtils.generateGameKey(config);
     let gameRoom = this.getAvailableGameRoomByKey(gameKey);
     if (!gameRoom) {

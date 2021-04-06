@@ -22,7 +22,7 @@ export class GameRoom extends Session {
     this.setMessageHandling();
     this._config = ConfigUtils.getValidGameConfig(config);
     this.key = ConfigUtils.generateGameKey(config);
-    this._Game = new GameController(true);
+    this._Game = new GameController(this._config);
   }
 
   protected setMessageHandling(): void {
@@ -30,6 +30,7 @@ export class GameRoom extends Session {
     this._messageHandlingConfig.set(MessageInType.GameChat, this.onGameChat.bind(this));
     this._messageHandlingConfig.set(MessageInType.GameUpdate, this.onGameUpdate.bind(this));
     this._messageHandlingConfig.set(MessageInType.GameOver, this.onGameOver.bind(this));
+    this._messageHandlingConfig.set(MessageInType.PlayerTurnMove, this.onPlayerTurnMove.bind(this));
   }
 
   private get filled(): boolean {
@@ -137,12 +138,29 @@ export class GameRoom extends Session {
 
   private onGameUpdate(client: Client, data: {}): void {
     const messageType = MessageInType.GameUpdate;
-    const errorType = GameMessagingChecker.gameUpdateError(this.details, data);
+    const errorType = GameMessagingChecker.gameUpdateError(this.details, this._Game.isPlayerOnTurn(client), data);
     if (errorType) {
       client.sendErrorMessage(errorType, { messageType });
     } else {
       this.broadcastToPeers(client, MessageOutType.GameUpdate, this.getPlayerMessage(client, data));
     }
+  }
+
+  private onPlayerTurnMove(client: Client, data: {}): void {
+    const messageType = MessageInType.PlayerTurnMove;
+    if (!this._Game.turnsConfigured) {
+      client.sendErrorMessage(ErrorType.TurnsSwitchNotConfigured, { messageType });
+      return;
+    }
+
+    const errorType = GameMessagingChecker.turnsSwitchError(this._Game.isPlayerOnTurn(client), this.details);
+    if (errorType) {
+      client.sendErrorMessage(errorType, { messageType });
+      return;
+    }
+
+    this._Game.switchTurns();
+    this.broadcastTurnMove(data);
   }
 
   private onGameOver(client: Client, data: {}): void {
@@ -159,7 +177,7 @@ export class GameRoom extends Session {
   // MESSAGE BROADCAST
   private getPlayerMessage(client: Client, data?: {}): PlayerMesssage {
     return {
-      sender: client.info,
+      sender: this._Game.getPlayerInfo(client),
       data,
     };
   }
@@ -180,9 +198,10 @@ export class GameRoom extends Session {
   }
 
   private broadcastGameStart(): void {
+    const gameState = Object.assign(this.gameState, this._Game.initialState);
     const data = {
       id: this.id,
-      gameState: this.gameState
+      gameState
     };
     this.clients.forEach((client) =>
       client.sendMessage(MessageOutType.GameStart, data)
@@ -211,5 +230,16 @@ export class GameRoom extends Session {
     const message = this.getPlayerMessage(client, data);
     message.game = this.details;
     this.broadcastToPeers(client, MessageOutType.GameOver, message);
+  }
+
+  private broadcastTurnMove(moveData: {}): void {
+    const data = {
+      id: this.id,
+      gameState: this.gameState,
+      moveData
+    };
+    this.clients.forEach((client) =>
+      client.sendMessage(MessageOutType.PlayerTurnMove, data)
+    );
   }
 }

@@ -15,6 +15,7 @@ export enum MessageOutType {
   GameChat = "game-chat",
   GameUpdate = "game-update",
   GameOver = "game-over",
+  PlayerTurnMove = "player-turn-move",
 
   // GameRestartRequest = "game-restart-request",
   // GameRestartCanceled = "game-restart-canceled",

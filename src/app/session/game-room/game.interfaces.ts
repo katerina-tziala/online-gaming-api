@@ -13,7 +13,8 @@ export interface GameState {
   idle: boolean;
   startedAt: string;
   endedAt: string;
-  playerStartId: string;
+  playerStartId?: string;
+  playersTurns?: string[];
   players?: ClientData[];
   completedIn?: Duration;
 }

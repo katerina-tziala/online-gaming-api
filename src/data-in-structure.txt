@@ -85,6 +85,17 @@
 }
 
 
+- Player Turn Move
+{
+  "type": "player-turn-move",
+  "data": {
+    "test": "test"
+  }
+}
+
+
+
+//
 
 {
   "type": "open-private-game-room",

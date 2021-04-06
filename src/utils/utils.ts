@@ -17,10 +17,7 @@ export function stringToJSON<T>(stringToParse: string): T {
   }
 }
 
-export const getDateDifferenceInSeconds = (
-  endDate: Date,
-  startDate: Date
-): number => {
+export function getDateDifferenceInSeconds(endDate: Date, startDate: Date): number {
   if (!endDate || !startDate) {
     return 0;
   }
@@ -30,14 +27,14 @@ export const getDateDifferenceInSeconds = (
   return Math.ceil(durationInMilliseconds / 1000);
 };
 
-export const getDuration = (seconds: number): Duration => {
+export function getDuration(seconds: number): Duration {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   seconds = Math.floor((seconds % 3600) % 60);
   return { hours, minutes, seconds };
 };
 
-export const getDurationFromDates = (endDate: Date, startDate: Date): Duration => {
+export function getDurationFromDates(endDate: Date, startDate: Date): Duration {
   const differenceInSeconds = getDateDifferenceInSeconds(endDate, startDate);
   if (!endDate || !startDate) {
     return undefined;
@@ -54,3 +51,6 @@ export function isOdd(numberToCheck: number): boolean {
   return numberToCheck % 2 === 0;
 }
 
+export function positionInArray(arrayToCheck: string[], value: string): number {
+  return arrayToCheck.indexOf(value);
+}
