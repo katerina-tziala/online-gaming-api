@@ -112,16 +112,6 @@ export class HostRoomsController {
     this.removeClientFromCurrentGame(client);
     const config: GameConfig = ConfigUtils.getValidGameConfig(configData);
     config.playersRequired = expectedPlayers.length + 1;
-    const gameRoom = new GameRoomPrivate(config, client, expectedPlayers);
-
-
-
-    //
-    // gameRoom.onOpen(client, expectedPlayers);
-    // this.addPrivateGameRoom = gameRoom;
-    // return gameRoom;
-
-
-
+    this.addPrivateGameRoom = new GameRoomPrivate(config, client, expectedPlayers);
   }
 }

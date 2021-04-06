@@ -2,7 +2,7 @@
 import { IdGenerator } from "../..//utils/id-generator";
 import { Client } from "../client/client";
 import { ClientData } from "../client/client-data.interface";
-import { ClientsController } from "../controllers/clients-controller";
+import { ClientsController } from "../client/clients-controller";
 import { MessageOutType } from "../messages/message-types/message-out-type.enum";
 
 export class Session {
@@ -28,16 +28,16 @@ export class Session {
     return this._ClientsController.numberOfClients;
   }
 
-  public get clientsDetails(): ClientData[] {
-    return this.clients.map((peer) => peer.details);
-  }
-
   public get clientsIds(): string[] {
     return this._ClientsController.clientsIds;
   }
 
+  public get clientsDetails(): ClientData[] {
+    return this._ClientsController.clientsDetails;
+  }
+
   public get clientsInfo(): ClientData[] {
-    return this.clients.map((peer) => peer.info);
+    return this._ClientsController.clientsInfo;
   }
 
   public getClientPeers(client: Client): Client[] {

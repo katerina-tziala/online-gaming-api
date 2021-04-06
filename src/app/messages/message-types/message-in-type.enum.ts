@@ -12,12 +12,11 @@ export enum MessageInType {
   GameUpdate = "game-update",
   GameOver = "game-over",
   PlayerTurnMove = "player-turn-move",
-
-  // OpenGameRoom = "open-game-room",
-  // GameRestartRequest = "game-restart-request",
+  GameInvitationAccept = "game-invitation-accept",
+  GameInvitationReject = "game-invitation-reject",
+  GameInvitationCancel = "game-invitation-cancel"
+  // GameRestart = "game-restart",
   // GameRestartReject = "game-restart-reject",
   // GameRestartAccept = "game-restart-accept",
-  // GameInvitationAccept = "game-invitation-accept",
-  // GameInvitationReject = "game-invitation-reject",
-  // GameInvitationCancel = "game-invitation-cancel"
+  // GameRestartCancel = "game-restart-cancel"
 }

@@ -66,10 +66,10 @@ export class GameRoom extends Session {
   }
 
   public get details(): GameInfo {
-    const gameState = Object.assign(this.gameState, this._Game.finalState);
+    const state = Object.assign(this.gameState, this._Game.finalState);
     return {
       ...this.info,
-      gameState
+      state
     };
   }
 
@@ -82,7 +82,7 @@ export class GameRoom extends Session {
     this._Game.endGame();
   }
 
-  private addPlayer(client: Client): void {
+  protected addPlayer(client: Client): void {
     client.gameRoomId = this.id;
     this.addClient(client);
     this.broadcastRoomOpened(client);

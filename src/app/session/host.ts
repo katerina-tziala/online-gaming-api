@@ -175,10 +175,8 @@ export class Host extends Session {
     console.log("onOpenPrivateGame");
     const { playersExpected, ...config } = data;
 
-
     const expectedPlayers = this.getClientPeers(client);
     this._GameRoomsController.openPrivateGameRoom(client, config, expectedPlayers);
-
   }
 
 

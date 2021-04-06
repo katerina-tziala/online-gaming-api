@@ -1,8 +1,7 @@
 import { Client } from "../../client/client";
 import { ClientData } from "../../client/client-data.interface";
-import { Session } from "../session";
 import { ConfigUtils, GameConfig } from "./game-config/game-config";
-import { GameInfo, GameRoomInfo, GameState, PlayerInOut, PlayerMesssage } from "./game.interfaces";
+import { GameInfo, GameInvitation, GameRoomInfo, GameState, PlayerInOut, PlayerMesssage } from "./game.interfaces";
 import { ErrorType } from "../../error-type.enum";
 import { MessageInType, MessageOutType } from "../../messages/message-types/message-types.enum";
 import { MessageIn } from "../../messages/message.interface";
@@ -10,19 +9,53 @@ import { Chat } from "../../chat.interface";
 import { GameMessagingChecker } from "./game-messaging-checker";
 import { Game } from "../../game/game";
 import { GameRoom } from "./game-room";
-import { ClientsController } from "../../controllers/clients-controller";
+import { ClientsController } from "../../client/clients-controller";
 
 export class GameRoomPrivate extends GameRoom {
-  private _ExpectedPlayersController: ClientsController = new ClientsController();
+  private _ExpectedPlayersController: ClientsController;
   private _creator: Client;
+  private _accessKeys: string[] = [];
 
   constructor(config: GameConfig, client: Client, playersToInvite: Client[]) {
     super(config);
-    this._creator = client;
-    this._ExpectedPlayersController.clients = playersToInvite;
-
-    console.log(this.info);
+    this.key = "private|" + this.key;
+    this.onOpen(client, playersToInvite);
   }
+
+  private get expectedPlayersInfo(): ClientData[] {
+    return this._ExpectedPlayersController ? this._ExpectedPlayersController.clientsInfo : undefined;
+  }
+
+  private get expectedPlayers(): Client[] {
+    return this._ExpectedPlayersController ? this._ExpectedPlayersController.clients : [];
+  }
+
+  private get inviatationData(): GameInvitation {
+    return {
+      creator: this._creator.id,
+      game: this.details,
+      playersExpected: this.expectedPlayersInfo
+    };
+  }
+
+  private setAccessKeys(): void {
+    this._accessKeys = Array.from(this._ExpectedPlayersController.clientsIds);
+    this._accessKeys.push(this._creator.id);
+  }
+
+  private onOpen(client: Client, playersToInvite: Client[]): void {
+    this._creator = client;
+    this._ExpectedPlayersController = new ClientsController();
+    this._ExpectedPlayersController.clients = playersToInvite;
+    this.setAccessKeys();
+    this.addPlayer(client);
+    this.broadcastRoomInvitations();
+
+    //
+  }
+
+
+
 
 
 
@@ -31,10 +64,9 @@ export class GameRoomPrivate extends GameRoom {
   }
 
   protected getPlayerInOutData(client: Client): PlayerInOut {
-    return {
-      player: client.info,
-      game: this.details,
-    };
+    const data = super.getPlayerInOutData(client);
+    data.playersExpected = this.expectedPlayersInfo;
+    return data;
   }
 
 
@@ -47,4 +79,11 @@ export class GameRoomPrivate extends GameRoom {
     // this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
   }
 
+
+  private broadcastRoomInvitations(): void {
+    const data = this.inviatationData;
+    this.expectedPlayers.forEach(client => {
+      client.sendMessage(MessageOutType.GameInvitation, data);
+    });
+  }
 }

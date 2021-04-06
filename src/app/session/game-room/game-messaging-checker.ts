@@ -22,8 +22,8 @@ export class GameMessagingChecker {
   private static gameUpdateBasedOnStateError(gameInfo: GameInfo): ErrorType {
     return (
       GameMessagingChecker.playersJoinedError(gameInfo) ||
-      GameMessagingChecker.gameStartError(gameInfo.gameState) ||
-      GameMessagingChecker.gameEndedError(gameInfo.gameState)
+      GameMessagingChecker.gameStartError(gameInfo.state) ||
+      GameMessagingChecker.gameEndedError(gameInfo.state)
     );
   }
 
@@ -56,7 +56,7 @@ export class GameMessagingChecker {
   public static gameOverError(gameInfo: GameInfo): ErrorType {
     return (
       GameMessagingChecker.playersJoinedError(gameInfo) ||
-      GameMessagingChecker.gameStartError(gameInfo.gameState)
+      GameMessagingChecker.gameStartError(gameInfo.state)
     );
   }
 }

@@ -1,5 +1,6 @@
 
-import { Client } from "../client/client";
+import { Client } from "./client";
+import { ClientData } from "./client-data.interface";
 
 export class ClientsController {
   private _clients: Map<string, Client> = new Map();
@@ -23,6 +24,14 @@ export class ClientsController {
 
   public get clientsIds(): string[] {
     return Array.from(this._clients.keys());
+  }
+
+  public get clientsDetails(): ClientData[] {
+    return this.clients.map((peer) => peer.details);
+  }
+
+  public get clientsInfo(): ClientData[] {
+    return this.clients.map((peer) => peer.info);
   }
 
   public getClientPeers(client: Client): Client[] {

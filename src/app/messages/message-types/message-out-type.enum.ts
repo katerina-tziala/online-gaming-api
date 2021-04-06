@@ -16,13 +16,13 @@ export enum MessageOutType {
   GameUpdate = "game-update",
   GameOver = "game-over",
   PlayerTurnMove = "player-turn-move",
-
+  GameInvitation = "game-invitation",
   // GameRestartRequest = "game-restart-request",
   // GameRestartCanceled = "game-restart-canceled",
   // GameRestartRejected = "game-restart-rejected",
   // GameRestartWaitPlayers = "game-restart-wait-for-players",
   // GameRestartAccepted = "game-restart-accepted",
-  // GameInvitation = "game-invitation",
+  //
   // GameAccessForbidden = "game-access-forbidden",
   // GameInvitationCanceled = "game-invitation-canceled",
   // GameInvitationRejected = "game-invitation-rejected",
