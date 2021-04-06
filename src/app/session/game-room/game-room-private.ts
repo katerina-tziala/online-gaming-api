@@ -49,6 +49,10 @@ export class GameRoomPrivate extends GameRoom {
     return this._ExpectedPlayersController ? this._ExpectedPlayersController.hasClients : false;
   }
 
+  public playerExpected(client: Client): boolean {
+    return this._ExpectedPlayersController ? this._ExpectedPlayersController.clientExists(client) : false;
+  }
+
   private setAccessKeys(): void {
     this._accessKeys = Array.from(this._ExpectedPlayersController.clientsIds);
     this._accessKeys.push(this._creator.id);
@@ -112,6 +116,7 @@ export class GameRoomPrivate extends GameRoom {
 
   private rejectionAllowed(client: Client): boolean {
     // access keys ?
+    // this.playerExpected(client)
     return this.expectingPlayers && !this.isCreator(client) && !this.clientExists(client);
   }
 
