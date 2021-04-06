@@ -72,8 +72,6 @@ export class GameRoomPrivate extends GameRoom {
     return clientsToNotify;
   }
 
-
-
   private onOpen(client: Client, playersToInvite: Client[]): void {
     this._creator = client;
     this._ExpectedPlayersController = new ClientsController();
@@ -118,6 +116,7 @@ export class GameRoomPrivate extends GameRoom {
   }
 
   public onRejectInvitation(client: Client) {
+      // access keys check rejected by?
     if (this.rejectionAllowed(client)) {
       this.clearStartTimeout();
       this._rejectedBy = client.info;
