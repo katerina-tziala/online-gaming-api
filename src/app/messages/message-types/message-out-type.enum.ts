@@ -24,8 +24,5 @@ export enum MessageOutType {
   // GameRestartRejected = "game-restart-rejected",
   // GameRestartWaitPlayers = "game-restart-wait-for-players",
   // GameRestartAccepted = "game-restart-accepted",
-  //
   // GameAccessForbidden = "game-access-forbidden",
-  //
-  //
 }

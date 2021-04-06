@@ -24,8 +24,7 @@ export enum ErrorType {
   TurnsSwitchNotConfigured = "turns-switch-not-configured",
   PlayerOnTurn = "not-player-turn",
   GameActionForbidden = "game-action-forbidden",
-
-
+  // GameAccessForbidden = "game-access-forbidden",
   // ExpectedPlayersNotSpecified = "expected-players-not-specified",
   // ExpectedPlayersNotConnected = "expected-players-not-connected",
   // SomeExpectedPlayersNotConnected = "some-expected-players-not-connected",
@@ -34,7 +33,4 @@ export enum ErrorType {
   // RestartNotRequested = "restart-not-requested",
   // CannotUpdateWhenRestartRequested = "cannot-update-game-when-restart-requested",
   // CannotEndWhenRestartRequested = "cannot-end-game-when-restart-requested",
-  //
-  //
-  //
 }
