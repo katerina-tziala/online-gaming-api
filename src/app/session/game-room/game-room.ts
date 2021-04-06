@@ -217,7 +217,7 @@ export class GameRoom extends Session {
     );
   }
 
-  private broadcastPlayerInOut(client: Client, type: MessageOutType): void {
+  protected broadcastPlayerInOut(client: Client, type: MessageOutType): void {
     const data = this.getPlayerInOutData(client);
     this.broadcastToPeers(client,type, data);
   }

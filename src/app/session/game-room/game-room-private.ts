@@ -11,6 +11,7 @@ export class GameRoomPrivate extends GameRoom {
   private _ExpectedPlayersController: ClientsController;
   private _creator: Client;
   private _accessKeys: string[] = [];
+  private _rejectedBy: ClientData;
 
   constructor(config: GameConfig, client: Client, playersToInvite: Client[]) {
     super(config);
@@ -33,9 +34,14 @@ export class GameRoomPrivate extends GameRoom {
     };
   }
 
+  public get accessKeys(): string[] {
+    return this._accessKeys;
+  }
+
   public get details(): GameInfo {
     const details = super.details;
     details.playersExpected = this.expectedPlayersInfo;
+    details.rejectedBy = this._rejectedBy;
     return details;
   }
 
@@ -53,8 +59,16 @@ export class GameRoomPrivate extends GameRoom {
   }
 
   private getClientsForInvitationResponse(client: Client): Client[] {
-    let clientsToNotify = this.getClientPeers(client);
-    clientsToNotify = clientsToNotify.concat(this.expectedPlayers);
+    const peersInGame = this.getClientPeers(client);
+    const clientsWaitingResponse = this.getClientsPendingInvitationResponse(client);
+    return peersInGame.concat(clientsWaitingResponse);
+  }
+
+  private getClientsPendingInvitationResponse(client: Client): Client[] {
+    let clientsToNotify = this.expectedPlayers.filter(clientToNotify => clientToNotify.id !== client.id);
+    if (this._rejectedBy) {
+      clientsToNotify = clientsToNotify.filter(clientToNotify => clientToNotify.id !== this._rejectedBy.id);
+    }
     return clientsToNotify;
   }
 
@@ -69,8 +83,6 @@ export class GameRoomPrivate extends GameRoom {
     this.setAccessKeys();
     this.addPlayer(client);
     this.broadcastRoomInvitations();
-    //
-    this.onRejectInvitation(client);
   }
 
   // private onAcceptInvitationFromJoinedClient(client: Client): void {
@@ -97,33 +109,31 @@ export class GameRoomPrivate extends GameRoom {
   //   return true;
   // }
 
+  public joinClient(client: Client): void {
+    console.log("joinClient in private room");
+    // !this.entranceAllowed ? this.broadcastForbiddenEntrance(client) : this.addPlayer(client);
+  }
 
   public onRejectInvitation(client: Client) {
     if (this.rejectionAllowed(client)) {
       this.clearStartTimeout();
-      this._accessKeys = [];
+      this._rejectedBy = client.info;
       this.broadcastInvitationRejected(client);
+      // this._accessKeys = [];
     } else {
       this.notifyPlayerForForbiddenAction(client, MessageInType.GameInvitationReject);
     }
   }
 
-  public joinClient(client: Client): void {
-    // !this.entranceAllowed ? this.broadcastForbiddenEntrance(client) : this.addPlayer(client);
-  }
-
   public onPlayerLeft(client: Client): void {
     this.removePlayer(client);
-    console.log("left from private room");
-    // if creator -> send invitation calceled
-    // clearTimeout(this.startTimeout);
-    // this.removeClient(client);
-    // client.gameRoomId = null;
-    // this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
+    if (this.expectingPlayers && this.isCreator(client)) {
+      this.broadcastInvitationCanceled(client);
+      // this._accessKeys = [];
+      // this._creator = undefined;
+    }
+    this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
   }
-
-
-
 
   // MESSAGE BROADCAST
   private broadcastRoomInvitations(): void {
@@ -137,13 +147,19 @@ export class GameRoomPrivate extends GameRoom {
     client.sendErrorMessage(ErrorType.GameActionForbidden, { type });
   }
 
-  private broadcastInvitationRejected(client: Client) {
+  private broadcastInvitationRejected(client: Client): void {
     const invitation = this.inviatationData;
-    const rejectedBy = client.info;
+    const rejectedBy = this._rejectedBy;
     const clientsToNotify = this.getClientsForInvitationResponse(client);
     clientsToNotify.forEach(player => {
       player.sendMessage(MessageOutType.GameInvitationRejected, { rejectedBy, invitation });
     });
   }
 
+  private broadcastInvitationCanceled(client: Client): void {
+    const clientsToNotify = this.getClientsPendingInvitationResponse(client);
+    clientsToNotify.forEach(player => {
+      player.sendMessage(MessageOutType.GameInvitationCanceled, this.inviatationData);
+    });
+  }
 }

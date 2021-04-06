@@ -198,6 +198,7 @@ export class Host extends Session {
     }
     this._GameRoomsController.removeClientFromCurrentGame(client);
     this.removeClient(client);
+    // TODO: find invitations to be rejected
     this.broadcastPeersUpdate(client);
   }
 }
