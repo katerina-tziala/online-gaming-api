@@ -24,6 +24,9 @@ export class Host extends Session {
     this._messageConfig.set(MessageInType.UserUpdate, this.onUpdateClient.bind(this));
     this._messageConfig.set(MessageInType.PrivateChat, this.onPrivateChatMessage.bind(this));
     this._messageConfig.set(MessageInType.EnterGame, this.onEnterGame.bind(this));
+    this._messageConfig.set(MessageInType.EnterNewGame, this.onEnterNewGame.bind(this));
+
+
     this._messageConfig.set(MessageInType.QuitGame, this.onQuitGame.bind(this));
   }
 
@@ -156,6 +159,13 @@ export class Host extends Session {
 
   private onEnterGame(client: Client, data: GameConfig): void {
     this._GameRoomsController.enterClientInGame(client, data);
+    if (client.gameRoomId) {
+      this.broadcastPeersUpdate(client);
+    }
+  }
+
+  private onEnterNewGame(client: Client, data: GameConfig): void {
+    this._GameRoomsController.enterClientInNewGame(client, data);
     if (client.gameRoomId) {
       this.broadcastPeersUpdate(client);
     }

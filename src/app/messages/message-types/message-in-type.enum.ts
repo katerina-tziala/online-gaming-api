@@ -4,6 +4,7 @@ export enum MessageInType {
   UserUpdate = "user-update",
   PrivateChat = "private-chat",
   EnterGame = "enter-game",
+  EnterNewGame = "enter-new-game",
   QuitGame = "quit-game",
   GameState = "game-state",
   GameChat = "game-chat",

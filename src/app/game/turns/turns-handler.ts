@@ -1,6 +1,5 @@
 import { ArraySuffling } from "../../../utils/array-suffling";
 import { positionInArray } from "../../../utils/utils";
-import { TeamsHandler } from "../teams/teams.handler";
 import { TurnsSwitchType } from "./turns-switch.enum";
 
 export class TurnsHandler {

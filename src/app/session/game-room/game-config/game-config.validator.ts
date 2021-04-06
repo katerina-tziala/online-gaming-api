@@ -59,5 +59,4 @@ export class GameConfigValidator {
     return (typeof value !== "boolean") ? true : !!value;
   }
 
-
 }
