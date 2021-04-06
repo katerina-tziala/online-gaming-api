@@ -72,9 +72,7 @@ export class GameRoomPrivate extends GameRoom {
     return clientsToNotify;
   }
 
-  private rejectionAllowed(client: Client): boolean {
-    return this.expectingPlayers && !this.isCreator(client) && !this.clientExists(client);
-  }
+
 
   private onOpen(client: Client, playersToInvite: Client[]): void {
     this._creator = client;
@@ -112,6 +110,11 @@ export class GameRoomPrivate extends GameRoom {
   public joinClient(client: Client): void {
     console.log("joinClient in private room");
     // !this.entranceAllowed ? this.broadcastForbiddenEntrance(client) : this.addPlayer(client);
+  }
+
+  private rejectionAllowed(client: Client): boolean {
+    // access keys ?
+    return this.expectingPlayers && !this.isCreator(client) && !this.clientExists(client);
   }
 
   public onRejectInvitation(client: Client) {
