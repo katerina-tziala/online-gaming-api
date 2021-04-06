@@ -6,5 +6,7 @@ export interface GameConfig {
   roomType?: string;
   turnsSwitch?: TurnsSwitchType;
   turnsRandomStart?: boolean;
+  teams?: number;
+  playersPerTeam?: number;
   settings?: {};
 }

@@ -43,7 +43,10 @@ export class GameController {
   private get playersTurns(): string[] {
     return this._TurnsHandler ? this._TurnsHandler.playersTurns : undefined;
   }
-  //
+
+  private get teamsTurns(): string[] {
+    return this._TurnsHandler ? this._TurnsHandler.teamsTurns : undefined;
+  }
 
   private init(): void {
     this.startedAt = undefined;
@@ -63,13 +66,17 @@ export class GameController {
     return {
       ...this.state,
       playerStartId: this.playerStartId,
-      playersTurns: this.playersTurns
+      playersTurns: this.playersTurns,
+      teamsTurns: this.teamsTurns
     };
   }
 
-
-  // completedIn: this.completedIn,
-
+  public get finalState(): GameState {
+    return {
+      ...this.initialState,
+      completedIn: this.completedIn
+    };
+  }
 
   public get state(): GameState {
     return {

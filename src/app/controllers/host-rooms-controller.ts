@@ -50,6 +50,8 @@ export class HostRoomsController {
   private getGameToJoin(data: GameConfig): GameRoom {
     const config: GameConfig = ConfigUtils.getValidGameConfig(data);
     const gameKey = ConfigUtils.generateGameKey(config);
+    console.log(config, gameKey);
+
     let gameRoom = this.getAvailableGameRoomByKey(gameKey);
     if (!gameRoom) {
       gameRoom = this.createNewGame(data);
@@ -57,17 +59,17 @@ export class HostRoomsController {
     return gameRoom;
   }
 
-  public enterClientInGame(client: Client, data: GameConfig): void {
-    this.removeClientFromCurrentGame(client);
-    const gameRoom = this.getGameToJoin(data);
-    gameRoom.joinClient(client);
-  }
-
   private createNewGame(data: GameConfig): GameRoom {
     const config: GameConfig = ConfigUtils.getValidGameConfig(data);
     const gameRoom = new GameRoom(config);
     this.addGameRoom = gameRoom;
     return gameRoom;
+  }
+
+  public enterClientInGame(client: Client, data: GameConfig): void {
+    this.removeClientFromCurrentGame(client);
+    const gameRoom = this.getGameToJoin(data);
+    gameRoom.joinClient(client);
   }
 
   public enterClientInNewGame(client: Client, data: GameConfig): void {

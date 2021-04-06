@@ -66,9 +66,10 @@ export class GameRoom extends Session {
   }
 
   public get details(): GameInfo {
+    const gameState = Object.assign(this.gameState, this._Game.finalState);
     return {
       ...this.info,
-      gameState: this.gameState
+      gameState
     };
   }
 

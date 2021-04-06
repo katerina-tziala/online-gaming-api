@@ -15,6 +15,7 @@ export interface GameState {
   endedAt: string;
   playerStartId?: string;
   playersTurns?: string[];
+  teamsTurns?: string[];
   players?: ClientData[];
   completedIn?: Duration;
 }
