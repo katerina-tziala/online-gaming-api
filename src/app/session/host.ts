@@ -28,6 +28,16 @@ export class Host extends Session {
     this._messageConfig.set(MessageInType.OpenPrivateGameRoom, this.onOpenPrivateGame.bind(this));
     this._messageConfig.set(MessageInType.QuitGame, this.onQuitGame.bind(this));
   }
+  private notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
+    const user = client.details;
+    const peers = this.getPeersDetails(client);
+    client.sendMessage(type, { user, peers });
+  }
+
+  private notifyClientForPeersUpdate(client: Client): void {
+    const peers = this.getPeersDetails(client);
+    client.sendMessage(MessageOutType.Peers, { peers });
+  }
 
   private gameBasedMessage(type: MessageInType): boolean {
     return this._gameMessages.includes(type);
@@ -158,25 +168,47 @@ export class Host extends Session {
 
   private onEnterGame(client: Client, data: GameConfig): void {
     this._GameRoomsController.enterClientInGame(client, data);
-    if (client.gameId) {
-      this.broadcastPeersUpdate(client);
-    }
+    this.checkClientEnteredGame(client);
   }
 
   private onOpenGame(client: Client, data: GameConfig): void {
     this._GameRoomsController.enterClientInNewGame(client, data);
+    this.checkClientEnteredGame(client);
+  }
+
+  private checkClientEnteredGame(client: Client): void {
     if (client.gameId) {
       this.broadcastPeersUpdate(client);
     }
   }
 
-
   private onOpenPrivateGame(client: Client, data: GameConfig): void {
-    console.log("onOpenPrivateGame");
+    const type = MessageInType.OpenPrivateGameRoom;
     const { playersExpected, ...config } = data;
+    const { playersToInvite, errorType } = this.getValidPlayersToInvite(client, playersExpected);
+    if (errorType) {
+      client.sendErrorMessage(errorType, { type, data });
+      return;
+    }
+    this._GameRoomsController.openPrivateGameRoom(client, config, playersToInvite);
+    this.checkClientEnteredGame(client);
+  }
 
-    const expectedPlayers = this.getClientPeers(client);
-    this._GameRoomsController.openPrivateGameRoom(client, config, expectedPlayers);
+  private getValidPlayersExpected(client: Client, clientsIds: string[]): string[] {
+    const playersExpectedIds = clientsIds || [];
+    return playersExpectedIds.filter(clientId => clientId !== client.id);
+  }
+
+  private getValidPlayersToInvite(client: Client, playersExpected: string[]): { playersToInvite: Client[], errorType: ErrorType } {
+    let errorType;
+    const clientsIds = this.getValidPlayersExpected(client, playersExpected);
+    const playersToInvite: Client[] = this.getConnectedClientsByIds(clientsIds);
+    if (!clientsIds.length) {
+      errorType = ErrorType.ExpectedPlayersNotSpecified;
+    } else if (clientsIds.length !== playersToInvite.length) {
+      errorType = ErrorType.ExpectedClientsNotConnected;
+    }
+    return { playersToInvite, errorType };
   }
 
 

@@ -33,7 +33,7 @@ export class GameRoom extends Session {
     this._messageHandlingConfig.set(MessageInType.PlayerTurnMove, this.onPlayerTurnMove.bind(this));
   }
 
-  private get filled(): boolean {
+  protected get filled(): boolean {
     return this.numberOfClients === this._config.playersRequired;
   }
 
@@ -51,7 +51,7 @@ export class GameRoom extends Session {
       createdAt: this.createdAt,
       key: this.key,
       config: this._config,
-      filled: this.filled,
+      filled: this.filled
     };
   }
 
@@ -84,6 +84,7 @@ export class GameRoom extends Session {
 
   protected addPlayer(client: Client): void {
     client.gameId = this.id;
+    this._Game.init();
     this.addClient(client);
     this.broadcastRoomOpened(client);
     this.broadcastPlayerInOut(client, MessageOutType.PlayerJoined);
@@ -212,9 +213,7 @@ export class GameRoom extends Session {
       id: this.id,
       gameState
     };
-    this.clients.forEach((client) =>
-      client.sendMessage(MessageOutType.GameStart, data)
-    );
+    this.broadcastToClients(MessageOutType.GameStart, data);
   }
 
   protected broadcastPlayerInOut(client: Client, type: MessageOutType): void {

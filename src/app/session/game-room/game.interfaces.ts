@@ -23,7 +23,7 @@ export interface GameState {
 export interface GameInfo extends GameRoomInfo {
   state: GameState;
   playersExpected?: ClientData[];
-  rejectedBy?: ClientData;
+  rejectedBy?: ClientData[];
 }
 
 export interface PlayerInOut {

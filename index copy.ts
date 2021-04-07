@@ -1,48 +1,48 @@
 
-import express from 'express';
-import http, { IncomingMessage } from 'http';
-import { CONFIG } from './config/config';
-import * as WebSocket from 'ws';
+// import express from 'express';
+// import http, { IncomingMessage } from 'http';
+// import { CONFIG } from './config/config';
+// import * as WebSocket from 'ws';
 
-const port = CONFIG.PORT;
-const server = http.createServer(express);
-const wss = new WebSocket.Server({ server });
-// const server = new WebSocket.Server({ port: CONFIG.PORT });
-// console.log(`Server is listening on port ${CONFIG.PORT}:)`);
+// const port = CONFIG.PORT;
+// const server = http.createServer(express);
+// const wss = new WebSocket.Server({ server });
+// // const server = new WebSocket.Server({ port: CONFIG.PORT });
+// // console.log(`Server is listening on port ${CONFIG.PORT}:)`);
 
-wss.on('connection', (conn: WebSocket, request: IncomingMessage) => {
+// wss.on('connection', (conn: WebSocket, request: IncomingMessage) => {
 
-  console.log(conn, request);
-  console.log(wss.clients);
-    const clientOrigin = request.headers.origin;
-    console.log('clientOrigin:', clientOrigin);
-  // ws.on('message', function incoming(data) {
-  //   wss.clients.forEach(function each(client) {
-  //     if (client !== ws && client.readyState === WebSocket.OPEN) {
-  //       client.send(data);
-  //     }
-  //   })
-  // })
-    conn.on('message', (msg: string) => {
-      console.log(msg);
+//   console.log(conn, request);
+//   console.log(wss.clients);
+//     const clientOrigin = request.headers.origin;
+//     console.log('clientOrigin:', clientOrigin);
+//   // ws.on('message', function incoming(data) {
+//   //   wss.clients.forEach(function each(client) {
+//   //     if (client !== ws && client.readyState === WebSocket.OPEN) {
+//   //       client.send(data);
+//   //     }
+//   //   })
+//   // })
+//     conn.on('message', (msg: string) => {
+//       console.log(msg);
 
-    });
+//     });
 
-    conn.on('close', (ev) => {
-      console.log('close', ev);
+//     conn.on('close', (ev) => {
+//       console.log('close', ev);
 
-    });
-});
+//     });
+// });
 
-wss.on('error', (event) => {
-  console.log('websocket error');
-  console.log(event);
-});
+// wss.on('error', (event) => {
+//   console.log('websocket error');
+//   console.log(event);
+// });
 
 
-server.listen(port, () => {
-  console.log(`Server is listening on ${port}!`)
-});
+// server.listen(port, () => {
+//   console.log(`Server is listening on ${port}!`)
+// });
 
 
 // wss.on('connection', function connection(ws) {

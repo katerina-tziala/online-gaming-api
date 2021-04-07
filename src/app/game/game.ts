@@ -40,10 +40,11 @@ export class Game {
     return this._TurnsHandler ? this._TurnsHandler.teamsTurns : undefined;
   }
 
-  private init(): void {
+  public init(): void {
     this.startedAt = undefined;
     this.endedAt = undefined;
   }
+
   private get completedIn(): Duration {
     const start = this.startedAt ? new Date(this.startedAt) : undefined;
     const end = this.endedAt ? new Date(this.endedAt) : undefined;
@@ -141,7 +142,7 @@ export class Game {
   }
 
   private assignTeams(): void {
-    if (this._teamsConfig) {
+    if (this._teamsConfig && !this._teams) {
       this._teams = TeamsHandler.createTeams(this.playersIds, this._teamsConfig);
       this._players.forEach(player => player.team = this.getPlayerTeam(player.id));
     }

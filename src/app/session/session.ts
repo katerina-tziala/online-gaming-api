@@ -2,13 +2,12 @@
 import { IdGenerator } from "../..//utils/id-generator";
 import { Client } from "../client/client";
 import { ClientData } from "../client/client-data.interface";
-import { ClientsController } from "../client/clients-controller";
+import { ClientsController } from "../controllers/clients-controller";
 import { MessageOutType } from "../messages/message-types/message-out-type.enum";
 
 export class Session {
   public id: string;
   public createdAt: string = null;
-  protected _clients: Map<string, Client> = new Map();
   private _ClientsController: ClientsController = new ClientsController();
 
   constructor() {
@@ -60,6 +59,10 @@ export class Session {
     return this._ClientsController.getClientsByIds(clientIds);
   }
 
+  public getConnectedClientsByIds(clientIds: string[]): Client[] {
+    return this._ClientsController.getClientsByIds(clientIds).filter(client => client.connected);
+  }
+
   public removeClient(client: Client): void {
     this._ClientsController.removeClient(client);
   }
@@ -72,20 +75,13 @@ export class Session {
     return this._ClientsController.getPeersUsernames(client);
   }
 
-  public notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
-    const user = client.details;
-    const peers = this.getPeersDetails(client);
-    client.sendMessage(type, { user, peers });
-  }
-
-  public notifyClientForPeersUpdate(client: Client): void {
-    const peers = this.getPeersDetails(client);
-    client.sendMessage(MessageOutType.Peers, { peers });
-  }
-
-  protected broadcastToPeers(initiator: Client, type: MessageOutType, data: {}): void {
+  public broadcastToPeers(initiator: Client, type: MessageOutType, data: {}): void {
     const peers = this.getClientPeers(initiator);
     peers.forEach((client) => client.sendMessage(type, data));
+  }
+
+  public broadcastToClients(type: MessageOutType, data: {}): void {
+    this.clients.forEach((client) => client.sendMessage(type, data));
   }
 
 }

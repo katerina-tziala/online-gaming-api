@@ -1,6 +1,6 @@
 
-import { Client } from "./client";
-import { ClientData } from "./client-data.interface";
+import { Client } from "../client/client";
+import { ClientData } from "../client/client-data.interface";
 
 export class ClientsController {
   private _clients: Map<string, Client> = new Map();
