@@ -1,10 +1,10 @@
 import { GameRoom } from "../session/game-room/game-room";
 import { GameRoomPrivate } from "../session/game-room/game-room-private";
 
-export class GameRoomsController {
-  private _gameRooms: Map<string, GameRoom | GameRoomPrivate> = new Map();
+export class GameRoomsController<T extends GameRoom> {
+  private _gameRooms: Map<string, T> = new Map();
 
-  public set addGameRoom(session: GameRoom | GameRoomPrivate) {
+  public set addGameRoom(session: T) {
     this._gameRooms.set(session.id, session);
   }
 
@@ -12,15 +12,15 @@ export class GameRoomsController {
     return !!this._gameRooms.size;
   }
 
-  public get gameRooms(): GameRoom[] | GameRoomPrivate[] {
+  public get gameRooms(): T[]{
     return Array.from(this._gameRooms.values());
   }
 
-  public getGameRoomById(roomId: string): GameRoom | GameRoomPrivate {
+  public getGameRoomById(roomId: string): T {
     return this._gameRooms.get(roomId);
   }
 
-  public getAvailableGameRoomByKey(gameKey: string): GameRoom | GameRoomPrivate {
+  public getAvailableGameRoomByKey(gameKey: string): T {
     return this.gameRooms.find(room => room.key === gameKey && room.entranceAllowed);
   }
 

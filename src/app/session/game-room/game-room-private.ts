@@ -58,7 +58,7 @@ export class GameRoomPrivate extends GameRoom {
     return this._InvitedPlayersController.getClientPeers(client);
   }
 
-  private isCreator(client: Client): boolean {
+  public isCreator(client: Client): boolean {
     return client.id === this._creator?.id;
   }
 
@@ -90,7 +90,14 @@ export class GameRoomPrivate extends GameRoom {
     return this.playerInvited(client) && !this.clientExists(client);
   }
 
-  public invitationAcceptanceAllowed(client: Client) {
+  public joinClient(client: Client): void {
+    if (this.invitationAcceptanceAllowed(client)) {
+      this._PlayersRejectedController.removeClient(client);
+      this.addPlayer(client);
+    }
+  }
+
+  private invitationAcceptanceAllowed(client: Client) {
     if (this.clientExpected(client)) {
       return true;
     }
@@ -114,10 +121,6 @@ export class GameRoomPrivate extends GameRoom {
     }
   }
 
-  public joinClient(client: Client): void {
-    this._PlayersRejectedController.removeClient(client);
-    this.addPlayer(client);
-  }
 
   private clientAllowedToRejectInvitation(client: Client): boolean {
     return this.clientExpected(client) && !this.playerRejectedGame(client);

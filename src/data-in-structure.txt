@@ -106,7 +106,7 @@
 }
 
 
-
+-  ACCEPT GAME INVITATION
 {
   "type": "game-invitation-accept",
   "data": {
@@ -114,6 +114,8 @@
   }
 }
 
+
+-  REJECT GAME INVITATION
 {
   "type": "game-invitation-reject",
   "data": {
@@ -145,10 +147,3 @@
 {
   "type": "game-restart-accept"
 }
-
-
-
-
-
-
-

@@ -18,7 +18,7 @@ export class Client {
 
   constructor(conn: WebSocket) {
     this._conn = conn;
-    this._id = IdGenerator.generate();
+    this._id =  "user" + IdGenerator.generate();
     this._username = null;
     this._gameId = null;
   }

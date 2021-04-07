@@ -11,6 +11,7 @@ import { Chat } from "../chat.interface";
 import { ChatValidator } from "../validators/chat-validator";
 import { HostRoomsController } from "../controllers/host-rooms-controller";
 import { GameConfig } from "./game-room/game-config/game-config.inteface";
+import { GameRoomPrivate } from "./game-room/game-room-private";
 
 export class Host extends Session {
   private _messageConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
@@ -224,16 +225,16 @@ export class Host extends Session {
     }
   }
 
-
   private onAcceptGameInvitation(client: Client, data: { gameId: string }): void {
     const { gameId } = data;
     if (!gameId) {
       client.sendErrorMessage(ErrorType.GareIdRequired, { type: MessageInType.GameInvitationAccept });
       return;
     }
-    console.log("onAcceptGameInvitation");
+    this._GameRoomsController.onGameInvitationAccept(client, gameId, () => {
+      this.broadcastPeersUpdate(client);
+    });
   }
-
 
 
   private onRejectGameInvitation(client: Client, data: { gameId: string }): void {

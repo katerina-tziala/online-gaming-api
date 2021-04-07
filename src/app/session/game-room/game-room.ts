@@ -20,6 +20,7 @@ export class GameRoom extends Session {
   constructor(config: GameConfig) {
     super();
     this.setMessageHandling();
+    this.id = "game" + this.id;
     this._config = ConfigUtils.getValidGameConfig(config);
     this.key = ConfigUtils.generateGameKey(config);
     this._Game = new Game(this._config);

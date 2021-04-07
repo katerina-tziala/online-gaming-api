@@ -5,10 +5,9 @@ import {
   GameConfig,
   ConfigUtils,
 } from "../session/game-room/game-config/game-config";
-
 import { GameRoom } from "../session/game-room/game-room";
 import { GameRoomPrivate } from "../session/game-room/game-room-private";
-import { GameRoomsController } from "./game-rooms-controller copy";
+import { GameRoomsController } from "./game-rooms-controller";
 
 export class HostRoomsController {
   private _gameRooms: GameRoomsController<GameRoom> = new GameRoomsController();
@@ -105,13 +104,29 @@ export class HostRoomsController {
     gameRoom.onMessage(client, message);
   }
 
-  public onGameInvitationReject(client: Client, gameRoomId: string): void {
-    const gameRoom = this.getPrivateGameRoomById(gameRoomId);
+  public onGameInvitationReject(client: Client, gameId: string): void {
+    const gameRoom = this.getPrivateGameRoomById(gameId);
     if (!gameRoom) {
       client.sendGameNotFound(client.gameId, MessageInType.GameInvitationReject);
       return;
     }
     gameRoom.onRejectInvitation(client);
+  }
+
+  public onGameInvitationAccept(client: Client, gameId: string, callBack: () => void): void {
+    const gameRoom = this.getPrivateGameRoomById(gameId);
+    if (!gameRoom) {
+      client.sendGameNotFound(client.gameId, MessageInType.GameInvitationAccept);
+      return;
+    }
+    gameRoom.joinClient(client);
+    if (this.clientInvitedJoinedPrivateGame(client, gameRoom)) {
+      callBack();
+    }
+  }
+
+  private clientInvitedJoinedPrivateGame(client: Client, gameRoom: GameRoomPrivate): boolean {
+    return gameRoom.clientExists(client) && !gameRoom.isCreator(client);
   }
 
   public openPrivateGameRoom(client: Client, configData: GameConfig, expectedPlayers: Client[]): void {
