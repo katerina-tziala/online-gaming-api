@@ -123,7 +123,7 @@ export class GameRoomPrivate extends GameRoom {
     return this.clientExpected(client) && !this.playerRejectedGame(client);
   }
 
-  public onRejectInvitation(client: Client) {
+  public onRejectInvitation(client: Client): void {
     if (!this.clientHasAccess(client)) {
       client.sendErrorMessage(ErrorType.GameAccessForbidden, this.info);
       return;

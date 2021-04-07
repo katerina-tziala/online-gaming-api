@@ -1,11 +1,11 @@
 import { IncomingHttpHeaders } from "http";
-import { CONFIG } from "../../config/config";
+// import { CONFIG } from "../../config/config";
 
 export class ConnectionGuard {
 
-    public static authenticatedClient(headers: IncomingHttpHeaders): boolean {
-        return ConnectionGuard.correctProtocols(headers);
-    }
+    // public static authenticatedClient(headers: IncomingHttpHeaders): boolean {
+    //     return ConnectionGuard.correctProtocols(headers);
+    // }
 
     // private static originIsAllowed(headers: IncomingHttpHeaders): boolean {
     //     console.log(headers.origin, CONFIG.ALLOWED_HOST);
@@ -14,11 +14,11 @@ export class ConnectionGuard {
     //     return origin === CONFIG.ALLOWED_HOST;
     // }
 
-    private static correctProtocols(headers: IncomingHttpHeaders): boolean {
-        const protocols = [CONFIG.SOCKET_PROTOCOL, CONFIG.APP_PROTOCOL];
-        const requestProtocols = ConnectionGuard.getProtocols(headers);
-        return protocols.every(protocol => requestProtocols.includes(protocol));
-    }
+    // private static correctProtocols(headers: IncomingHttpHeaders): boolean {
+    //     const protocols = [CONFIG.SOCKET_PROTOCOL, CONFIG.APP_PROTOCOL];
+    //     const requestProtocols = ConnectionGuard.getProtocols(headers);
+    //     return protocols.every(protocol => requestProtocols.includes(protocol));
+    // }
 
     private static getProtocols(headers: IncomingHttpHeaders): string[] {
         const reqStringProtocol = headers['sec-websocket-protocol'];

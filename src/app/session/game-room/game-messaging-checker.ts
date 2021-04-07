@@ -9,7 +9,7 @@ export class GameMessagingChecker {
   }
 
   private static gameStartError(gameState: GameState): ErrorType {
-    return !gameState.startedAt ? ErrorType.GameStart : undefined;
+    return !gameState.startedAt ? ErrorType.GameNotStarted : undefined;
   }
   private static gameEndedError(gameState: GameState): ErrorType {
     return gameState.endedAt ? ErrorType.GameOver : undefined;

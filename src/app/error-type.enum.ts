@@ -19,7 +19,7 @@ export enum ErrorType {
   NotInGame = "not-in-game",
   WaitForPlayers = "wait-for-players-to-join",
   GameOver = "game-is-over",
-  GameStart = "game-not-started",
+  GameNotStarted = "game-not-started",
   DataRequired = "data-required",
   TurnsSwitchNotConfigured = "turns-switch-not-configured",
   PlayerOnTurn = "not-player-turn",
@@ -27,7 +27,7 @@ export enum ErrorType {
   GameAccessForbidden = "game-access-forbidden",
   ExpectedPlayersNotSpecified = "expected-players-not-specified",
   ExpectedClientsNotConnected = "not-all-clients-to-invite-connected",
-  // SomeExpectedPlayersNotConnected = "some-expected-players-not-connected",
+  GareIdRequired = "game-id-required"
   // RestarErrorRoomNotFilled = "not-all-players-in-game-to-request-restart",
   // GameNotStarted = "game-not-started-to-request-restart",
   // RestartNotRequested = "restart-not-requested",

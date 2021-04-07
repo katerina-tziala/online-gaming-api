@@ -1,4 +1,5 @@
 import { Client } from "../client/client";
+import { MessageInType } from "../messages/message-types/message-in-type.enum";
 import { MessageIn } from "../messages/message.interface";
 import {
   GameConfig,
@@ -7,19 +8,11 @@ import {
 
 import { GameRoom } from "../session/game-room/game-room";
 import { GameRoomPrivate } from "../session/game-room/game-room-private";
-import { GameRoomsController } from "./game-rooms-controller";
+import { GameRoomsController } from "./game-rooms-controller copy";
 
 export class HostRoomsController {
-  private _gameRooms: GameRoomsController = new GameRoomsController();
-  private _privateGameRooms: GameRoomsController = new GameRoomsController();
-  // private messageActionConfig: Map<string, (client: Client, msg: MessageIn) => void> = new Map();
-
-  constructor() {
-    // this.messageActionConfig.set(MessageInType.GameRestartRequest, this.onGameRestartRequest.bind(this));
-    // this.messageActionConfig.set(MessageInType.GameRestartReject, this.onGameRestartReject.bind(this));
-    // this.messageActionConfig.set(MessageInType.GameRestartAccept, this.onGameRestartAccept.bind(this));
-    // this.messageActionConfig.set(MessageInType.GameInvitationAccept, this.onGameInvitationAccept.bind(this));
-  }
+  private _gameRooms: GameRoomsController<GameRoom> = new GameRoomsController();
+  private _privateGameRooms: GameRoomsController<GameRoomPrivate> = new GameRoomsController();
 
   private set addGameRoom(session: GameRoom) {
     this._gameRooms.addGameRoom = session;
@@ -43,6 +36,10 @@ export class HostRoomsController {
 
   public getAvailableGameRoomByKey(gameKey: string): GameRoom {
     return this._gameRooms.getAvailableGameRoomByKey(gameKey);
+  }
+
+  public getPrivateGameRoomById(gameId: string): GameRoomPrivate {
+    return this._privateGameRooms.getGameRoomById(gameId);
   }
 
   public getGameRoomById(gameId: string): GameRoomPrivate | GameRoom {
@@ -106,6 +103,15 @@ export class HostRoomsController {
     }
 
     gameRoom.onMessage(client, message);
+  }
+
+  public onGameInvitationReject(client: Client, gameRoomId: string): void {
+    const gameRoom = this.getPrivateGameRoomById(gameRoomId);
+    if (!gameRoom) {
+      client.sendGameNotFound(client.gameId, MessageInType.GameInvitationReject);
+      return;
+    }
+    gameRoom.onRejectInvitation(client);
   }
 
   public openPrivateGameRoom(client: Client, configData: GameConfig, expectedPlayers: Client[]): void {

@@ -27,6 +27,10 @@ export class Host extends Session {
     this._messageConfig.set(MessageInType.OpenGameRoom, this.onOpenGame.bind(this));
     this._messageConfig.set(MessageInType.OpenPrivateGameRoom, this.onOpenPrivateGame.bind(this));
     this._messageConfig.set(MessageInType.QuitGame, this.onQuitGame.bind(this));
+    this._messageConfig.set(MessageInType.GameInvitationAccept, this.onAcceptGameInvitation.bind(this));
+    this._messageConfig.set(MessageInType.GameInvitationReject, this.onRejectGameInvitation.bind(this));
+
+    //
   }
   private notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
     const user = client.details;
@@ -211,10 +215,6 @@ export class Host extends Session {
     return { playersToInvite, errorType };
   }
 
-
-
-
-
   private onQuitGame(client: Client): void {
     if (client.allowedToSendGameMessage(MessageInType.QuitGame)) {
       this._GameRoomsController.removeClientFromCurrentGame(client);
@@ -222,6 +222,27 @@ export class Host extends Session {
       this.notifyJoinedClient(client, MessageOutType.GameExited);
       this.broadcastPeersUpdate(client);
     }
+  }
+
+
+  private onAcceptGameInvitation(client: Client, data: { gameId: string }): void {
+    const { gameId } = data;
+    if (!gameId) {
+      client.sendErrorMessage(ErrorType.GareIdRequired, { type: MessageInType.GameInvitationAccept });
+      return;
+    }
+    console.log("onAcceptGameInvitation");
+  }
+
+
+
+  private onRejectGameInvitation(client: Client, data: { gameId: string }): void {
+    const { gameId } = data;
+    if (!gameId) {
+      client.sendErrorMessage(ErrorType.GareIdRequired, { type: MessageInType.GameInvitationReject });
+      return;
+    }
+    this._GameRoomsController.onGameInvitationReject(client, gameId);
   }
 
   public disconnectClient(client: Client): void {

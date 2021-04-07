@@ -107,6 +107,20 @@
 
 
 
+{
+  "type": "game-invitation-accept",
+  "data": {
+    "gameId": "kN5b2FYh8feY0oH3hjnHr3WBso1kjEYq__1616527071289"
+  }
+}
+
+{
+  "type": "game-invitation-reject",
+  "data": {
+    "gameId": "kN5b2FYh8feY0oH3hjnHr3WBso1kjEYq__1616527071289"
+  }
+}
+
 
 
 
@@ -117,7 +131,7 @@
 
 
 {
-  "type": "game-restart-request"
+  "type": "game-restart"
 }
 
 {
@@ -125,7 +139,7 @@
 }
 
 {
-  "type": "game-restart-reject"
+  "type": "game-restart-cancel"
 }
 
 {
@@ -133,16 +147,6 @@
 }
 
 
-{
-  "type": "user-info"
-}
-
-{
-  "type": "game-invitation-accept",
-  "data": {
-    "gameRoomId": "kN5b2FYh8feY0oH3hjnHr3WBso1kjEYq__1616527071289"
-  }
-}
 
 
 
