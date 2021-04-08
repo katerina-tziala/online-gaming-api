@@ -27,10 +27,17 @@ export class GameMessagingChecker {
     );
   }
 
-  public static gameChatError(gameState: GameRoomInfo, data: Chat): ErrorType {
+  public static gameRestartError(gameInfo: GameInfo): ErrorType {
+    return (
+      GameMessagingChecker.playersJoinedError(gameInfo) ||
+      GameMessagingChecker.gameStartError(gameInfo.state)
+    );
+  }
+
+  public static gameChatError(gameInfo: GameRoomInfo, data: Chat): ErrorType {
     return (
       ChatValidator.chatErrorType(data) ||
-      GameMessagingChecker.playersJoinedError(gameState)
+      GameMessagingChecker.playersJoinedError(gameInfo)
     );
   }
 

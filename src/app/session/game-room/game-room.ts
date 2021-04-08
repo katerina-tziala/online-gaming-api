@@ -9,6 +9,7 @@ import { MessageIn } from "../../messages/message.interface";
 import { Chat } from "../../chat.interface";
 import { GameMessagingChecker } from "./game-messaging-checker";
 import { Game } from "../../game/game";
+import { GameRestartHandler } from "../../game/restart/game-restart-handler";
 
 export class GameRoom extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
@@ -16,6 +17,7 @@ export class GameRoom extends Session {
   public key: string;
   private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
   private _Game: Game;
+  private _RestartHandler: GameRestartHandler
 
   constructor(config: GameConfig) {
     super();
@@ -24,6 +26,9 @@ export class GameRoom extends Session {
     this._config = ConfigUtils.getValidGameConfig(config);
     this.key = ConfigUtils.generateGameKey(config);
     this._Game = new Game(this._config);
+    if (this._config.restartAllowed) {
+      this._RestartHandler = new GameRestartHandler(this.id);
+    }
   }
 
   private setMessageHandling(): void {
@@ -91,6 +96,8 @@ export class GameRoom extends Session {
     this.broadcastRoomOpened(client);
     this.broadcastPlayerInOut(client, MessageOutType.PlayerJoined);
     this.checkGameStart();
+    // restart handling
+    // this.restartRequest = undefined;
   }
 
   private checkGameStart(): void {
@@ -101,6 +108,8 @@ export class GameRoom extends Session {
   }
 
   private startGame(): void {
+    // restart handling
+    // this.restartRequest = undefined;
     this.clearStartTimeout();
     if (this.startAllowed) {
       this._Game.start(this.clientsIds);
@@ -115,6 +124,10 @@ export class GameRoom extends Session {
   public onPlayerLeft(client: Client): void {
     this.removePlayer(client);
     this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
+    // if game not ended => end game?
+    // restart handling
+    // this.restartRequest = undefined;
+    // if request restart notify the rest?
   }
 
   protected clearStartTimeout(): void {
@@ -138,12 +151,17 @@ export class GameRoom extends Session {
 
   public onMessageForRestart(client: Client, message: MessageIn): void {
     const { type } = message;
-    if (!this._config.restartAllowed) {
+    if (!this._RestartHandler) {
       client.sendErrorMessage(ErrorType.GameRestartForbidden, { messageType: type });
       return;
     }
-    console.log(message);
-    console.log(this._config);
+
+    const errorType = GameMessagingChecker.gameRestartError(this.details);
+    if (errorType) {
+      client.sendErrorMessage(errorType, { messageType: type });
+      return;
+    }
+    this._RestartHandler.onMessage(client, type, this.getClientPeers(client));
   }
 
   public onGetPlayerInfo(client: Client, data: { playerId: string }): void {
@@ -158,6 +176,7 @@ export class GameRoom extends Session {
   }
 
   private onGetGameState(client: Client): void {
+     // if request restart
     client.sendMessage(MessageOutType.GameState, this.details);
   }
 
@@ -172,6 +191,7 @@ export class GameRoom extends Session {
   }
 
   private onGameUpdate(client: Client, data: {}): void {
+     // if request restart
     const messageType = MessageInType.GameUpdate;
     const errorType = GameMessagingChecker.gameUpdateError(this.details, this._Game.isPlayerOnTurn(client), data);
     if (errorType) {
@@ -182,6 +202,7 @@ export class GameRoom extends Session {
   }
 
   private onPlayerTurnMove(client: Client, data: {}): void {
+     // if request restart
     const messageType = MessageInType.GameTurnMove;
     if (!this._Game.turnsConfigured) {
       client.sendErrorMessage(ErrorType.TurnsSwitchForbidden, { messageType });
@@ -199,6 +220,7 @@ export class GameRoom extends Session {
   }
 
   private onGameOver(client: Client, data: {}): void {
+     // if request restart
     const messageType = MessageInType.GameOver;
     const errorType = GameMessagingChecker.gameOverError(this.details);
     if (errorType) {
