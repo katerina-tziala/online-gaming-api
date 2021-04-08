@@ -1,5 +1,5 @@
 import { Duration } from "../../duration.interface";
-import { GameConfig } from "./game-config/game-config.inteface";
+import { GameConfig } from "../../game/game-config/game-config.inteface";
 import { ClientData } from "../../client/client-data.interface";
 export interface GameRoomInfo {
   id: string;

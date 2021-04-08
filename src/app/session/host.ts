@@ -10,7 +10,7 @@ import { MessageIn } from "../messages/message.interface";
 import { Chat } from "../chat.interface";
 import { ChatValidator } from "../validators/chat-validator";
 import { HostRoomsController } from "../controllers/host-rooms-controller";
-import { GameConfig } from "./game-room/game-config/game-config.inteface";
+import { GameConfig } from "../game/game-config/game-config.inteface";
 import { GameRoomPrivate } from "./game-room/game-room-private";
 
 export class Host extends Session {

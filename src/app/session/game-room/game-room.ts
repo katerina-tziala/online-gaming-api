@@ -1,7 +1,7 @@
 import { Client } from "../../client/client";
 import { ClientData } from "../../client/client-data.interface";
 import { Session } from "../session";
-import { ConfigUtils, GameConfig } from "./game-config/game-config";
+import { ConfigUtils, GameConfig } from "../../game/game-config/game-config";
 import { GameInfo, GameRoomInfo, GameState, PlayerInOut, PlayerMesssage } from "./game.interfaces";
 import { ErrorType } from "../../error-type.enum";
 import { MessageInType, MessageOutType } from "../../messages/message-types/message-types.enum";
@@ -146,6 +146,14 @@ export class GameRoom extends Session {
     console.log(message);
     console.log(this._config);
   }
+
+
+
+
+
+
+
+
 
   public onGetPlayerInfo(client: Client, data: { playerId: string }): void {
     const playerId = data?.playerId || client.id;

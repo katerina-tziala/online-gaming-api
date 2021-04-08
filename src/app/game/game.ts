@@ -4,8 +4,8 @@ import { ClientData } from "../client/client-data.interface";
 import { Duration } from "../duration.interface";
 import { TeamsHandler } from "./teams/teams.handler";
 import { TurnsHandler } from "./turns/turns-handler";
-import { GameConfig } from "../session/game-room/game-config/game-config";
-import { TeamsConfig } from "../session/game-room/game-config/game-config.inteface";
+import { GameConfig } from "./game-config/game-config";
+import { TeamsConfig } from "./game-config/game-config.inteface";
 import { GameState } from "../session/game-room/game.interfaces";
 
 export class Game {

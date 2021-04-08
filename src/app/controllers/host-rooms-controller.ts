@@ -4,7 +4,7 @@ import { MessageIn } from "../messages/message.interface";
 import {
   GameConfig,
   ConfigUtils,
-} from "../session/game-room/game-config/game-config";
+} from "../game/game-config/game-config";
 import { GameRoom } from "../session/game-room/game-room";
 import { GameRoomPrivate } from "../session/game-room/game-room-private";
 import { GameRoomsController } from "./game-rooms-controller";

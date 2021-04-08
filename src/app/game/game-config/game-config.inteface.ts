@@ -1,5 +1,5 @@
-import { TeamJoin } from "../../../game/teams/team-join.enum";
-import { TurnsSwitch } from "../../../game/turns/turns-switch.enum";
+import { TeamJoin } from "../teams/team-join.enum";
+import { TurnsSwitch } from "../turns/turns-switch.enum";
 
 export interface TeamsConfig {
   numberOfTeams: number;

@@ -1,4 +1,4 @@
-import { TeamsConfig } from "../../session/game-room/game-config/game-config";
+import { TeamsConfig } from "../game-config/game-config";
 import { arrayDifference, randomFromArray } from "../../../utils/utils";
 import { TeamJoin } from "./team-join.enum";
 

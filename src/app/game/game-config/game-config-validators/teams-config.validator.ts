@@ -1,5 +1,5 @@
-import { TeamJoin } from "../../../../game/teams/team-join.enum";
-import { ValidTypes } from "../../../../validators/validators";
+import { TeamJoin } from "../../teams/team-join.enum";
+import { ValidTypes } from "../../../validators/validators";
 import { TeamsConfig } from "../game-config.inteface";
 
 export class TeamsConfigValidator {
