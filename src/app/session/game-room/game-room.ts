@@ -142,18 +142,9 @@ export class GameRoom extends Session {
       client.sendErrorMessage(ErrorType.GameRestartForbidden, { messageType: type });
       return;
     }
-
     console.log(message);
     console.log(this._config);
   }
-
-
-
-
-
-
-
-
 
   public onGetPlayerInfo(client: Client, data: { playerId: string }): void {
     const playerId = data?.playerId || client.id;
@@ -165,7 +156,6 @@ export class GameRoom extends Session {
     const playerInfo = this._Game.getPlayerInfo(player);
     client.sendMessage(MessageOutType.GamePlayerInfo, { playerInfo });
   }
-
 
   private onGetGameState(client: Client): void {
     client.sendMessage(MessageOutType.GameState, this.details);
