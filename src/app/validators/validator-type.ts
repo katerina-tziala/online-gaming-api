@@ -17,3 +17,7 @@ export const typeOfString = (value: any): boolean => {
 export const validString = (value: string): boolean => {
   return value && value.length ? true : false;
 };
+
+export const typeOfBoolean = (value: any): boolean => {
+  return value && typeof value === "boolean";
+};

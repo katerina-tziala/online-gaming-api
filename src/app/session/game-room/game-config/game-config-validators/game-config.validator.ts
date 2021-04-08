@@ -20,14 +20,15 @@ export class GameConfigValidator {
   }
 
   private static getGameConfigWithValidValues(config: GameConfig): GameConfig {
-    config.playersRequired = this.getValidRequiredPlayers(config.playersRequired);
-    config.roomType = this.getValidRoomType(config.roomType);
-    config.startWaitingTime = this.getValidStartWaitingTime(config.startWaitingTime);
-    config.settings = this.getValidSettings(config.settings);
-    config.turnsSwitch = this.getValidTurnsSwitch(config.turnsSwitch);
-    config.turnsRandomStart = this.getValidTurnsRandomStart(config.turnsRandomStart, config.turnsSwitch);
-    config.teams = TeamsConfigValidator.getValidConfig(config.playersRequired, config.teams);
-    return JSON.parse(JSON.stringify(config));
+    const playersRequired = this.getValidRequiredPlayers(config.playersRequired);
+    const roomType = this.getValidRoomType(config.roomType);
+    const startWaitingTime = this.getValidStartWaitingTime(config.startWaitingTime);
+    const settings = this.getValidSettings(config.settings);
+    const turnsSwitch = this.getValidTurnsSwitch(config.turnsSwitch);
+    const turnsRandomStart = this.getValidTurnsRandomStart(config.turnsRandomStart, config.turnsSwitch);
+    const teams = TeamsConfigValidator.getValidConfig(config.playersRequired, config.teams);
+    const restartAllowed = ValidTypes.typeOfBoolean(config.restartAllowed) ? config.restartAllowed : false;
+    return { roomType, playersRequired, startWaitingTime, restartAllowed, turnsSwitch, turnsRandomStart, teams, settings };
   }
 
   private static getValidSettings(settings: any): {} {

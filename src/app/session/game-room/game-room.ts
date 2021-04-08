@@ -26,12 +26,12 @@ export class GameRoom extends Session {
     this._Game = new Game(this._config);
   }
 
-  protected setMessageHandling(): void {
+  private setMessageHandling(): void {
     this._messageHandlingConfig.set(MessageInType.GameState, this.onGetGameState.bind(this));
     this._messageHandlingConfig.set(MessageInType.GameChat, this.onGameChat.bind(this));
     this._messageHandlingConfig.set(MessageInType.GameUpdate, this.onGameUpdate.bind(this));
     this._messageHandlingConfig.set(MessageInType.GameOver, this.onGameOver.bind(this));
-    this._messageHandlingConfig.set(MessageInType.PlayerTurnMove, this.onPlayerTurnMove.bind(this));
+    this._messageHandlingConfig.set(MessageInType.GameTurnMove, this.onPlayerTurnMove.bind(this));
   }
 
   protected get filled(): boolean {
@@ -130,7 +130,20 @@ export class GameRoom extends Session {
     const { type, data } = message;
     if (this._messageHandlingConfig.has(type)) {
       this._messageHandlingConfig.get(type)(client, data);
+    } else {
+      this.onMessageForRestart(client, message);
     }
+  }
+
+  public onMessageForRestart(client: Client, message: MessageIn): void {
+    const { type } = message;
+    if (!this._config.restartAllowed) {
+      client.sendErrorMessage(ErrorType.GameRestartForbidden, { messageType: type });
+      return;
+    }
+
+    console.log(message);
+    console.log(this._config);
   }
 
   private onGetGameState(client: Client): void {
@@ -158,9 +171,9 @@ export class GameRoom extends Session {
   }
 
   private onPlayerTurnMove(client: Client, data: {}): void {
-    const messageType = MessageInType.PlayerTurnMove;
+    const messageType = MessageInType.GameTurnMove;
     if (!this._Game.turnsConfigured) {
-      client.sendErrorMessage(ErrorType.TurnsSwitchNotConfigured, { messageType });
+      client.sendErrorMessage(ErrorType.TurnsSwitchForbidden, { messageType });
       return;
     }
 

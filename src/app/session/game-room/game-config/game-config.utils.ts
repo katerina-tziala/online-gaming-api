@@ -9,8 +9,9 @@ export function generateGameKey(config: GameConfig): string {
   const { roomType, startWaitingTime, playersRequired } = config;
   const turnsKey = getTurnsKey(config);
   const teamsKey = getTeamsKey(config.teams);
+  const restartKey = getRestartKey(config.restartAllowed);
 
-  let gameKey = `${roomType}|${startWaitingTime}|${playersRequired}|${turnsKey}|${teamsKey}`;
+  let gameKey = `${roomType}|${startWaitingTime}|${playersRequired}|${restartKey}|${turnsKey}|${teamsKey}`;
   if (config.settings) {
     gameKey += "|cs";
   }
@@ -31,4 +32,8 @@ function getTeamsKey(config: TeamsConfig): string{
   }
   const { numberOfTeams, playersPerTeam, joinTeams } = config;
   return `teams-${numberOfTeams}-${playersPerTeam}-${joinTeams}`;
+}
+
+function getRestartKey(restartAllowed: boolean): string {
+  return restartAllowed ? "ra" : "rf";
 }

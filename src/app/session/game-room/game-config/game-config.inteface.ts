@@ -13,6 +13,7 @@ export interface GameConfig {
   turnsSwitch?: TurnsSwitch;
   turnsRandomStart?: boolean;
   teams?: TeamsConfig;
+  restartAllowed?: boolean;
   settings?: {};
   playersExpected?: string[];
 }

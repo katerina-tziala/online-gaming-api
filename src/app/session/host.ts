@@ -14,22 +14,30 @@ import { GameConfig } from "./game-room/game-config/game-config.inteface";
 import { GameRoomPrivate } from "./game-room/game-room-private";
 
 export class Host extends Session {
-  private _messageConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
+  private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
   private _GameRoomsController = new HostRoomsController();
-  private _gameMessages = [MessageInType.GameState, MessageInType.GameChat, MessageInType.GameUpdate,
-    MessageInType.GameOver, MessageInType.PlayerTurnMove];
+  private _gameMessages: MessageInType[] = [];
 
   constructor() {
     super();
-    this._messageConfig.set(MessageInType.Join, this.onJoinClient.bind(this));
-    this._messageConfig.set(MessageInType.UserUpdate, this.onUpdateClient.bind(this));
-    this._messageConfig.set(MessageInType.PrivateChat, this.onPrivateChatMessage.bind(this));
-    this._messageConfig.set(MessageInType.EnterGame, this.onEnterGame.bind(this));
-    this._messageConfig.set(MessageInType.OpenGameRoom, this.onOpenGame.bind(this));
-    this._messageConfig.set(MessageInType.OpenPrivateGameRoom, this.onOpenPrivateGame.bind(this));
-    this._messageConfig.set(MessageInType.QuitGame, this.onQuitGame.bind(this));
-    this._messageConfig.set(MessageInType.GameInvitationAccept, this.onAcceptGameInvitation.bind(this));
-    this._messageConfig.set(MessageInType.GameInvitationReject, this.onRejectGameInvitation.bind(this));
+    this.setMessageHandling();
+    this.setGameMessageHandling();
+  }
+
+  private setMessageHandling(): void {
+    this._messageHandlingConfig.set(MessageInType.Join, this.onJoinClient.bind(this));
+    this._messageHandlingConfig.set(MessageInType.UserUpdate, this.onUpdateClient.bind(this));
+    this._messageHandlingConfig.set(MessageInType.PrivateChat, this.onPrivateChatMessage.bind(this));
+    this._messageHandlingConfig.set(MessageInType.EnterGame, this.onEnterGame.bind(this));
+    this._messageHandlingConfig.set(MessageInType.OpenGameRoom, this.onOpenGame.bind(this));
+    this._messageHandlingConfig.set(MessageInType.OpenPrivateGameRoom, this.onOpenPrivateGame.bind(this));
+    this._messageHandlingConfig.set(MessageInType.QuitGame, this.onQuitGame.bind(this));
+    this._messageHandlingConfig.set(MessageInType.GameInvitationAccept, this.onAcceptGameInvitation.bind(this));
+    this._messageHandlingConfig.set(MessageInType.GameInvitationReject, this.onRejectGameInvitation.bind(this));
+  }
+
+  private setGameMessageHandling(): void {
+    this._gameMessages = Object.values(MessageInType).filter(type => type.startsWith("game"));
   }
 
   private notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
@@ -77,8 +85,8 @@ export class Host extends Session {
 
   private onHostBasedMessage(client: Client, message: MessageIn): void {
     const { type, data } = message;
-    if (this._messageConfig.has(type)) {
-      this._messageConfig.get(type)(client, data || {});
+    if (this._messageHandlingConfig.has(type)) {
+      this._messageHandlingConfig.get(type)(client, data || {});
     } else {
       console.log("method type not implemented");
     }

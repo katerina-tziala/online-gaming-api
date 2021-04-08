@@ -4,7 +4,6 @@ import { CONFIG } from './config/config';
 import * as WebSocket from 'ws';
 import { Client } from './app/client/client';
 import { OnlineGamingApp } from './app/online-gaming-app';
-import { TeamsHandler } from './app/game/teams/teams.handler';
 
 const port = CONFIG.PORT;
 const server = http.createServer(express);
