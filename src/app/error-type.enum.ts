@@ -23,6 +23,7 @@ export enum ErrorType {
   DataRequired = "data-required",
   TurnsSwitchForbidden = "turns-switch-action-forbidden",
   PlayerOnTurn = "not-player-turn",
+  PlayerNotFound = "player-not-found",
   GameActionForbidden = "game-action-forbidden",
   GameAccessForbidden = "game-access-forbidden",
   ExpectedPlayersNotSpecified = "expected-players-not-specified",

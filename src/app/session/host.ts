@@ -157,7 +157,7 @@ export class Host extends Session {
 
   private sendPrivateChat(client: Client, message: MessageIn): void {
     const { data } = message;
-    const recipient = this.findClientById(data.recipientId.toString());
+    const recipient = this.getClientById(data.recipientId.toString());
     if (!recipient) {
       client.sendErrorMessage(ErrorType.RecipientNotConnected, message);
       return;

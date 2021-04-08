@@ -8,6 +8,7 @@ export enum MessageInType {
   OpenPrivateGameRoom = "open-private-game-room",
   QuitGame = "quit-game",
   GameState = "game-state",
+  GamePlayerInfo = "game-player-info",
   GameChat = "game-chat",
   GameUpdate = "game-update",
   GameOver = "game-over",

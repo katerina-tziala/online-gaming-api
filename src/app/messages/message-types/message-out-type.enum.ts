@@ -12,6 +12,7 @@ export enum MessageOutType {
   GameStart = "game-start",
   GameExited = "game-exited",
   GameState = "game-state",
+  GamePlayerInfo = "game-player-info",
   GameChat = "game-chat",
   GameUpdate = "game-update",
   GameOver = "game-over",

@@ -51,7 +51,7 @@ export class Session {
     return this.getClientPeers(client).map((peer) => peer.details);
   }
 
-  public findClientById(clientId: string): Client {
+  public getClientById(clientId: string): Client {
     return this._ClientsController.findClientById(clientId);
   }
 

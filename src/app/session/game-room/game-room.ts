@@ -32,6 +32,7 @@ export class GameRoom extends Session {
     this._messageHandlingConfig.set(MessageInType.GameUpdate, this.onGameUpdate.bind(this));
     this._messageHandlingConfig.set(MessageInType.GameOver, this.onGameOver.bind(this));
     this._messageHandlingConfig.set(MessageInType.GameTurnMove, this.onPlayerTurnMove.bind(this));
+    this._messageHandlingConfig.set(MessageInType.GamePlayerInfo, this.onGetPlayerInfo.bind(this));
   }
 
   protected get filled(): boolean {
@@ -145,6 +146,18 @@ export class GameRoom extends Session {
     console.log(message);
     console.log(this._config);
   }
+
+  public onGetPlayerInfo(client: Client, data: { playerId: string }): void {
+    const playerId = data?.playerId || client.id;
+    const player = this.getClientById(playerId);
+    if (!player) {
+      client.sendErrorMessage(ErrorType.PlayerNotFound, { playerId });
+    }
+
+    const playerInfo = this._Game.getPlayerInfo(player);
+    client.sendMessage(MessageOutType.GamePlayerInfo, { playerInfo });
+  }
+
 
   private onGetGameState(client: Client): void {
     client.sendMessage(MessageOutType.GameState, this.details);
