@@ -5,7 +5,7 @@ import { ClientData } from "../../client/client-data.interface";
 
 export interface GameRestart {
   gameId: string;
-  createdAt: string;
+  requesteAt: string;
   requestedBy: ClientData;
   confirmedBy?: ClientData[];
   expectedToConfirm?: ClientData[];

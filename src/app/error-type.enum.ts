@@ -30,9 +30,10 @@ export enum ErrorType {
   ExpectedClientsNotConnected = "not-all-clients-to-invite-connected",
   GareIdRequired = "game-id-required",
   GameRestartForbidden = "game-restart-action-forbidden",
-  // RestarErrorRoomNotFilled = "not-all-players-in-game-to-request-restart",
-  // GameNotStarted = "game-not-started-to-request-restart",
-  // RestartNotRequested = "restart-not-requested",
+  RestartNotRequested = "restart-not-requested",
+  RestartNotRequestedByPlayer = "restart-not-requested-by-player",
+
+
   // CannotUpdateWhenRestartRequested = "cannot-update-game-when-restart-requested",
   // CannotEndWhenRestartRequested = "cannot-end-game-when-restart-requested",
 }
