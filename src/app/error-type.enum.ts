@@ -21,7 +21,7 @@ export enum ErrorType {
   GameOver = "game-is-over",
   GameNotStarted = "game-not-started",
   DataRequired = "data-required",
-  TurnsSwitchForbidden = "turns-switch-action-forbidden",
+  TurnsSwitchForbidden = "turns-switch-forbidden",
   PlayerOnTurn = "not-player-turn",
   PlayerNotFound = "player-not-found",
   GameActionForbidden = "game-action-forbidden",
@@ -30,10 +30,10 @@ export enum ErrorType {
   ExpectedClientsNotConnected = "not-all-clients-to-invite-connected",
   GareIdRequired = "game-id-required",
   GameRestartForbidden = "game-restart-action-forbidden",
-  RestartNotRequested = "restart-not-requested",
-  RestartNotRequestedByPlayer = "restart-not-requested-by-player",
-
-
-  // CannotUpdateWhenRestartRequested = "cannot-update-game-when-restart-requested",
-  // CannotEndWhenRestartRequested = "cannot-end-game-when-restart-requested",
+  RestartNotRequested = "game-restart-not-requested",
+  RestartNotRequestedByPlayer = "game-restart-not-requested-by-player",
+  GameRestartWaitConfrimation = "game-restart-wait-for-confirmation",
+  UpdateWhenRestartRequested = "game-update-when-restart-requested-forbidden",
+  TurnsSwitchWhenRestartRequested = "turns-switch-when-restart-requested-forbidden",
+  OverWhenRestartRequested = "game-over-when-restart-requested-forbidden",
 }

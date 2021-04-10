@@ -5,7 +5,7 @@ import { ErrorType } from "../error-type.enum";
 import {
   MessageOutType,
   MessageInType,
-} from "../messages/message-types/message-types.enum";
+} from "../messages/message-types/message-types";
 import { MessageIn } from "../messages/message.interface";
 import { Chat } from "../chat.interface";
 import { ChatValidator } from "../validators/chat-validator";

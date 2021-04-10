@@ -1,49 +1,45 @@
-import { MessageInType, MessageOutType } from "../../messages/message-types/message-types.enum";
+import { MessageInType, MessageOutType } from "../../messages/message-types/message-types";
 import { Client } from "../../client/client";
-import { ClientData } from "../../client/client-data.interface";
 import { ClientsController } from "../../controllers/clients-controller";
-import { GameRestart } from "./game-restart.interfaces";
+import { GameRestart } from "./game-restart.interface";
 import { ErrorType } from "../../error-type.enum";
+import { GameRequest } from "../game-request/game-request";
+import { GameRequestInterface } from "../game-request/game-request.interface";
 
 
 export class GameRestartHandler {
     private _messageHandlingConfig: Map<string, (client: Client, peers?: Client[]) => void> = new Map();
     private id: string;
-    private _PlayersExpectedToConfirmController: ClientsController;
-    private _PlayersConfirmedController: ClientsController;
-    private _requestedBy: Client;
-    private _requesteAt: string;
+    private _RestartRequest: GameRequest;
+    private _PlayersController: ClientsController;
+    private _onRestartConfirmed: () => void;
 
-    constructor(id: string) {
+    constructor(id: string, onRestartConfirmed: () => void) {
         this.id = id;
+        this._onRestartConfirmed = onRestartConfirmed;
         this.setMessageHandling();
         this.init();
     }
 
-    private get confirmedBy() {
-        return this._PlayersConfirmedController.clientsInfo;
+    public get requested(): boolean {
+        return this._RestartRequest ? this._RestartRequest.requestExists : false;
     }
 
-    private get expectedToConfirm(): ClientData[] {
-        return this._PlayersExpectedToConfirmController.clientsInfo;
+    public get restartRequest(): GameRequestInterface {
+        return this._RestartRequest.request;
     }
 
-    private get clientsConfirmed(): Client[] {
-        return this._PlayersConfirmedController.clients;
-    }
+    private get gameRestartRequest(): GameRestart {
+        const request = this._RestartRequest.request;
 
-    private get clientsExpectedToConfirm(): Client[] {
-        return this._PlayersExpectedToConfirmController.clients;
-    }
-
-    private get restartRequestInfo(): GameRestart {
-        return {
-            gameId: this.id,
-            requesteAt: this._requesteAt,
-            requestedBy: this._requestedBy.info,
-            confirmedBy: this.confirmedBy,
-            expectedToConfirm: this.expectedToConfirm
+        if (!request) {
+            return;
         }
+
+        return {
+            ...request,
+            gameId: this.id
+        };
     }
 
     private setMessageHandling(): void {
@@ -52,23 +48,9 @@ export class GameRestartHandler {
         this._messageHandlingConfig.set(MessageInType.GameRestartReject, this.onRestartReject.bind(this));
     }
 
-    public get requested(): boolean {
-        return !!this._requesteAt;
-    }
-
     public init(): void {
-        this._PlayersExpectedToConfirmController = new ClientsController();
-        this._PlayersConfirmedController = new ClientsController();
-        this._requesteAt = undefined;
-        this._requestedBy = undefined;
-    }
-
-    public clientRequestedRestart(client: Client): boolean {
-        return client.id === this._requestedBy?.id;
-    }
-
-    public playerExpectedToConfirm(client: Client): boolean {
-        return this._PlayersExpectedToConfirmController.clientExists(client);
+        this._RestartRequest = new GameRequest();
+        this._PlayersController = new ClientsController();
     }
 
     private onGameRestart(client: Client, peers: Client[]): void {
@@ -80,45 +62,60 @@ export class GameRestartHandler {
     }
 
     private createRestartRequest(client: Client, peers: Client[]): void {
-        this._PlayersExpectedToConfirmController.clients = peers;
-        this._requesteAt = new Date().toString();
-        this._requestedBy = client;
-        this.broadcastRequestToClients(this._PlayersExpectedToConfirmController.clients, MessageOutType.GameRestartRequested);
+        this._RestartRequest.createRequest(client.id, peers.map(peer => peer.id));
+        this._PlayersController.clients = [client].concat(peers);
+        this.broadcastRequestToClients(this._PlayersController.clients, MessageOutType.GameRestartRequested);
     }
 
     private onGameRestartWhenRequestExists(client: Client): void {
-        if(this.clientRequestedRestart(client)) {
-            this.broadcastRequestToClients([client], MessageOutType.GameRestartWaitConfrimation);
-        } else if(this.playerExpectedToConfirm(client)) {
-            console.log("accept restart");
-            console.log(client.info);
-            console.log(this.restartRequestInfo);
+        if (this._RestartRequest.playerCreatedRequest(client.id)) {
+            this.broadcastRestartWaitForConfirmation(client, MessageInType.GameRestart);
+        } else if(this._RestartRequest.playerPendingResponse(client.id)){
+            this.acceptRestart(client);
         }
     }
 
     private onRestartCancel(client: Client): void {
-        if (!this.clientRequestedRestart(client)) {
-            client.sendErrorMessage(ErrorType. RestartNotRequestedByPlayer, this.restartRequestInfo);
+        if (!this._RestartRequest.playerCreatedRequest(client.id)) {
+            client.sendErrorMessage(ErrorType.RestartNotRequestedByPlayer, this.gameRestartRequest);
             return;
         }
-       const playersToNotify = this.clientsConfirmed.concat(this.clientsExpectedToConfirm);
-       this.broadcastRequestToClients(playersToNotify, MessageOutType.GameRestartCanceled);
-       this.init();
+        this.broadcastRequestToClients(this._PlayersController.clients, MessageOutType.GameRestartCanceled);
+        this.init();
     }
 
     private onRestartAccept(client: Client): void {
-        console.log("onRestartAccept");
-        console.log(client.info);
-
+        if (this._RestartRequest.playerCreatedRequest(client.id) || !this._RestartRequest.playerPendingResponse(client.id)) {
+            this.broadcastRestartWaitForConfirmation(client, MessageInType.GameRestartAccept);
+        } else {
+            this.acceptRestart(client);
+        }
     }
 
-    private onRestartReject(client: Client): void {
-        console.log("onRestartReject");
-        console.log(client.info);
-
+    private acceptRestart(client: Client): void {
+        this._RestartRequest.confirmRequest(client.id);
+        this.broadcastRequestToClients(this._PlayersController.clients, MessageOutType.GameRestartAccepted);
+        if (this._RestartRequest.requestConfirmed) {
+            this._onRestartConfirmed();
+            this.init();
+        }
     }
 
+    public onRestartReject(client: Client): void {
+        if (this._RestartRequest.playerCreatedRequest(client.id)) {
+            this.onRestartCancel(client);
+        } else if(!this._RestartRequest.playerRejected(client.id)){
+            this.rejectRestart(client);
+        } else {
+            this.broadcastGameActionNotAllowed(client, MessageInType.GameRestartReject);
+        }
+    }
 
+    private rejectRestart(client: Client): void {
+        this._RestartRequest.rejectRequest(client.id);
+        this.broadcastRequestToClients(this._PlayersController.clients, MessageOutType.GameRestartRejected);
+        this.init();
+    }
 
     private onRestartRequestResponse(client: Client, type: MessageInType): void {
         if (!this.requested) {
@@ -138,10 +135,18 @@ export class GameRestartHandler {
 
     // MESSAGE BROADCAST
     private broadcastRequestToClients(clients: Client[], type: MessageOutType): void {
-        clients.forEach((client) => client.sendMessage(type, this.restartRequestInfo));
+        clients.forEach((client) => client.sendMessage(type, this.gameRestartRequest));
     }
 
     private broadcastRestartNotRequested(client: Client, type: MessageInType): void {
         client.sendErrorMessage(ErrorType.RestartNotRequested, { type });
+    }
+
+    private broadcastRestartWaitForConfirmation(client: Client, type: MessageInType): void {
+        client.sendErrorMessage(ErrorType.GameRestartWaitConfrimation, { type, restartRequest: this.gameRestartRequest });
+    }
+
+    private broadcastGameActionNotAllowed(client: Client, type: MessageInType): void {
+        client.sendErrorMessage(ErrorType.GameActionForbidden, { type });
     }
 }

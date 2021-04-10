@@ -15,11 +15,11 @@ export class GameMessagingChecker {
     return gameState.endedAt ? ErrorType.GameOver : undefined;
   }
 
-  private static updateDataErrorType(data: {}): ErrorType {
-    return !ValidTypes.typeOfObject(data) ? ErrorType.DataRequired : undefined;
+  public static updateDataErrorType(data: {}): ErrorType {
+    return ValidTypes.typeOfObject(data) && Object.keys(data).length ? undefined : ErrorType.DataRequired;
   }
 
-  private static gameUpdateBasedOnStateError(gameInfo: GameInfo): ErrorType {
+  public static gameUpdateBasedOnStateError(gameInfo: GameInfo): ErrorType {
     return (
       GameMessagingChecker.playersJoinedError(gameInfo) ||
       GameMessagingChecker.gameStartError(gameInfo.state) ||
@@ -60,10 +60,4 @@ export class GameMessagingChecker {
     return playerOnTurn ? ErrorType.PlayerOnTurn : undefined;
   }
 
-  public static gameOverError(gameInfo: GameInfo): ErrorType {
-    return (
-      GameMessagingChecker.playersJoinedError(gameInfo) ||
-      GameMessagingChecker.gameStartError(gameInfo.state)
-    );
-  }
 }

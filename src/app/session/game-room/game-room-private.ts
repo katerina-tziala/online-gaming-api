@@ -3,7 +3,7 @@ import { ClientData } from "../../client/client-data.interface";
 import { GameConfig } from "../../game/game-config/game-config";
 import { GameInfo, GameInvitation } from "./game.interfaces";
 import { ErrorType } from "../../error-type.enum";
-import { MessageInType, MessageOutType } from "../../messages/message-types/message-types.enum";
+import { MessageInType, MessageOutType } from "../../messages/message-types/message-types";
 import { GameRoom } from "./game-room";
 import { ClientsController } from "../../controllers/clients-controller";
 

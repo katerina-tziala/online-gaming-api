@@ -1,7 +1,7 @@
 import { stringToJSON } from "../utils/utils";
 import { Client } from "./client/client";
 import { ErrorType } from "./error-type.enum";
-import { MessageInType } from "./messages/message-types/message-types.enum";
+import { MessageInType } from "./messages/message-types/message-types";
 import { MessageIn } from "./messages/message.interface";
 import { ClientData } from "./client/client-data.interface";
 import { Host } from "./session/host";

@@ -1,5 +1,5 @@
 import { ErrorType } from '../error-type.enum';
-import * as MessageTypes from './message-types/message-types.enum';
+import * as MessageTypes from './message-types/message-types';
 
 export interface MessageIn {
   type: MessageTypes.MessageInType;

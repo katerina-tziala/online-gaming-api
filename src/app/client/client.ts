@@ -2,7 +2,7 @@
 import * as WebSocket from "ws";
 import { IdGenerator } from "../../utils/id-generator";
 import { ClientData } from "./client-data.interface";
-import { MessageInType, MessageOutType } from "../messages/message-types/message-types.enum";
+import { MessageInType, MessageOutType } from "../messages/message-types/message-types";
 import { ErrorType } from "../error-type.enum";
 import { ErrorMessage, MessageIn, MessageOut } from "../messages/message.interface";
 import { UsernameValidator, ValidTypes } from "../validators/validators";
@@ -55,10 +55,16 @@ export class Client {
     return this._properties;
   }
 
-  public get info(): ClientData {
+  public get basicInfo(): ClientData {
     return {
       id: this.id,
-      username: this.username,
+      username: this.username
+    };
+  }
+
+  public get info(): ClientData {
+    return {
+      ...this.basicInfo,
       inGame: !!this.gameId,
       properties: this.properties
     };

@@ -34,6 +34,10 @@ export class ClientsController {
     return this.clients.map((peer) => peer.info);
   }
 
+  public get clientsBasicInfo(): ClientData[] {
+    return this.clients.map((peer) => peer.basicInfo);
+  }
+
   public getClientPeers(client: Client): Client[] {
     if (!client) {
       return this.clients;

@@ -1,6 +1,7 @@
 import { Duration } from "../../duration.interface";
 import { GameConfig } from "../../game/game-config/game-config";
 import { ClientData } from "../../client/client-data.interface";
+import { GameRequestInterface } from "../../game/game-request/game-request.interface";
 export interface GameRoomInfo {
   id: string;
   createdAt?: string;
@@ -24,6 +25,7 @@ export interface GameInfo extends GameRoomInfo {
   state: GameState;
   playersExpected?: ClientData[];
   rejectedBy?: ClientData[];
+  restartRequest?: GameRequestInterface
 }
 
 export interface PlayerInOut {
