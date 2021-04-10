@@ -104,7 +104,7 @@ export class HostRoomsController {
     gameRoom.onMessage(client, message);
   }
 
-  public onGameInvitationReject(client: Client, gameId: string): void {
+  public onRejectGameInvitation(client: Client, gameId: string): void {
     const gameRoom = this.getPrivateGameRoomById(gameId);
     if (!gameRoom) {
       client.sendGameNotFound(client.gameId, MessageInType.GameInvitationReject);
@@ -113,20 +113,13 @@ export class HostRoomsController {
     gameRoom.onRejectInvitation(client);
   }
 
-  public onGameInvitationAccept(client: Client, gameId: string, callBack: () => void): void {
+  public onAcceptGameInvitation(client: Client, gameId: string, callBack: () => void): void {
     const gameRoom = this.getPrivateGameRoomById(gameId);
     if (!gameRoom) {
       client.sendGameNotFound(client.gameId, MessageInType.GameInvitationAccept);
-      return;
-    }
-    gameRoom.joinClient(client);
-    if (this.clientInvitedJoinedPrivateGame(client, gameRoom)) {
+    } else if (gameRoom.joinClient(client)) {
       callBack();
     }
-  }
-
-  private clientInvitedJoinedPrivateGame(client: Client, gameRoom: GameRoomPrivate): boolean {
-    return gameRoom.clientExists(client) && !gameRoom.isCreator(client);
   }
 
   public openPrivateGameRoom(client: Client, configData: GameConfig, expectedPlayers: Client[]): void {

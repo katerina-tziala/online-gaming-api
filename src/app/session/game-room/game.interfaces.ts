@@ -2,6 +2,7 @@ import { Duration } from "../../duration.interface";
 import { GameConfig } from "../../game/game-config/game-config";
 import { ClientData } from "../../client/client-data.interface";
 import { GameRequestInterface } from "../../game/game-request/game-request.interface";
+import { RequestStatus } from "../../game/game-request/request-status.enum";
 export interface GameRoomInfo {
   id: string;
   createdAt?: string;
@@ -31,7 +32,6 @@ export interface GameInfo extends GameRoomInfo {
 export interface PlayerInOut {
   player: ClientData;
   game: GameInfo;
-  playersExpected?: ClientData[];
 }
 
 export interface PlayerMesssage {
@@ -40,8 +40,12 @@ export interface PlayerMesssage {
   game?: GameInfo;
 }
 
-
 export interface GameInvitation {
-  creator: string;
+  requestedAt: string;
+  requestedBy: string;
+  status: RequestStatus;
+  confirmedBy: string[];
+  pendingResponse: ClientData[];
+  rejectedBy: ClientData[];
   game: GameInfo;
 }

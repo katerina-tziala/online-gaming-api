@@ -37,7 +37,8 @@ export class Host extends Session {
   }
 
   private setGameMessageHandling(): void {
-    this._gameMessages = Object.values(MessageInType).filter(type => type.startsWith("game"));
+    const gameMessages = Object.values(MessageInType).filter(type => type.startsWith("game"));
+    this._gameMessages = gameMessages.filter(type => !this._messageHandlingConfig.has(type));
   }
 
   private notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
@@ -235,21 +236,21 @@ export class Host extends Session {
   private onAcceptGameInvitation(client: Client, data: { gameId: string }): void {
     const { gameId } = data;
     if (!gameId) {
-      client.sendErrorMessage(ErrorType.GareIdRequired, { type: MessageInType.GameInvitationAccept });
+      client.sendErrorMessage(ErrorType.GameIdRequired, { type: MessageInType.GameInvitationAccept });
       return;
     }
-    this._GameRoomsController.onGameInvitationAccept(client, gameId, () => {
+    this._GameRoomsController.onAcceptGameInvitation(client, gameId, () => {
       this.broadcastPeersUpdate(client);
     });
   }
 
   private onRejectGameInvitation(client: Client, data: { gameId: string }): void {
     const { gameId } = data;
-    if (!gameId) {
-      client.sendErrorMessage(ErrorType.GareIdRequired, { type: MessageInType.GameInvitationReject });
-      return;
+    if (gameId) {
+      this._GameRoomsController.onRejectGameInvitation(client, gameId);
+    } else {
+      client.sendErrorMessage(ErrorType.GameIdRequired, { type: MessageInType.GameInvitationReject });
     }
-    this._GameRoomsController.onGameInvitationReject(client, gameId);
   }
 
   public disconnectClient(client: Client): void {

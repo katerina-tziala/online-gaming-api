@@ -28,7 +28,7 @@ export enum ErrorType {
   GameAccessForbidden = "game-access-forbidden",
   ExpectedPlayersNotSpecified = "expected-players-not-specified",
   ExpectedClientsNotConnected = "not-all-clients-to-invite-connected",
-  GareIdRequired = "game-id-required",
+  GameIdRequired = "game-id-required",
   GameRestartForbidden = "game-restart-action-forbidden",
   RestartNotRequested = "game-restart-not-requested",
   RestartNotRequestedByPlayer = "game-restart-not-requested-by-player",

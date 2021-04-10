@@ -18,6 +18,7 @@ export enum MessageOutType {
   GameOver = "game-over",
   PlayerTurnMove = "player-turn-move",
   GameInvitation = "game-invitation",
+  GameInvitationAccepted = "game-invitation-accepted",
   GameInvitationRejected = "game-invitation-rejected",
   GameInvitationCanceled = "game-invitation-canceled",
   GameRestartRequested = "game-restart-requested",

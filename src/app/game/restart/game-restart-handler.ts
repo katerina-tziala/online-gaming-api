@@ -68,15 +68,15 @@ export class GameRestartHandler {
     }
 
     private onGameRestartWhenRequestExists(client: Client): void {
-        if (this._RestartRequest.playerCreatedRequest(client.id)) {
+        if (this._RestartRequest.requestCreator(client.id)) {
             this.broadcastRestartWaitForConfirmation(client, MessageInType.GameRestart);
-        } else if(this._RestartRequest.playerPendingResponse(client.id)){
+        } else if(this._RestartRequest.clientPendingResponse(client.id)){
             this.acceptRestart(client);
         }
     }
 
     private onRestartCancel(client: Client): void {
-        if (!this._RestartRequest.playerCreatedRequest(client.id)) {
+        if (!this._RestartRequest.requestCreator(client.id)) {
             client.sendErrorMessage(ErrorType.RestartNotRequestedByPlayer, this.gameRestartRequest);
             return;
         }
@@ -85,10 +85,12 @@ export class GameRestartHandler {
     }
 
     private onRestartAccept(client: Client): void {
-        if (this._RestartRequest.playerCreatedRequest(client.id) || !this._RestartRequest.playerPendingResponse(client.id)) {
-            this.broadcastRestartWaitForConfirmation(client, MessageInType.GameRestartAccept);
-        } else {
+        if (!this._RestartRequest.clientInvolvedInRequest(client.id)) {
+            this.broadcastGameActionNotAllowed(client, MessageInType.GameRestartAccept);
+        } else if (this._RestartRequest.clientAllowedToConfirm(client.id)) {
             this.acceptRestart(client);
+        } else {
+            this.broadcastRestartWaitForConfirmation(client, MessageInType.GameRestartAccept);
         }
     }
 
@@ -102,9 +104,9 @@ export class GameRestartHandler {
     }
 
     public onRestartReject(client: Client): void {
-        if (this._RestartRequest.playerCreatedRequest(client.id)) {
+        if (this._RestartRequest.requestCreator(client.id)) {
             this.onRestartCancel(client);
-        } else if(!this._RestartRequest.playerRejected(client.id)){
+        } else if (this._RestartRequest.clientAllowedToReject(client.id)) {
             this.rejectRestart(client);
         } else {
             this.broadcastGameActionNotAllowed(client, MessageInType.GameRestartReject);

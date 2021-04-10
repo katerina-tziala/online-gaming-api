@@ -26,13 +26,13 @@ export class GameRequest {
   }
 
   private set playersToRespond(playersToRespond: string[]) {
-    playersToRespond.forEach((playerId) =>
-      this._PlayersState.set(playerId, RequestStatus.Pending)
+    playersToRespond.forEach((clientId) =>
+      this._PlayersState.set(clientId, RequestStatus.Pending)
     );
   }
 
   public get requestConfirmed(): boolean {
-    return this._PlayersState.size && this.receivedRequest.every(playerId => this.playerConfirmed(playerId));
+    return this._PlayersState.size && this.receivedRequest.every(clientId => this.clientConfirmed(clientId));
   }
 
   public get receivedRequest(): string[] {
@@ -41,40 +41,52 @@ export class GameRequest {
 
   public get pendingResponse(): string[] {
     return this.receivedRequest.filter((playerId) =>
-      this.playerPendingResponse(playerId)
+      this.clientPendingResponse(playerId)
     );
   }
 
   public get confirmedBy(): string[] {
     return this.receivedRequest.filter((playerId) =>
-      this.playerConfirmed(playerId)
+      this.clientConfirmed(playerId)
     );
   }
 
   public get rejectedBy(): string[] {
     return this.receivedRequest.filter((playerId) =>
-      this.playerRejected(playerId)
+      this.clientRejected(playerId)
     );
   }
 
-  public getPlayerState(playerId: string): RequestStatus {
-    return this._PlayersState.get(playerId);
+  private getClientState(clientId: string): RequestStatus {
+    return this._PlayersState.get(clientId);
   }
 
-  public playerPendingResponse(playerId: string): boolean {
-    return this.getPlayerState(playerId) === RequestStatus.Pending;
+  public clientPendingResponse(clientId: string): boolean {
+    return this.getClientState(clientId) === RequestStatus.Pending;
   }
 
-  public playerRejected(playerId: string): boolean {
-    return this.getPlayerState(playerId) === RequestStatus.Rejected;
+  public clientRejected(clientId: string): boolean {
+    return this.getClientState(clientId) === RequestStatus.Rejected;
   }
 
-  public playerConfirmed(playerId: string): boolean {
-    return this.getPlayerState(playerId) === RequestStatus.Confirmed;
+  public clientConfirmed(clientId: string): boolean {
+    return this.getClientState(clientId) === RequestStatus.Confirmed;
   }
 
-  public playerCreatedRequest(playerId: string): boolean {
-    return this._requestedBy === playerId;
+  public requestCreator(clientId: string): boolean {
+    return this._requestedBy === clientId;
+  }
+
+  public clientInvolvedInRequest(clientId: string): boolean {
+    return this.requestCreator(clientId) || this._PlayersState.has(clientId);
+  }
+
+  public clientAllowedToConfirm(clientId: string): boolean {
+    return !this.requestCreator(clientId) && !this.clientConfirmed(clientId);
+  }
+
+  public clientAllowedToReject(clientId: string): boolean {
+    return !this.requestCreator(clientId) && !this.clientRejected(clientId);
   }
 
   public createRequest(requestedBy: string, playersToRespond: string[]): void {
@@ -84,13 +96,13 @@ export class GameRequest {
     this.playersToRespond = playersToRespond;
   }
 
-  public rejectRequest(playerId: string): void {
+  public rejectRequest(clientId: string): void {
     this._status = RequestStatus.Rejected;
-    this._PlayersState.set(playerId, RequestStatus.Rejected);
+    this._PlayersState.set(clientId, RequestStatus.Rejected);
   }
 
-  public confirmRequest(playerId: string): void {
-    this._PlayersState.set(playerId, RequestStatus.Confirmed);
+  public confirmRequest(clientId: string): void {
+    this._PlayersState.set(clientId, RequestStatus.Confirmed);
     if (this.requestConfirmed) {
         this._status = RequestStatus.Confirmed;
     }

@@ -17,7 +17,7 @@ export class GameRoom extends Session {
   public key: string;
   private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
   private _Game: Game;
-  private _RestartHandler: GameRestartHandler
+  private _RestartHandler: GameRestartHandler;
 
   constructor(config: GameConfig) {
     super();
@@ -103,12 +103,16 @@ export class GameRoom extends Session {
     this._Game.endGame();
   }
 
-  protected addPlayer(client: Client): void {
+  protected joinPlayer(client: Client): void {
     client.gameId = this.id;
     this._Game.init();
     this.addClient(client);
     this.initRequestHandler();
     this.broadcastRoomOpened(client);
+  }
+
+  protected addPlayer(client: Client): void {
+    this.joinPlayer(client);
     this.broadcastPlayerInOut(client, MessageOutType.PlayerJoined);
     this.checkGameStart();
   }
@@ -307,7 +311,7 @@ export class GameRoom extends Session {
 
   protected broadcastPlayerInOut(client: Client, type: MessageOutType): void {
     const data = this.getPlayerInOutData(client);
-    this.broadcastToPeers(client,type, data);
+    this.broadcastToPeers(client, type, data);
   }
 
   private broadcastGameChat(client: Client, data: Chat): void {
