@@ -44,7 +44,7 @@ export class GameRoom extends Session {
     this._messageHandlingConfig.set(MessageInType.GamePlayerInfo, this.onGetPlayerInfo.bind(this));
   }
 
-  protected get filled(): boolean {
+  protected get allPlayersJoined(): boolean {
     return this.numberOfClients === this._config.playersRequired;
   }
 
@@ -53,7 +53,7 @@ export class GameRoom extends Session {
   }
 
   public get entranceAllowed(): boolean {
-    return !this.filled && this.idle;
+    return !this.allPlayersJoined && this.idle;
   }
 
   private get restartRequested(): boolean {
@@ -66,7 +66,7 @@ export class GameRoom extends Session {
       createdAt: this.createdAt,
       key: this.key,
       config: this._config,
-      filled: this.filled
+      allPlayersJoined: this.allPlayersJoined
     };
   }
 
@@ -81,10 +81,10 @@ export class GameRoom extends Session {
   }
 
   public get details(): GameInfo {
-    const state = Object.assign(this.gameState, this._Game.finalState);
+    const gameState = Object.assign(this.gameState, this._Game.finalState);
     const details: GameInfo = {
       ...this.info,
-      state
+      gameState
     };
 
     if (this.restartRequested) {
@@ -95,7 +95,7 @@ export class GameRoom extends Session {
   }
 
   private get filledAndIdle(): boolean {
-    return this.filled && this.idle;
+    return this.allPlayersJoined && this.idle;
   }
 
   private endGame(): void {
@@ -126,7 +126,7 @@ export class GameRoom extends Session {
 
   private restartGame(): void {
     this.clearStartTimeout();
-    if (this.filled) {
+    if (this.allPlayersJoined) {
       this._Game.initGameState();
       this.broadcastGameStart();
     }
@@ -135,7 +135,7 @@ export class GameRoom extends Session {
   private onRestartGame(): void {
     this.clearStartTimeout();
     this._Game.init();
-    if (this.filled) {
+    if (this.allPlayersJoined) {
       this.startTimeout = setTimeout(() => this.restartGame(), this._config.startWaitingTime);
     }
   }
@@ -157,11 +157,13 @@ export class GameRoom extends Session {
     if (this.restartRequested) {
       this._RestartHandler.onRestartReject(client);
       this.initRequestHandler();
+      this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
     } else if(!this._Game.over) {
       this.endGame();
-      this.broadcastGameOver(client);
+      this.broadcastGameOver(client, { playerLeft: this._Game.getPlayerInfo(client) });
+    } else {
+      this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
     }
-    this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
   }
 
   protected clearStartTimeout(): void {

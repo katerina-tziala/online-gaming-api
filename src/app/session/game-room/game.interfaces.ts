@@ -8,7 +8,12 @@ export interface GameRoomInfo {
   createdAt?: string;
   key?: string;
   config?: GameConfig;
-  filled?: boolean;
+  allPlayersJoined?: boolean;
+  createdBy?: ClientData;
+  status?: RequestStatus;
+  confirmedBy?: ClientData[];
+  pendingResponse?: ClientData[];
+  rejectedBy?: ClientData[];
 }
 
 export interface GameState {
@@ -23,10 +28,8 @@ export interface GameState {
 }
 
 export interface GameInfo extends GameRoomInfo {
-  state: GameState;
-  playersExpected?: ClientData[];
-  rejectedBy?: ClientData[];
-  restartRequest?: GameRequestInterface
+  gameState: GameState;
+  restartRequest?: GameRequestInterface;
 }
 
 export interface PlayerInOut {
@@ -38,14 +41,4 @@ export interface PlayerMesssage {
   sender: ClientData;
   data: {};
   game?: GameInfo;
-}
-
-export interface GameInvitation {
-  requestedAt: string;
-  requestedBy: string;
-  status: RequestStatus;
-  confirmedBy: string[];
-  pendingResponse: ClientData[];
-  rejectedBy: ClientData[];
-  game: GameInfo;
 }

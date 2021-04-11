@@ -5,7 +5,7 @@ import { ChatValidator, ValidTypes } from "../../validators/validators";
 
 export class GameMessagingChecker {
   private static playersJoinedError(gameState: GameRoomInfo): ErrorType {
-    return !gameState.filled ? ErrorType.WaitForPlayers : undefined;
+    return !gameState.allPlayersJoined ? ErrorType.WaitForPlayers : undefined;
   }
 
   private static gameStartError(gameState: GameState): ErrorType {
@@ -22,15 +22,15 @@ export class GameMessagingChecker {
   public static gameUpdateBasedOnStateError(gameInfo: GameInfo): ErrorType {
     return (
       GameMessagingChecker.playersJoinedError(gameInfo) ||
-      GameMessagingChecker.gameStartError(gameInfo.state) ||
-      GameMessagingChecker.gameEndedError(gameInfo.state)
+      GameMessagingChecker.gameStartError(gameInfo.gameState) ||
+      GameMessagingChecker.gameEndedError(gameInfo.gameState)
     );
   }
 
   public static gameRestartError(gameInfo: GameInfo): ErrorType {
     return (
       GameMessagingChecker.playersJoinedError(gameInfo) ||
-      GameMessagingChecker.gameStartError(gameInfo.state)
+      GameMessagingChecker.gameStartError(gameInfo.gameState)
     );
   }
 

@@ -56,7 +56,7 @@ export class Game {
   }
 
   public get over(): boolean {
-    return !!this.endedAt;
+    return (this.startedAt && this.endedAt) ? true : false;
   }
 
   public get initialState(): GameState {

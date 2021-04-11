@@ -25,6 +25,10 @@ export class GameRequest {
     };
   }
 
+  public get status(): RequestStatus {
+    return this._status;
+  }
+
   private set playersToRespond(playersToRespond: string[]) {
     playersToRespond.forEach((clientId) =>
       this._PlayersState.set(clientId, RequestStatus.Pending)
@@ -97,14 +101,29 @@ export class GameRequest {
   }
 
   public rejectRequest(clientId: string): void {
-    this._status = RequestStatus.Rejected;
-    this._PlayersState.set(clientId, RequestStatus.Rejected);
+    if (this._PlayersState.has(clientId)) {
+      this._status = RequestStatus.Rejected;
+      this._PlayersState.set(clientId, RequestStatus.Rejected);
+    }
   }
 
   public confirmRequest(clientId: string): void {
-    this._PlayersState.set(clientId, RequestStatus.Confirmed);
+    if (this._PlayersState.has(clientId)) {
+      this._PlayersState.set(clientId, RequestStatus.Confirmed);
+      this.checkRequestStatus();
+    }
+  }
+
+  private checkRequestStatus(): void {
     if (this.requestConfirmed) {
-        this._status = RequestStatus.Confirmed;
+      this._status = RequestStatus.Confirmed;
+    }
+  }
+
+  public setPendingResponse(clientId: string): void {
+    if (this._PlayersState.has(clientId)) {
+      this._status = RequestStatus.Pending;
+      this._PlayersState.set(clientId, RequestStatus.Pending);
     }
   }
 }
