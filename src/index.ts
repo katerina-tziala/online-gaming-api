@@ -4,12 +4,12 @@ import { CONFIG } from './config/config';
 import * as WebSocket from 'ws';
 import { Client } from './app/client/client';
 import { OnlineGamingApp } from './app/online-gaming-app';
+import { MovesCollectionHandler } from './app/game/moves-collection/moves-collection.handler';
 
 const port = CONFIG.PORT;
 const server = http.createServer(express);
 const wss = new WebSocket.Server({ server });
 const OnlineGaming = new OnlineGamingApp();
-
 
 wss.on('connection', (conn: WebSocket, request: IncomingMessage) => {
   // console.log(conn, request);
@@ -17,6 +17,7 @@ wss.on('connection', (conn: WebSocket, request: IncomingMessage) => {
   // const clientOrigin = request.headers.origin;
   // console.log('clientOrigin:', clientOrigin);
   const client = new Client(conn);
+
 
   conn.on('message', (msg: string) => OnlineGaming.onMessage(client, msg));
 

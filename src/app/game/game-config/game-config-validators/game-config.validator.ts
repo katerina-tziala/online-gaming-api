@@ -28,7 +28,8 @@ export class GameConfigValidator {
     const turnsRandomStart = this.getValidTurnsRandomStart(config.turnsRandomStart, config.turnsSwitch);
     const teams = TeamsConfigValidator.getValidConfig(config.playersRequired, config.teams);
     const restartAllowed = ValidTypes.typeOfBoolean(config.restartAllowed) ? config.restartAllowed : false;
-    return { roomType, playersRequired, startWaitingTime, restartAllowed, turnsSwitch, turnsRandomStart, teams, settings };
+    const movesCollection = ValidTypes.typeOfBoolean(config.movesCollection) ? config.movesCollection : false;
+    return { roomType, playersRequired, startWaitingTime, restartAllowed, movesCollection, turnsSwitch, turnsRandomStart, teams, settings };
   }
 
   private static getValidSettings(settings: any): {} {

@@ -10,10 +10,10 @@ export function generateGameKey(config: GameConfig): string {
   const turnsKey = getTurnsKey(config);
   const teamsKey = getTeamsKey(config.teams);
   const restartKey = getRestartKey(config.restartAllowed);
-
-  let gameKey = `${roomType}|${startWaitingTime}|${playersRequired}|${restartKey}|${turnsKey}|${teamsKey}`;
+  const moveCollectionKey = getMovesCollectionKey(config.movesCollection);
+  let gameKey = `${roomType}|${startWaitingTime}|${playersRequired}|${restartKey}|${moveCollectionKey}|${turnsKey}|${teamsKey}`;
   if (config.settings) {
-    gameKey += "|cs";
+    gameKey += "|custom-settings";
   }
   return gameKey;
 }
@@ -35,5 +35,9 @@ function getTeamsKey(config: TeamsConfig): string{
 }
 
 function getRestartKey(restartAllowed: boolean): string {
-  return restartAllowed ? "ra" : "rf";
+  return restartAllowed ? "restart-allowed" : "restart-forbidden";
+}
+
+function getMovesCollectionKey(movesCollection: boolean): string {
+  return movesCollection ? "moves-collection-applied" : "moves-collection-forbidden";
 }

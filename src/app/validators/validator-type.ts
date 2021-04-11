@@ -21,3 +21,7 @@ export const validString = (value: string): boolean => {
 export const typeOfBoolean = (value: any): boolean => {
   return value && typeof value === "boolean";
 };
+
+export const defined = (value: any): boolean => {
+  return value !== undefined && value !== null;
+};

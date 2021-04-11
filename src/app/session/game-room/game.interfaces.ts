@@ -3,6 +3,7 @@ import { GameConfig } from "../../game/game-config/game-config";
 import { ClientData } from "../../client/client-data.interface";
 import { GameRequestInterface } from "../../game/game-request/game-request.interface";
 import { RequestStatus } from "../../game/game-request/request-status.enum";
+import { PlayerMove } from "../../game/moves-collection/player-move.interface";
 export interface GameRoomInfo {
   id: string;
   createdAt?: string;
@@ -25,6 +26,7 @@ export interface GameState {
   teamsTurns?: string[];
   players?: ClientData[];
   completedIn?: Duration;
+  movesCollection?: PlayerMove[]
 }
 
 export interface GameInfo extends GameRoomInfo {
@@ -37,8 +39,8 @@ export interface PlayerInOut {
   game: GameInfo;
 }
 
-export interface PlayerMesssage {
+export interface PlayerMessage {
   sender: ClientData;
-  data: {};
-  game?: GameInfo;
+  game: GameInfo;
+  moveData: {};
 }

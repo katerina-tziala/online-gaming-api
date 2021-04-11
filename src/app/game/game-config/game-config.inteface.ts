@@ -14,6 +14,7 @@ export interface GameConfig {
   turnsRandomStart?: boolean;
   teams?: TeamsConfig;
   restartAllowed?: boolean;
+  movesCollection?: boolean;
   settings?: {};
   playersExpected?: string[];
 }

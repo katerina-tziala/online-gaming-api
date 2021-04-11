@@ -2,9 +2,18 @@ import { Client } from "../../client/client";
 import { ClientData } from "../../client/client-data.interface";
 import { Session } from "../session";
 import { ConfigUtils, GameConfig } from "../../game/game-config/game-config";
-import { GameInfo, GameRoomInfo, GameState, PlayerInOut, PlayerMesssage } from "./game.interfaces";
+import {
+  GameInfo,
+  GameRoomInfo,
+  GameState,
+  PlayerInOut,
+  PlayerMessage,
+} from "./game.interfaces";
 import { ErrorType } from "../../error-type.enum";
-import { MessageInType, MessageOutType } from "../../messages/message-types/message-types";
+import {
+  MessageInType,
+  MessageOutType,
+} from "../../messages/message-types/message-types";
 import { MessageIn } from "../../messages/message.interface";
 import { Chat } from "../../chat.interface";
 import { GameMessagingChecker } from "./game-messaging-checker";
@@ -15,7 +24,10 @@ export class GameRoom extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;
   private _config: GameConfig;
   public key: string;
-  private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
+  private _messageHandlingConfig: Map<
+    string,
+    (client: Client, data?: {}) => void
+  > = new Map();
   private _Game: Game;
   private _RestartHandler: GameRestartHandler;
 
@@ -41,6 +53,7 @@ export class GameRoom extends Session {
     this._messageHandlingConfig.set(MessageInType.GameUpdate, this.onGameUpdate.bind(this));
     this._messageHandlingConfig.set(MessageInType.GameOver, this.onGameOver.bind(this));
     this._messageHandlingConfig.set(MessageInType.GameTurnMove, this.onPlayerTurnMove.bind(this));
+    this._messageHandlingConfig.set(MessageInType.GameMoveSubmit, this.onPlayerMoveSubmit.bind(this));
     this._messageHandlingConfig.set(MessageInType.GamePlayerInfo, this.onGetPlayerInfo.bind(this));
   }
 
@@ -66,7 +79,7 @@ export class GameRoom extends Session {
       createdAt: this.createdAt,
       key: this.key,
       config: this._config,
-      allPlayersJoined: this.allPlayersJoined
+      allPlayersJoined: this.allPlayersJoined,
     };
   }
 
@@ -77,14 +90,14 @@ export class GameRoom extends Session {
   }
 
   public get playersInfo(): ClientData[] {
-    return this.clients.map(client => this._Game.getPlayerInfo(client));
+    return this.clients.map((client) => this._Game.getPlayerInfo(client));
   }
 
   public get details(): GameInfo {
     const gameState = Object.assign(this.gameState, this._Game.finalState);
     const details: GameInfo = {
       ...this.info,
-      gameState
+      gameState,
     };
 
     if (this.restartRequested) {
@@ -102,8 +115,17 @@ export class GameRoom extends Session {
     return !this.allPlayersJoined ? ErrorType.WaitForPlayers : undefined;
   }
 
+  private get restartRequestError(): ErrorType {
+    return this.restartRequested ? ErrorType.RestartRequested : undefined;
+  }
+
   private get gameMoveError(): ErrorType {
-    return this.playersJoinedError || this._Game.gameStartError || this._Game.gameEndedError;
+    return (
+      this.restartRequestError ||
+      this.playersJoinedError ||
+      this._Game.gameStartError ||
+      this._Game.gameEndedError
+    );
   }
 
   private endGame(): void {
@@ -128,7 +150,10 @@ export class GameRoom extends Session {
   private checkGameStart(): void {
     this.clearStartTimeout();
     if (this.filledAndIdle) {
-      this.startTimeout = setTimeout(() => this.startGame(), this._config.startWaitingTime);
+      this.startTimeout = setTimeout(
+        () => this.startGame(),
+        this._config.startWaitingTime
+      );
     }
   }
 
@@ -144,7 +169,10 @@ export class GameRoom extends Session {
     this.clearStartTimeout();
     this._Game.init();
     if (this.allPlayersJoined) {
-      this.startTimeout = setTimeout(() => this.restartGame(), this._config.startWaitingTime);
+      this.startTimeout = setTimeout(
+        () => this.restartGame(),
+        this._config.startWaitingTime
+      );
     }
   }
 
@@ -157,7 +185,9 @@ export class GameRoom extends Session {
   }
 
   public joinClient(client: Client): void {
-    !this.entranceAllowed ? this.broadcastForbiddenEntrance(client) : this.addPlayer(client);
+    !this.entranceAllowed
+      ? this.broadcastForbiddenEntrance(client)
+      : this.addPlayer(client);
   }
 
   public onPlayerLeft(client: Client): void {
@@ -166,9 +196,11 @@ export class GameRoom extends Session {
       this._RestartHandler.onRestartReject(client);
       this.initRequestHandler();
       this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
-    } else if(!this._Game.over) {
+    } else if (!this._Game.over) {
       this.endGame();
-      this.broadcastGameOver(client, { playerLeft: this._Game.getPlayerInfo(client) });
+      this.broadcastGameOver(client, {
+        playerLeft: this._Game.getPlayerInfo(client),
+      });
     } else {
       this.broadcastPlayerInOut(client, MessageOutType.PlayerLeft);
     }
@@ -196,7 +228,9 @@ export class GameRoom extends Session {
   public onMessageForRestart(client: Client, message: MessageIn): void {
     const { type } = message;
     if (!this._RestartHandler) {
-      client.sendErrorMessage(ErrorType.GameRestartForbidden, { messageType: type });
+      client.sendErrorMessage(ErrorType.GameRestartForbidden, {
+        messageType: type,
+      });
       return;
     }
     this.onRestartMessageWhenAllowed(client, message);
@@ -229,7 +263,8 @@ export class GameRoom extends Session {
 
   private onGameChat(client: Client, data: Chat): void {
     const messageType = MessageInType.GameChat;
-    const errorType = GameMessagingChecker.gameChatError(data) || this.playersJoinedError;
+    const errorType =
+      GameMessagingChecker.gameChatError(data) || this.playersJoinedError;
     if (errorType) {
       client.sendErrorMessage(errorType, { messageType });
     } else {
@@ -243,32 +278,27 @@ export class GameRoom extends Session {
       client.sendErrorMessage(ErrorType.DataRequired, { messageType });
       return;
     }
-    if (this.gameMoveAllowed(client, messageType) && this.gameMoveAllowedForPlayerOnTurn(client, messageType)) {
-      this.broadcastToPeers(client, MessageOutType.GameUpdate, this.getPlayerMessage(client, data));
+    if (
+      this.gameMoveAllowed(client, messageType) &&
+      this.gameMoveAllowedForPlayerOnTurn(client, messageType)
+    ) {
+      this.broadcastGameMoveUpdate(client, data);
     }
   }
 
   private gameMoveAllowedForPlayerOnTurn(client: Client, messageType: MessageInType): boolean {
     const errorType = this._Game.onTurnError(client);
     if (errorType) {
-      client.sendErrorMessage(errorType, { messageType });
+      this.broadcastErrorOnMove(client, errorType, messageType);
       return false;
     }
     return true;
   }
 
   private gameMoveAllowed(client: Client, messageType: MessageInType): boolean {
-    if (this.restartRequested) {
-      this.broadcastErrorWhenRestartRequested(client, messageType);
-      return false;
-    }
-    return this.gameMoveAllowedBasedOnGameState(client, messageType);
-  }
-
-  private gameMoveAllowedBasedOnGameState(client: Client, messageType: MessageInType): boolean {
     const errorType = this.gameMoveError;
     if (errorType) {
-      client.sendErrorMessage(errorType, { messageType });
+      this.broadcastErrorOnMove(client, errorType, messageType);
       return false;
     }
     return true;
@@ -281,9 +311,65 @@ export class GameRoom extends Session {
       return;
     }
     if (this.gameMoveAllowed(client, messageType) && this.gameMoveAllowedForPlayerOnTurn(client, messageType)) {
+      this.submitPlayerTurn(client, data);
+    }
+  }
+
+  private submitPlayerTurn(client: Client, data: {}) {
+    if (!this._Game.collectingMoves) {
+      this._Game.switchTurns();
+      this.broadcastTurnMove(data);
+      return;
+    }
+    const messageType = MessageInType.GameTurnMove;
+    if (this.moveCollected(client, data, messageType)) {
+      this._Game.switchTurns();
+      this.broadcastTurnMove(data);
+      this.checkAllMovesCollected();
+    }
+  }
+
+  private onPlayerMoveSubmit(client: Client, data: any): void {
+    const messageType = MessageInType.GameMoveSubmit;
+    if (
+      this.gameMoveAllowed(client, messageType) &&
+      this.gameMoveAllowedForPlayerOnTurn(client, messageType)
+    ) {
+      this.submitMoveToCollection(client, data);
+    }
+  }
+
+  private moveCollected(client: Client, data: any, messageType: MessageInType): boolean {
+    const errorType = this._Game.submitMove(client, data);
+    if (errorType) {
+      this.broadcastErrorOnMove(client, errorType, messageType);
+      return false;
+    }
+    return true;
+  }
+
+  private submitMoveToCollection(client: Client, data: any): void {
+    const messageType = MessageInType.GameMoveSubmit;
+    if (!this.moveCollected(client, data, messageType)) {
+      return;
+    }
+    if (this._Game.turnsConfigured) {
       this._Game.switchTurns();
       this.broadcastTurnMove(data);
     }
+    this.checkAllMovesCollected();
+  }
+
+  public checkAllMovesCollected(): void {
+    if (!this._Game.allMovesSubmitted) {
+      return;
+    }
+    this.broadcastMovesCollection();
+    this._Game.initMovesCollection();
+  }
+
+  public broadcastMovesCollection(): void {
+    this.broadcastToClients(MessageOutType.GameMovesCollection, this.details);
   }
 
   private onGameOver(client: Client, data: {}): void {
@@ -294,10 +380,11 @@ export class GameRoom extends Session {
   }
 
   // MESSAGE BROADCAST
-  private getPlayerMessage(client: Client, data?: {}): PlayerMesssage {
+  private getPlayerMoveMessage(client: Client, data?: {}): PlayerMessage {
     return {
       sender: this._Game.getPlayerInfo(client),
-      data,
+      game: this.details,
+      moveData: data,
     };
   }
 
@@ -313,14 +400,17 @@ export class GameRoom extends Session {
   }
 
   private broadcastRoomOpened(client: Client): void {
-    client.sendMessage(MessageOutType.GameRoomOpened, this.getPlayerInOutData(client));
+    client.sendMessage(
+      MessageOutType.GameRoomOpened,
+      this.getPlayerInOutData(client)
+    );
   }
 
   private broadcastGameStart(): void {
     const gameState = Object.assign(this.gameState, this._Game.initialState);
     const data = {
       id: this.id,
-      gameState
+      gameState,
     };
     this.broadcastToClients(MessageOutType.GameStart, data);
   }
@@ -334,34 +424,35 @@ export class GameRoom extends Session {
     const message = {
       sender: client.info,
       content: data.content,
-      deliveredAt: new Date().toString()
+      deliveredAt: new Date().toString(),
     };
     this.broadcastToPeers(client, MessageOutType.GameChat, message);
   }
 
-  public broadcastPlayerUpdate(client: Client): void {
-    this.broadcastToPeers(client, MessageOutType.PlayerUpdate, this._Game.getPlayerInfo(client));
-  }
-
   private broadcastGameOver(client: Client, data?: {}): void {
-    const message = this.getPlayerMessage(client, data);
-    message.game = this.details;
+    const message = this.getPlayerMoveMessage(client, data);
     this.broadcastToPeers(client, MessageOutType.GameOver, message);
   }
 
-  private broadcastTurnMove(moveData: {}): void {
-    const data = {
-      id: this.id,
-      gameState: this.gameState,
-      moveData
-    };
-    this.clients.forEach((client) =>
-      client.sendMessage(MessageOutType.PlayerTurnMove, data)
+  public broadcastPlayerUpdate(client: Client): void {
+    this.broadcastToPeers(
+      client,
+      MessageOutType.PlayerUpdate,
+      this._Game.getPlayerInfo(client)
     );
   }
 
-  private broadcastErrorWhenRestartRequested(client: Client, messageType: MessageInType): void {
-    const errorType = ErrorType.RestartRequested;
+  public broadcastGameMoveUpdate(client: Client, data: {}): void {
+    const message = this.getPlayerMoveMessage(client, data);
+    this.broadcastToPeers(client, MessageOutType.GameUpdate, message);
+  }
+
+  private broadcastTurnMove(data: {}): void {
+    const message = { game: this.details, moveData: data };
+    this.broadcastToClients(MessageOutType.PlayerTurnMove, message);
+  }
+
+  private broadcastErrorOnMove(client: Client, errorType: ErrorType, messageType: MessageInType): void {
     client.sendErrorMessage(errorType, { messageType, game: this.details });
   }
 }

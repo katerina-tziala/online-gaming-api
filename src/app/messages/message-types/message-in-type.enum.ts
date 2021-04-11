@@ -12,11 +12,12 @@ export enum MessageInType {
   GameChat = "game-chat",
   GameUpdate = "game-move-update",
   GameTurnMove = "game-move-turn",
+  GameMoveSubmit = "game-move-submit",
   GameOver = "game-over",
   GameInvitationAccept = "game-invitation-accept",
   GameInvitationReject = "game-invitation-reject",
   GameRestart = "game-restart",
   GameRestartReject = "game-restart-reject",
   GameRestartAccept = "game-restart-accept",
-  GameRestartCancel = "game-restart-cancel"
+  GameRestartCancel = "game-restart-cancel",
 }

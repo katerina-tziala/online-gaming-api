@@ -24,5 +24,6 @@ export enum MessageOutType {
   GameRestartRequested = "game-restart-requested",
   GameRestartCanceled = "game-restart-canceled",
   GameRestartRejected = "game-restart-rejected",
-  GameRestartAccepted = "game-restart-accepted"
+  GameRestartAccepted = "game-restart-accepted",
+  GameMovesCollection = "game-moves-collection"
 }
