@@ -11,7 +11,6 @@ import { Chat } from "../chat.interface";
 import { ChatValidator } from "../validators/chat-validator";
 import { HostRoomsController } from "../controllers/host-rooms-controller";
 import { GameConfig } from "../game/game-config/game-config.inteface";
-import { GameRoomPrivate } from "./game-room/game-room-private";
 
 export class Host extends Session {
   private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
@@ -88,8 +87,6 @@ export class Host extends Session {
     const { type, data } = message;
     if (this._messageHandlingConfig.has(type)) {
       this._messageHandlingConfig.get(type)(client, data || {});
-    } else {
-      console.log("method type not implemented");
     }
   }
 

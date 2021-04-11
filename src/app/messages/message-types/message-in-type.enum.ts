@@ -10,7 +10,7 @@ export enum MessageInType {
   GameState = "game-state",
   GamePlayerInfo = "game-player-info",
   GameChat = "game-chat",
-  GameUpdate = "game-update",
+  GameUpdate = "game-move-update",
   GameOver = "game-over",
   GameTurnMove = "game-turn-move",
   GameInvitationAccept = "game-invitation-accept",
