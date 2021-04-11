@@ -54,12 +54,16 @@ export class GameRoomPrivate extends GameRoom {
     this.broadcastGameInvitations();
   }
 
-  private clientHasAccess(client: Client): boolean {
+  public clientHasAccess(client: Client): boolean {
     return this._InvitationRequest.clientInvolvedInRequest(client.id);
   }
 
-  private clientExpected(client: Client): boolean {
+  public clientExpected(client: Client): boolean {
     return this.clientHasAccess(client) && !this.clientExists(client);
+  }
+
+  public clientPendingInvitation(clientId: string): boolean {
+    return this._InvitationRequest.clientInvolvedInRequest(clientId);
   }
 
   private checkFailedClientToJoin(client: Client): void {

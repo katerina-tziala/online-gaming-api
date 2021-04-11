@@ -128,4 +128,11 @@ export class HostRoomsController {
     config.playersRequired = expectedPlayers.length + 1;
     this.addPrivateGameRoom = new GameRoomPrivate(config, client, expectedPlayers);
   }
+
+  public rejectGameInvitationsForDisconnectedClient(client: Client): void {
+    const gameRoomsPending = this._privateGameRooms.gameRooms.filter(gameRoom => gameRoom.clientPendingInvitation(client.id));
+    gameRoomsPending.forEach(gameRoom => {
+      gameRoom.onRejectInvitation(client);
+    });
+  }
 }

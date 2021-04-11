@@ -64,7 +64,7 @@ export class GameRestartHandler {
     private createRestartRequest(client: Client, peers: Client[]): void {
         this._RestartRequest.createRequest(client.id, peers.map(peer => peer.id));
         this._PlayersController.clients = [client].concat(peers);
-        this.broadcastRequestToClients(this._PlayersController.clients, MessageOutType.GameRestartRequested);
+        this.broadcastRequestToClients(MessageOutType.GameRestartRequested);
     }
 
     private onGameRestartWhenRequestExists(client: Client): void {
@@ -80,7 +80,7 @@ export class GameRestartHandler {
             client.sendErrorMessage(ErrorType.RestartNotRequestedByPlayer, this.gameRestartRequest);
             return;
         }
-        this.broadcastRequestToClients(this._PlayersController.clients, MessageOutType.GameRestartCanceled);
+        this.broadcastRequestToClients(MessageOutType.GameRestartCanceled);
         this.init();
     }
 
@@ -96,7 +96,7 @@ export class GameRestartHandler {
 
     private acceptRestart(client: Client): void {
         this._RestartRequest.confirmRequest(client.id);
-        this.broadcastRequestToClients(this._PlayersController.clients, MessageOutType.GameRestartAccepted);
+        this.broadcastRequestToClients(MessageOutType.GameRestartAccepted);
         if (this._RestartRequest.requestConfirmed) {
             this._onRestartConfirmed();
             this.init();
@@ -115,7 +115,7 @@ export class GameRestartHandler {
 
     private rejectRestart(client: Client): void {
         this._RestartRequest.rejectRequest(client.id);
-        this.broadcastRequestToClients(this._PlayersController.clients, MessageOutType.GameRestartRejected);
+        this.broadcastRequestToClients(MessageOutType.GameRestartRejected);
         this.init();
     }
 
@@ -136,8 +136,8 @@ export class GameRestartHandler {
     }
 
     // MESSAGE BROADCAST
-    private broadcastRequestToClients(clients: Client[], type: MessageOutType): void {
-        clients.forEach((client) => client.sendMessage(type, this.gameRestartRequest));
+    private broadcastRequestToClients(type: MessageOutType): void {
+        this._PlayersController.clients.forEach((client) => client.sendMessage(type, this.gameRestartRequest));
     }
 
     private broadcastRestartNotRequested(client: Client, type: MessageInType): void {
