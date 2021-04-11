@@ -12,7 +12,7 @@ import { ChatValidator } from "../validators/chat-validator";
 import { HostRoomsController } from "../controllers/host-rooms-controller";
 import { GameConfig } from "../game/game-config/game-config.inteface";
 
-export class Host extends Session {
+export class HostSession extends Session {
   private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
   private _GameRoomsController = new HostRoomsController();
   private _gameMessages: MessageInType[] = [];
@@ -251,7 +251,7 @@ export class Host extends Session {
   }
 
   public disconnectClient(client: Client): void {
-    if (!client) {
+    if (!client || !this.clientExists(client)) {
       return;
     }
     this._GameRoomsController.rejectGameInvitationsForDisconnectedClient(client);

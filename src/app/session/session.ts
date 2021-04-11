@@ -1,5 +1,5 @@
 
-import { IdGenerator } from "../..//utils/id-generator";
+import { IdGenerator } from "../utils/id-generator";
 import { Client } from "../client/client";
 import { ClientData } from "../client/client-data.interface";
 import { ClientsController } from "../controllers/clients-controller";

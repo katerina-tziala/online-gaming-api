@@ -1,80 +1,37 @@
-import { stringToJSON } from "../utils/utils";
-import { Client } from "./client/client";
-import { ErrorType } from "./error-type.enum";
-import { MessageInType } from "./messages/message-types/message-types";
-import { MessageIn } from "./messages/message.interface";
-import { ClientData } from "./client/client-data.interface";
-import { Host } from "./session/host";
+import { IncomingMessage } from "http";
+import { Socket } from "net";
+import { OnlineGamingHost } from "./online-gaming-host";
+import { CONFIG } from '../config/config';
 
 export class OnlineGamingApp {
-  private _ALLOWED_MESSAGES: string[] = Object.values(MessageInType);
-  private _messageConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
+  private _hosts: Map<string, OnlineGamingHost> = new Map();
 
-  // TODO: multiple hosts
-  private _host: Host;
-
-  constructor() {
-    this._host = new Host();
+  private get generatePort(): number {
+    return CONFIG.PORT + this._hosts.size + 1;
   }
 
-  private getClientHost(): Host {
-    return this._host;
+  private createWebSocket(origin: string) {
+    const gamingHost = new OnlineGamingHost(origin, this.generatePort, this.onGamingHostClientsLeft.bind(this));
+    this._hosts.set(origin, gamingHost);
+    return gamingHost;
   }
 
-  private messageTypeAllowed(type: MessageInType): boolean {
-    return this._ALLOWED_MESSAGES.includes(type);
-  }
-
-  private handleMessage(client: Client, message: MessageIn): void {
-    const { type } = message;
-    if (type === MessageInType.UserInfo) {
-      this.onGetClientInfo(client);
+  private getGamingHost(origin: string): OnlineGamingHost {
+    if (this._hosts.has(origin)) {
+      return this._hosts.get(origin);
     } else {
-      this.getClientHost().onMessage(client, message);
+      return this.createWebSocket(origin)
     }
   }
 
-  private onGetClientInfo(client: Client): void {
-    if (client) {
-      client.sendUserInfo();
-    }
+  public onOriginConnection(request: IncomingMessage, socket: Socket, head: Buffer) {
+    const origin = request.headers.origin;
+    const gamingHost = this.getGamingHost(origin);
+    gamingHost.handleUpgrade(request, socket, head);
   }
 
-  private sendAllowedMessagesError(client: Client): void {
-    client.sendErrorMessage(ErrorType.MessageTypeAllowed, {
-      allowedTypes: this._ALLOWED_MESSAGES,
-    });
+  public onGamingHostClientsLeft(origin: string): void {
+    this._hosts.delete(origin);
   }
 
-  private checkMessageTypeAndHandle(client: Client, message: MessageIn): void {
-    const { type } = message;
-    if (!type) {
-      client.sendErrorMessage(ErrorType.MessageTypeExpected);
-    } else if(!this.messageTypeAllowed(type)) {
-      this.sendAllowedMessagesError(client);
-    } else {
-      this.handleMessage(client, message);
-    }
-  }
-
-  public onMessage(client: Client, messageString: string): void {
-    const messageData = stringToJSON<MessageIn>(messageString);
-    if (!messageData) {
-      client.sendErrorMessage(ErrorType.JSONDataExcpected);
-      return;
-    }
-    this.checkMessageTypeAndHandle(client, messageData);
-  }
-
-  public disconnect(client: Client): void {
-    if (!client) {
-      return;
-    }
-    const host = this.getClientHost();
-    host.disconnectClient(client);
-    if (!host.hasClients) {
-      // TODO:
-      console.log("when multiple remove host");
-    }
-  }
 }

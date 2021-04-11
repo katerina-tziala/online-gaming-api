@@ -1,34 +1,28 @@
-import express from 'express';
-import http, { IncomingMessage } from 'http';
-import { CONFIG } from './config/config';
-import * as WebSocket from 'ws';
-import { Client } from './app/client/client';
-import { OnlineGamingApp } from './app/online-gaming-app';
-import { MovesCollectionHandler } from './app/game/moves-collection/moves-collection.handler';
+import express, { Request, Response } from "express";
+import { CONFIG } from "./config/config";
+import { OnlineGamingApp } from "./app/online-gaming-app";
+import { Socket } from "net";
+import { ConnectionGuard } from "./app/connection-guard";
+import { IncomingMessage } from "http";
 
 const port = CONFIG.PORT;
-const server = http.createServer(express);
-const wss = new WebSocket.Server({ server });
 const OnlineGaming = new OnlineGamingApp();
 
-wss.on('connection', (conn: WebSocket, request: IncomingMessage) => {
-  // console.log(conn, request);
-  // console.log(wss.clients);
-  // const clientOrigin = request.headers.origin;
-  // console.log('clientOrigin:', clientOrigin);
-  const client = new Client(conn);
+const app = express();
 
-
-  conn.on('message', (msg: string) => OnlineGaming.onMessage(client, msg));
-
-  conn.on('close', () => OnlineGaming.disconnect(client));
+app.get("/", async (req: Request, res: Response, next) => {
+  res.send("~~ Onlie Gaming API ~~");
+  // TODO: PRINT INFO
 });
 
-wss.on('error', (event) => {
-  console.log('websocket error');
-  console.log(event);
-});
-
-server.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server is listening on port ${port}!`);
+});
+
+server.on("upgrade", (request: IncomingMessage, socket: Socket, head: Buffer) => {
+  if (ConnectionGuard.connectionAllowed(request)) {
+    OnlineGaming.onOriginConnection(request, socket, head);
+  } else {
+    socket.end();
+  }
 });

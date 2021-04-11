@@ -1,6 +1,6 @@
 
 import * as WebSocket from "ws";
-import { IdGenerator } from "../../utils/id-generator";
+import { IdGenerator } from "../utils/id-generator";
 import { ClientData } from "./client-data.interface";
 import { MessageInType, MessageOutType } from "../messages/message-types/message-types";
 import { ErrorType } from "../error-type.enum";

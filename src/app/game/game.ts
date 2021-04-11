@@ -1,4 +1,4 @@
-import { getDurationFromDates } from "../../utils/utils";
+import { getDurationFromDates } from "../utils/utils";
 import { Client } from "../client/client";
 import { ClientData } from "../client/client-data.interface";
 import { Duration } from "../duration.interface";

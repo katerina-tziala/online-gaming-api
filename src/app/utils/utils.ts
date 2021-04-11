@@ -1,4 +1,4 @@
-import { Duration } from '../app/duration.interface';
+import { Duration } from '../duration.interface';
 
 export function randomInteger(max = 100): number {
   return Math.floor(Math.random() * Math.round(max));

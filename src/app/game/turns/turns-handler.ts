@@ -1,5 +1,5 @@
-import { ArraySuffling } from "../../../utils/array-suffling";
-import { positionInArray } from "../../../utils/utils";
+import { ArraySuffling } from "../../utils/array-suffling";
+import { positionInArray } from "../../utils/utils";
 import { TurnsSwitch } from "./turns-switch.enum";
 
 export class TurnsHandler {
