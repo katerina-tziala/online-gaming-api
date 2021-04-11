@@ -7,6 +7,7 @@ import { TurnsHandler } from "./turns/turns-handler";
 import { GameConfig } from "./game-config/game-config";
 import { TeamsConfig } from "./game-config/game-config.inteface";
 import { GameState } from "../session/game-room/game.interfaces";
+import { ErrorType } from "../error-type.enum";
 
 export class Game {
   private _teamsConfig: TeamsConfig;
@@ -142,7 +143,7 @@ export class Game {
   }
 
   private setPlayerOnTurn(playerOnTurnId: string): void {
-    this._players.forEach(player => player.turn = player.id === playerOnTurnId);
+    this._players.forEach(player => player.turn = (player.id === playerOnTurnId));
   }
 
   private assignTeams(): void {
@@ -154,6 +155,19 @@ export class Game {
 
   private getPlayerTeam(playerOnTurnId: string): string {
     return this._teams ? TeamsHandler.getPlayerTeam(this._teams, playerOnTurnId): undefined;
+  }
+
+  public get gameStartError(): ErrorType {
+    return !this.startedAt ? ErrorType.GameNotStarted : undefined;
+  }
+
+  public get gameEndedError(): ErrorType {
+    return this.over ? ErrorType.GameOver : undefined;
+  }
+
+
+  public onTurnError(client: Client): ErrorType {
+    return this.isPlayerOnTurn(client) ? undefined : ErrorType.PlayerOnTurn;
   }
 
 }

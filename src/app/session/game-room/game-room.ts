@@ -98,6 +98,14 @@ export class GameRoom extends Session {
     return this.allPlayersJoined && this.idle;
   }
 
+  private get playersJoinedError(): ErrorType {
+    return !this.allPlayersJoined ? ErrorType.WaitForPlayers : undefined;
+  }
+
+  private get gameMoveError(): ErrorType {
+    return this.playersJoinedError || this._Game.gameStartError || this._Game.gameEndedError;
+  }
+
   private endGame(): void {
     this.clearStartTimeout();
     this._Game.endGame();
@@ -191,8 +199,12 @@ export class GameRoom extends Session {
       client.sendErrorMessage(ErrorType.GameRestartForbidden, { messageType: type });
       return;
     }
+    this.onRestartMessageWhenAllowed(client, message);
+  }
 
-    const errorType = GameMessagingChecker.gameRestartError(this.details);
+  public onRestartMessageWhenAllowed(client: Client, message: MessageIn): void {
+    const { type } = message;
+    const errorType = this.playersJoinedError || this._Game.gameStartError;
     if (errorType) {
       client.sendErrorMessage(errorType, { messageType: type });
       return;
@@ -217,7 +229,7 @@ export class GameRoom extends Session {
 
   private onGameChat(client: Client, data: Chat): void {
     const messageType = MessageInType.GameChat;
-    const errorType = GameMessagingChecker.gameChatError(this.info, data);
+    const errorType = GameMessagingChecker.gameChatError(data) || this.playersJoinedError;
     if (errorType) {
       client.sendErrorMessage(errorType, { messageType });
     } else {
@@ -227,17 +239,39 @@ export class GameRoom extends Session {
 
   private onGameUpdate(client: Client, data: {}): void {
     const messageType = MessageInType.GameUpdate;
-    if (this.restartRequested) {
-      this.broadcastErrorWhenRestartRequested(client, ErrorType.UpdateWhenRestartRequested, messageType);
+    if (!GameMessagingChecker.dataValid(data)) {
+      client.sendErrorMessage(ErrorType.DataRequired, { messageType });
       return;
     }
-
-    const errorType = GameMessagingChecker.gameUpdateError(this.details, this._Game.isPlayerOnTurn(client), data);
-    if (errorType) {
-      client.sendErrorMessage(errorType, { messageType });
-    } else {
+    if (this.gameMoveAllowed(client, messageType) && this.gameMoveAllowedForPlayerOnTurn(client, messageType)) {
       this.broadcastToPeers(client, MessageOutType.GameUpdate, this.getPlayerMessage(client, data));
     }
+  }
+
+  private gameMoveAllowedForPlayerOnTurn(client: Client, messageType: MessageInType): boolean {
+    const errorType = this._Game.onTurnError(client);
+    if (errorType) {
+      client.sendErrorMessage(errorType, { messageType });
+      return false;
+    }
+    return true;
+  }
+
+  private gameMoveAllowed(client: Client, messageType: MessageInType): boolean {
+    if (this.restartRequested) {
+      this.broadcastErrorWhenRestartRequested(client, messageType);
+      return false;
+    }
+    return this.gameMoveAllowedBasedOnGameState(client, messageType);
+  }
+
+  private gameMoveAllowedBasedOnGameState(client: Client, messageType: MessageInType): boolean {
+    const errorType = this.gameMoveError;
+    if (errorType) {
+      client.sendErrorMessage(errorType, { messageType });
+      return false;
+    }
+    return true;
   }
 
   private onPlayerTurnMove(client: Client, data: {}): void {
@@ -246,34 +280,14 @@ export class GameRoom extends Session {
       client.sendErrorMessage(ErrorType.TurnsSwitchForbidden, { messageType });
       return;
     }
-
-    if (this.restartRequested) {
-      this.broadcastErrorWhenRestartRequested(client, ErrorType.TurnsSwitchWhenRestartRequested, messageType);
-      return;
+    if (this.gameMoveAllowed(client, messageType) && this.gameMoveAllowedForPlayerOnTurn(client, messageType)) {
+      this._Game.switchTurns();
+      this.broadcastTurnMove(data);
     }
-    this.playerTurnMove(client, data);
-  }
-
-  private playerTurnMove(client: Client, data: {}): void {
-    const errorType = GameMessagingChecker.turnsSwitchError(this._Game.isPlayerOnTurn(client), this.details);
-    if (errorType) {
-      client.sendErrorMessage(errorType, { messageType: MessageInType.GameTurnMove });
-      return;
-    }
-    this._Game.switchTurns();
-    this.broadcastTurnMove(data);
   }
 
   private onGameOver(client: Client, data: {}): void {
-    const messageType = MessageInType.GameOver;
-    if (this.restartRequested) {
-      this.broadcastErrorWhenRestartRequested(client, ErrorType.OverWhenRestartRequested, messageType);
-      return;
-    }
-    const errorType = GameMessagingChecker.gameUpdateBasedOnStateError(this.details);
-    if (errorType) {
-      client.sendErrorMessage(errorType, { messageType });
-    } else {
+    if (this.gameMoveAllowed(client, MessageInType.GameOver)) {
       this.endGame();
       this.broadcastGameOver(client, data);
     }
@@ -346,7 +360,8 @@ export class GameRoom extends Session {
     );
   }
 
-  private broadcastErrorWhenRestartRequested(client: Client, errorType: ErrorType,  messageType: MessageInType): void {
+  private broadcastErrorWhenRestartRequested(client: Client, messageType: MessageInType): void {
+    const errorType = ErrorType.RestartRequested;
     client.sendErrorMessage(errorType, { messageType, game: this.details });
   }
 }

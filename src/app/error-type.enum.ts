@@ -33,7 +33,5 @@ export enum ErrorType {
   RestartNotRequested = "game-restart-not-requested",
   RestartNotRequestedByPlayer = "game-restart-not-requested-by-player",
   GameRestartWaitConfrimation = "game-restart-wait-for-confirmation",
-  UpdateWhenRestartRequested = "game-update-when-restart-requested-forbidden",
-  TurnsSwitchWhenRestartRequested = "turns-switch-when-restart-requested-forbidden",
-  OverWhenRestartRequested = "game-over-when-restart-requested-forbidden",
+  RestartRequested = "restart-requested"
 }
