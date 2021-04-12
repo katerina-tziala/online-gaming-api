@@ -5,7 +5,4 @@
 ```
 
 ws://localhost:9000/
-
-
--- add functionality for restarting game
--- add functionality for canceling invitation
+protocols: ['json', 'online-gaming-api'];
