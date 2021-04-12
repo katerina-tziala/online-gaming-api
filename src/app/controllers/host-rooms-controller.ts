@@ -1,14 +1,14 @@
 import { Client } from '../client/client';
+import {
+  ConfigUtils,
+  GameConfig,
+} from '../game/game-config/game-config';
 import { MessageInType } from '../messages/message-types/message-in-type.enum';
 import { MessageIn } from '../messages/message.interface';
-import {
-  GameConfig,
-  ConfigUtils,
-} from '../game/game-config/game-config';
+import { ReportInfo } from '../report-info.interface';
 import { GameRoom } from '../session/game-room/game-room';
 import { GameRoomPrivate } from '../session/game-room/game-room-private';
 import { GameRoomsController } from './game-rooms-controller';
-import { ReportInfo } from '../report-info.interface';
 
 export class HostRoomsController {
   private _gameRooms: GameRoomsController<GameRoom> = new GameRoomsController();

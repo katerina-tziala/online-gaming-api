@@ -1,5 +1,5 @@
-import { GameConfig, TeamsConfig } from './game-config.inteface';
 import { GameConfigValidator } from './game-config-validators/game-config.validator';
+import { GameConfig, TeamsConfig } from './game-config.inteface';
 
 export function getValidGameConfig(config: GameConfig): GameConfig {
   return GameConfigValidator.getValidConfig(config);

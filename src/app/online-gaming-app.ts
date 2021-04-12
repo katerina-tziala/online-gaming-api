@@ -1,7 +1,7 @@
 import { IncomingMessage } from 'http';
 import { Socket } from 'net';
-import { OnlineGamingHost } from './online-gaming-host';
 import { CONFIG } from '../config/config';
+import { OnlineGamingHost } from './online-gaming-host';
 import { ReportInfo } from './report-info.interface';
 
 export class OnlineGamingApp {

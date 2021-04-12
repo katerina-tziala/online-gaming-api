@@ -1,9 +1,9 @@
 
-import { IdGenerator } from '../utils/id-generator';
 import { Client } from '../client/client';
 import { ClientData } from '../client/client-data.interface';
 import { ClientsController } from '../controllers/clients-controller';
 import { MessageOutType } from '../messages/message-types/message-out-type.enum';
+import { IdGenerator } from '../utils/id-generator';
 
 export class Session {
   public id: string;

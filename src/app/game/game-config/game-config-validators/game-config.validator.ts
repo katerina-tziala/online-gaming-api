@@ -1,8 +1,8 @@
 
 
 import { ValidTypes } from '../../../validators/validators';
-import { GameConfig } from '../game-config.inteface';
 import { TurnsSwitch } from '../../turns/turns-switch.enum';
+import { GameConfig } from '../game-config.inteface';
 import { TeamsConfigValidator } from './teams-config.validator';
 export class GameConfigValidator {
   private static _DEFAULT_GAME_CONFIG = {

@@ -1,10 +1,10 @@
-import { MessageInType, MessageOutType } from '../../messages/message-types/message-types';
 import { Client } from '../../client/client';
 import { ClientsController } from '../../controllers/clients-controller';
-import { GameRestart } from './game-restart.interface';
 import { ErrorType } from '../../error-type.enum';
+import { MessageInType, MessageOutType } from '../../messages/message-types/message-types';
 import { GameRequest } from '../game-request/game-request';
 import { GameRequestInterface } from '../game-request/game-request.interface';
+import { GameRestart } from './game-restart.interface';
 
 
 export class GameRestartHandler {

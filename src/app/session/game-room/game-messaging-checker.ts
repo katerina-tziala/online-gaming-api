@@ -1,5 +1,5 @@
-import { ErrorType } from '../../error-type.enum';
 import { Chat } from '../../chat.interface';
+import { ErrorType } from '../../error-type.enum';
 import { ChatValidator, ValidTypes } from '../../validators/validators';
 
 export class GameMessagingChecker {

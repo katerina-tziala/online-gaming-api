@@ -1,15 +1,15 @@
 import { Client } from '../../client/client';
 import { ClientData } from '../../client/client-data.interface';
-import { GameConfig } from '../../game/game-config/game-config';
-import { GameRoomInfo } from './game.interfaces';
+import { ClientsController } from '../../controllers/clients-controller';
 import { ErrorType } from '../../error-type.enum';
+import { GameConfig } from '../../game/game-config/game-config';
+import { GameRequest } from '../../game/game-request/game-request';
 import {
   MessageInType,
   MessageOutType,
 } from '../../messages/message-types/message-types';
 import { GameRoom } from './game-room';
-import { ClientsController } from '../../controllers/clients-controller';
-import { GameRequest } from '../../game/game-request/game-request';
+import { GameRoomInfo } from './game.interfaces';
 
 export class GameRoomPrivate extends GameRoom {
   private _InvitationRequest: GameRequest;

@@ -1,6 +1,6 @@
+import { ClientData } from '../../client/client-data.interface';
 import { Duration } from '../../duration.interface';
 import { GameConfig } from '../../game/game-config/game-config';
-import { ClientData } from '../../client/client-data.interface';
 import { GameRequestInterface } from '../../game/game-request/game-request.interface';
 import { RequestStatus } from '../../game/game-request/request-status.enum';
 import { PlayerMove } from '../../game/moves-collection/player-move.interface';

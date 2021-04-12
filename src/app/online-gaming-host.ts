@@ -1,15 +1,15 @@
-import { stringToJSON } from './utils/utils';
+import { IncomingMessage } from 'http';
+import { Socket } from 'net';
+import * as WebSocket from 'ws';
+import { CONFIG } from '../config/config';
 import { Client } from './client/client';
+import { ConnectionHelper } from './connection-helper';
 import { ErrorType } from './error-type.enum';
 import { MessageInType } from './messages/message-types/message-types';
 import { MessageIn } from './messages/message.interface';
-import { HostSession } from './session/host-session';
-import * as WebSocket from 'ws';
-import { IncomingMessage } from 'http';
-import { Socket } from 'net';
-import { ConnectionHelper } from './connection-helper';
-import { CONFIG } from '../config/config';
 import { ReportInfo } from './report-info.interface';
+import { HostSession } from './session/host-session';
+import { stringToJSON } from './utils/utils';
 
 export class OnlineGamingHost {
   private _ALLOWED_MESSAGES: string[] = Object.values(MessageInType);

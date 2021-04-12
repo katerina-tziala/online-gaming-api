@@ -1,16 +1,16 @@
-import { getDurationFromDates } from '../utils/utils';
 import { Client } from '../client/client';
 import { ClientData } from '../client/client-data.interface';
 import { Duration } from '../duration.interface';
-import { TeamsHandler } from './teams/teams-handler';
-import { TurnsHandler } from './turns/turns-handler';
+import { ErrorType } from '../error-type.enum';
+import { MessageInType } from '../messages/message-types/message-types';
+import { GameState } from '../session/game-room/game.interfaces';
+import { getDurationFromDates } from '../utils/utils';
 import { GameConfig } from './game-config/game-config';
 import { TeamsConfig } from './game-config/game-config.inteface';
-import { GameState } from '../session/game-room/game.interfaces';
-import { ErrorType } from '../error-type.enum';
 import { MovesCollectionHandler } from './moves-collection/moves-collection.handler';
 import { PlayerMove } from './moves-collection/player-move.interface';
-import { MessageInType } from '../messages/message-types/message-types';
+import { TeamsHandler } from './teams/teams-handler';
+import { TurnsHandler } from './turns/turns-handler';
 
 export class Game {
   private _teamsConfig: TeamsConfig;

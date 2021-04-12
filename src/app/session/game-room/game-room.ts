@@ -1,7 +1,17 @@
+import { Chat } from '../../chat.interface';
 import { Client } from '../../client/client';
 import { ClientData } from '../../client/client-data.interface';
-import { Session } from '../session';
+import { ErrorType } from '../../error-type.enum';
+import { Game } from '../../game/game';
 import { ConfigUtils, GameConfig } from '../../game/game-config/game-config';
+import { GameRestartHandler } from '../../game/restart/game-restart-handler';
+import {
+  MessageInType,
+  MessageOutType,
+} from '../../messages/message-types/message-types';
+import { MessageIn } from '../../messages/message.interface';
+import { Session } from '../session';
+import { GameMessagingChecker } from './game-messaging-checker';
 import {
   GameInfo,
   GameRoomInfo,
@@ -9,16 +19,6 @@ import {
   PlayerInOut,
   PlayerMessage,
 } from './game.interfaces';
-import { ErrorType } from '../../error-type.enum';
-import {
-  MessageInType,
-  MessageOutType,
-} from '../../messages/message-types/message-types';
-import { MessageIn } from '../../messages/message.interface';
-import { Chat } from '../../chat.interface';
-import { GameMessagingChecker } from './game-messaging-checker';
-import { Game } from '../../game/game';
-import { GameRestartHandler } from '../../game/restart/game-restart-handler';
 
 export class GameRoom extends Session {
   private startTimeout: ReturnType<typeof setTimeout>;

@@ -7,7 +7,14 @@
     "rules": {
         "quotemark": [true, "single", "avoid-escape", "avoid-template"],
         "trailing-comma": [ false ],
-        "no-console": [true, "warning"]
+        "no-console": [true, "warning"],
+        "ordered-imports": [
+            true,
+            {
+              "import-sources-order": "lowercase-last",
+              "named-imports-order": "lowercase-first"
+            }
+        ]
     },
     "rulesDirectory": []
 }

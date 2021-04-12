@@ -1,12 +1,12 @@
 
 import * as WebSocket from 'ws';
-import { IdGenerator } from '../utils/id-generator';
-import { ClientData } from './client-data.interface';
-import { MessageInType, MessageOutType } from '../messages/message-types/message-types';
-import { ErrorType } from '../error-type.enum';
-import { ErrorMessage, MessageIn, MessageOut } from '../messages/message.interface';
-import { UsernameValidator, ValidTypes } from '../validators/validators';
 import { Chat } from '../chat.interface';
+import { ErrorType } from '../error-type.enum';
+import { MessageInType, MessageOutType } from '../messages/message-types/message-types';
+import { ErrorMessage, MessageIn, MessageOut } from '../messages/message.interface';
+import { IdGenerator } from '../utils/id-generator';
+import { UsernameValidator, ValidTypes } from '../validators/validators';
+import { ClientData } from './client-data.interface';
 
 export class Client {
   private _conn: WebSocket;

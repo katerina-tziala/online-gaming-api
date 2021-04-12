@@ -1,5 +1,5 @@
-import { TeamsConfig } from '../game-config/game-config';
 import { arrayDifference, randomFromArray } from '../../utils/utils';
+import { TeamsConfig } from '../game-config/game-config';
 import { TeamJoin } from './team-join.enum';
 
 export class TeamsHandler {

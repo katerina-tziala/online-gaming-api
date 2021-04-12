@@ -1,9 +1,9 @@
 import express, { Request, Response } from 'express';
-import { CONFIG } from './config/config';
-import { OnlineGamingApp } from './app/online-gaming-app';
-import { Socket } from 'net';
 import { IncomingMessage } from 'http';
+import { Socket } from 'net';
 import { ConnectionHelper } from './app/connection-helper';
+import { OnlineGamingApp } from './app/online-gaming-app';
+import { CONFIG } from './config/config';
 
 const port = CONFIG.PORT;
 const OnlineGaming = new OnlineGamingApp();

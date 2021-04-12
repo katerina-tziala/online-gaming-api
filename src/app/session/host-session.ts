@@ -1,18 +1,18 @@
-import { Session } from './session';
+import { Chat } from '../chat.interface';
 import { Client } from '../client/client';
 import { ClientData } from '../client/client-data.interface';
+import { HostRoomsController } from '../controllers/host-rooms-controller';
 import { ErrorType } from '../error-type.enum';
+import { GameConfig } from '../game/game-config/game-config.inteface';
 import {
-  MessageOutType,
   MessageInType,
+  MessageOutType,
 } from '../messages/message-types/message-types';
 import { MessageIn } from '../messages/message.interface';
-import { Chat } from '../chat.interface';
-import { ChatValidator } from '../validators/chat-validator';
-import { HostRoomsController } from '../controllers/host-rooms-controller';
-import { GameConfig } from '../game/game-config/game-config.inteface';
-import { GameRoomInfo } from './game-room/game.interfaces';
 import { ReportInfo } from '../report-info.interface';
+import { ChatValidator } from '../validators/chat-validator';
+import { GameRoomInfo } from './game-room/game.interfaces';
+import { Session } from './session';
 
 export class HostSession extends Session {
   private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();

@@ -1,6 +1,6 @@
-import { defined } from '../../validators/validator-type';
 import { Client } from '../../client/client';
 import { ErrorType } from '../../error-type.enum';
+import { defined } from '../../validators/validator-type';
 import { PlayerMove } from './player-move.interface';
 
 export class MovesCollectionHandler {
