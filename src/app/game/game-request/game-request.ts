@@ -1,5 +1,5 @@
-import { GameRequestInterface } from "./game-request.interface";
-import { RequestStatus } from "./request-status.enum";
+import { GameRequestInterface } from './game-request.interface';
+import { RequestStatus } from './request-status.enum';
 
 export class GameRequest {
   private _PlayersState: Map<string, RequestStatus> = new Map();

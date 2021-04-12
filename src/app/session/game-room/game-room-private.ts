@@ -1,15 +1,15 @@
-import { Client } from "../../client/client";
-import { ClientData } from "../../client/client-data.interface";
-import { GameConfig } from "../../game/game-config/game-config";
-import { GameRoomInfo } from "./game.interfaces";
-import { ErrorType } from "../../error-type.enum";
+import { Client } from '../../client/client';
+import { ClientData } from '../../client/client-data.interface';
+import { GameConfig } from '../../game/game-config/game-config';
+import { GameRoomInfo } from './game.interfaces';
+import { ErrorType } from '../../error-type.enum';
 import {
   MessageInType,
   MessageOutType,
-} from "../../messages/message-types/message-types";
-import { GameRoom } from "./game-room";
-import { ClientsController } from "../../controllers/clients-controller";
-import { GameRequest } from "../../game/game-request/game-request";
+} from '../../messages/message-types/message-types';
+import { GameRoom } from './game-room';
+import { ClientsController } from '../../controllers/clients-controller';
+import { GameRequest } from '../../game/game-request/game-request';
 
 export class GameRoomPrivate extends GameRoom {
   private _InvitationRequest: GameRequest;
@@ -18,7 +18,7 @@ export class GameRoomPrivate extends GameRoom {
 
   constructor(config: GameConfig, client: Client, playersToInvite: Client[]) {
     super(config);
-    this.key = "private|" + this.key;
+    this.key = 'private|' + this.key;
     this._InvitedPlayersController = new ClientsController();
     this._InvitationRequest = new GameRequest();
     this.onOpen(client, playersToInvite);

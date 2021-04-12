@@ -1,6 +1,6 @@
-import { TeamJoin } from "../../teams/team-join.enum";
-import { ValidTypes } from "../../../validators/validators";
-import { TeamsConfig } from "../game-config.inteface";
+import { TeamJoin } from '../../teams/team-join.enum';
+import { ValidTypes } from '../../../validators/validators';
+import { TeamsConfig } from '../game-config.inteface';
 
 export class TeamsConfigValidator {
   public static getValidConfig(playersRequired: number,  config: TeamsConfig): TeamsConfig {

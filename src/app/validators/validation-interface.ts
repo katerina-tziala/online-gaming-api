@@ -1,4 +1,4 @@
-import { ErrorType } from "../error-type.enum";
+import { ErrorType } from '../error-type.enum';
 
 export interface Validation {
   type: string;

@@ -1,4 +1,4 @@
-import { ClientData } from "./client/client-data.interface";
+import { ClientData } from './client/client-data.interface';
 
 export interface Chat {
   content: any;

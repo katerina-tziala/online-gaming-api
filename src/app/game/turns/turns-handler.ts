@@ -1,6 +1,6 @@
-import { ArraySuffling } from "../../utils/array-suffling";
-import { positionInArray } from "../../utils/utils";
-import { TurnsSwitch } from "./turns-switch.enum";
+import { ArraySuffling } from '../../utils/array-suffling';
+import { positionInArray } from '../../utils/utils';
+import { TurnsSwitch } from './turns-switch.enum';
 
 export class TurnsHandler {
   private _turnsConfig: Map<TurnsSwitch, (arrayToSuffle: string[]) => string[]> = new Map();

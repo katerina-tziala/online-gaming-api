@@ -1,15 +1,15 @@
-import { stringToJSON } from "./utils/utils";
-import { Client } from "./client/client";
-import { ErrorType } from "./error-type.enum";
-import { MessageInType } from "./messages/message-types/message-types";
-import { MessageIn } from "./messages/message.interface";
-import { HostSession } from "./session/host-session";
-import * as WebSocket from "ws";
-import { IncomingMessage } from "http";
-import { Socket } from "net";
-import { ConnectionHelper } from "./connection-helper";
-import { CONFIG } from "../config/config";
-import { ReportInfo } from "./report-info.interface";
+import { stringToJSON } from './utils/utils';
+import { Client } from './client/client';
+import { ErrorType } from './error-type.enum';
+import { MessageInType } from './messages/message-types/message-types';
+import { MessageIn } from './messages/message.interface';
+import { HostSession } from './session/host-session';
+import * as WebSocket from 'ws';
+import { IncomingMessage } from 'http';
+import { Socket } from 'net';
+import { ConnectionHelper } from './connection-helper';
+import { CONFIG } from '../config/config';
+import { ReportInfo } from './report-info.interface';
 
 export class OnlineGamingHost {
   private _ALLOWED_MESSAGES: string[] = Object.values(MessageInType);
@@ -38,8 +38,8 @@ export class OnlineGamingHost {
 
   private initWebSocket(): void {
     this.wsServer = new WebSocket.Server({ port: this.port, noServer: true });
-    this.wsServer.on("connection", (conn: WebSocket, request: IncomingMessage) => this.onConnection(conn, request));
-    this.wsServer.on("error", (event) => this.onError(event));
+    this.wsServer.on('connection', (conn: WebSocket, request: IncomingMessage) => this.onConnection(conn, request));
+    this.wsServer.on('error', (event) => this.onError(event));
   }
 
   private generateClient(conn: WebSocket, request: IncomingMessage): Client {
@@ -52,18 +52,18 @@ export class OnlineGamingHost {
 
   private onConnection(conn: WebSocket, request: IncomingMessage): void {
     const client = this.generateClient(conn, request);
-    conn.on("message", (msg: string) => this.onMessage(client, msg));
-    conn.on("close", () => this.onDisconnect(client));
+    conn.on('message', (msg: string) => this.onMessage(client, msg));
+    conn.on('close', () => this.onDisconnect(client));
   }
 
   private onError(event: any): void {
-    console.log("websocket error", event);
+    console.log('websocket error', event);
     this.onAllClientsLeft(this.origin);
   }
 
   public handleUpgrade(request: IncomingMessage, socket: Socket, head: Buffer) {
     this.wsServer.handleUpgrade(request, socket, head, (webSocket) => {
-      this.wsServer.emit("connection", webSocket, request);
+      this.wsServer.emit('connection', webSocket, request);
     });
   }
 

@@ -1,5 +1,5 @@
-import { IncomingHttpHeaders, IncomingMessage } from "http";
-import { CONFIG } from "../config/config";
+import { IncomingHttpHeaders, IncomingMessage } from 'http';
+import { CONFIG } from '../config/config';
 
 export class ConnectionHelper {
 
@@ -26,8 +26,8 @@ export class ConnectionHelper {
     }
 
     private static getProtocols(headers: IncomingHttpHeaders): string[] {
-        const reqStringProtocol = headers["sec-websocket-protocol"];
-        if (typeof reqStringProtocol === "string") {
+        const reqStringProtocol = headers['sec-websocket-protocol'];
+        if (typeof reqStringProtocol === 'string') {
             return this.extractProtocolsFromString(reqStringProtocol);
         } else {
             return reqStringProtocol;
@@ -38,7 +38,7 @@ export class ConnectionHelper {
         if (!reqStringProtocol) {
             return [];
         }
-        return reqStringProtocol.split(",").map(protocol => protocol.trim());
+        return reqStringProtocol.split(',').map(protocol => protocol.trim());
     }
 
 }

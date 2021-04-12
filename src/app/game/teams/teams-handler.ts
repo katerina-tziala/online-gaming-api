@@ -1,6 +1,6 @@
-import { TeamsConfig } from "../game-config/game-config";
-import { arrayDifference, randomFromArray } from "../../utils/utils";
-import { TeamJoin } from "./team-join.enum";
+import { TeamsConfig } from '../game-config/game-config';
+import { arrayDifference, randomFromArray } from '../../utils/utils';
+import { TeamJoin } from './team-join.enum';
 
 export class TeamsHandler {
   public static createTeams(playersIds: string[], teamsConfig: TeamsConfig): Map<string, string[]> {

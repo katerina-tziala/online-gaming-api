@@ -1,7 +1,7 @@
-import { defined } from "../../validators/validator-type";
-import { Client } from "../../client/client";
-import { ErrorType } from "../../error-type.enum";
-import { PlayerMove } from "./player-move.interface";
+import { defined } from '../../validators/validator-type';
+import { Client } from '../../client/client';
+import { ErrorType } from '../../error-type.enum';
+import { PlayerMove } from './player-move.interface';
 
 export class MovesCollectionHandler {
   private _playersIds: string[] = [];

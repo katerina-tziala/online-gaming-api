@@ -1,6 +1,6 @@
-import { Chat } from "../chat.interface";
-import { ErrorType } from "../error-type.enum";
-import { typeOfObject } from "./validator-type";
+import { Chat } from '../chat.interface';
+import { ErrorType } from '../error-type.enum';
+import { typeOfObject } from './validator-type';
 
 export class ChatValidator {
   private static chatDatatErrorType(data: Chat): ErrorType {

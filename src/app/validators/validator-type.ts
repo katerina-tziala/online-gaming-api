@@ -1,5 +1,5 @@
 export const typeOfObject = (value: any): boolean => {
-  return value && typeof value === "object";
+  return value && typeof value === 'object';
 };
 
 export const positiveInteger = (value: number): number => {
@@ -7,11 +7,11 @@ export const positiveInteger = (value: number): number => {
 };
 
 export const typeOfNumber = (value: any): boolean => {
-  return value && typeof value === "number";
+  return value && typeof value === 'number';
 };
 
 export const typeOfString = (value: any): boolean => {
-  return value && typeof value === "string";
+  return value && typeof value === 'string';
 };
 
 export const validString = (value: string): boolean => {
@@ -19,7 +19,7 @@ export const validString = (value: string): boolean => {
 };
 
 export const typeOfBoolean = (value: any): boolean => {
-  return value && typeof value === "boolean";
+  return value && typeof value === 'boolean';
 };
 
 export const defined = (value: any): boolean => {

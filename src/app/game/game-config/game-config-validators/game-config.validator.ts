@@ -1,13 +1,13 @@
 
 
-import { ValidTypes } from "../../../validators/validators";
-import { GameConfig } from "../game-config.inteface";
-import { TurnsSwitch } from "../../turns/turns-switch.enum";
-import { TeamsConfigValidator } from "./teams-config.validator";
+import { ValidTypes } from '../../../validators/validators';
+import { GameConfig } from '../game-config.inteface';
+import { TurnsSwitch } from '../../turns/turns-switch.enum';
+import { TeamsConfigValidator } from './teams-config.validator';
 export class GameConfigValidator {
   private static _DEFAULT_GAME_CONFIG = {
     playersAllowed: 2,
-    roomType: "default",
+    roomType: 'default',
     startWaitingTime: 3000
   };
 
@@ -59,7 +59,7 @@ export class GameConfigValidator {
     if (!turnsSwitch) {
       return undefined;
     }
-    return (typeof value !== "boolean") ? true : !!value;
+    return (typeof value !== 'boolean') ? true : !!value;
   }
 
 }

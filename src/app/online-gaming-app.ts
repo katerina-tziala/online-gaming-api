@@ -1,8 +1,8 @@
-import { IncomingMessage } from "http";
-import { Socket } from "net";
-import { OnlineGamingHost } from "./online-gaming-host";
+import { IncomingMessage } from 'http';
+import { Socket } from 'net';
+import { OnlineGamingHost } from './online-gaming-host';
 import { CONFIG } from '../config/config';
-import { ReportInfo } from "./report-info.interface";
+import { ReportInfo } from './report-info.interface';
 
 export class OnlineGamingApp {
   private _hosts: Map<string, OnlineGamingHost> = new Map();

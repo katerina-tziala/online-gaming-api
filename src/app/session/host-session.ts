@@ -1,18 +1,18 @@
-import { Session } from "./session";
-import { Client } from "../client/client";
-import { ClientData } from "../client/client-data.interface";
-import { ErrorType } from "../error-type.enum";
+import { Session } from './session';
+import { Client } from '../client/client';
+import { ClientData } from '../client/client-data.interface';
+import { ErrorType } from '../error-type.enum';
 import {
   MessageOutType,
   MessageInType,
-} from "../messages/message-types/message-types";
-import { MessageIn } from "../messages/message.interface";
-import { Chat } from "../chat.interface";
-import { ChatValidator } from "../validators/chat-validator";
-import { HostRoomsController } from "../controllers/host-rooms-controller";
-import { GameConfig } from "../game/game-config/game-config.inteface";
-import { GameRoomInfo } from "./game-room/game.interfaces";
-import { ReportInfo } from "../report-info.interface";
+} from '../messages/message-types/message-types';
+import { MessageIn } from '../messages/message.interface';
+import { Chat } from '../chat.interface';
+import { ChatValidator } from '../validators/chat-validator';
+import { HostRoomsController } from '../controllers/host-rooms-controller';
+import { GameConfig } from '../game/game-config/game-config.inteface';
+import { GameRoomInfo } from './game-room/game.interfaces';
+import { ReportInfo } from '../report-info.interface';
 
 export class HostSession extends Session {
   private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
@@ -44,7 +44,7 @@ export class HostSession extends Session {
   }
 
   private setGameMessageHandling(): void {
-    const gameMessages = Object.values(MessageInType).filter(type => type.startsWith("game"));
+    const gameMessages = Object.values(MessageInType).filter(type => type.startsWith('game'));
     this._gameMessages = gameMessages.filter(type => !this._messageHandlingConfig.has(type));
   }
 

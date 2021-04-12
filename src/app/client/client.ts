@@ -1,12 +1,12 @@
 
-import * as WebSocket from "ws";
-import { IdGenerator } from "../utils/id-generator";
-import { ClientData } from "./client-data.interface";
-import { MessageInType, MessageOutType } from "../messages/message-types/message-types";
-import { ErrorType } from "../error-type.enum";
-import { ErrorMessage, MessageIn, MessageOut } from "../messages/message.interface";
-import { UsernameValidator, ValidTypes } from "../validators/validators";
-import { Chat } from "../chat.interface";
+import * as WebSocket from 'ws';
+import { IdGenerator } from '../utils/id-generator';
+import { ClientData } from './client-data.interface';
+import { MessageInType, MessageOutType } from '../messages/message-types/message-types';
+import { ErrorType } from '../error-type.enum';
+import { ErrorMessage, MessageIn, MessageOut } from '../messages/message.interface';
+import { UsernameValidator, ValidTypes } from '../validators/validators';
+import { Chat } from '../chat.interface';
 
 export class Client {
   private _conn: WebSocket;
@@ -17,7 +17,7 @@ export class Client {
   private _properties: {};
 
   constructor(id?: string) {
-    this._id = id || "user-" + IdGenerator.generate();
+    this._id = id || 'user-' + IdGenerator.generate();
     this._username = null;
     this._gameId = null;
   }
@@ -86,13 +86,13 @@ export class Client {
 
   private send<T>(message: T): void {
     if (!this.connected) {
-        console.log("client is not connected -> cannot deliver the message");
+        console.log('client is not connected -> cannot deliver the message');
         return;
       }
 
     this._conn.send(JSON.stringify(message), (error) => {
       if (error) {
-        console.log("error in delivering the message -> ", error);
+        console.log('error in delivering the message -> ', error);
       }
     });
   }

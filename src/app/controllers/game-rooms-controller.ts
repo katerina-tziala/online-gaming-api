@@ -1,5 +1,5 @@
-import { GameRoom } from "../session/game-room/game-room";
-import { GameRoomPrivate } from "../session/game-room/game-room-private";
+import { GameRoom } from '../session/game-room/game-room';
+import { GameRoomPrivate } from '../session/game-room/game-room-private';
 
 export class GameRoomsController<T extends GameRoom> {
   private _gameRooms: Map<string, T> = new Map();
