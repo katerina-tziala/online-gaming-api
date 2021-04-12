@@ -8,7 +8,6 @@ import {
 import { GameRoom } from "../session/game-room/game-room";
 import { GameRoomPrivate } from "../session/game-room/game-room-private";
 import { GameRoomsController } from "./game-rooms-controller";
-import { GameRoomInfo } from "../session/game-room/game.interfaces";
 import { ReportInfo } from "../report-info.interface";
 
 export class HostRoomsController {

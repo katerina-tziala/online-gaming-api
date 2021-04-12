@@ -17,7 +17,7 @@ export class Client {
   private _properties: {};
 
   constructor(id?: string) {
-    this._id = id || "user" + IdGenerator.generate();
+    this._id = id || "user-" + IdGenerator.generate();
     this._username = null;
     this._gameId = null;
   }

@@ -5,7 +5,7 @@ export class IdGenerator {
     private static _CHARS = Array.from('abcdefghjkmnopqrstvwxyz01234567890ABCDEFGHJKMNOPQRSTVWXYZ');
 
     public static generate(): string {
-        let id = Date.now().toString();
+        let id = `${Date.now().toString()}-`;
         while (id.length < this._LENGTH) {
           id += randomFromArray<string>(this._CHARS);
         }
