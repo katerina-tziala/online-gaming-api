@@ -1,14 +1,20 @@
 import { IncomingHttpHeaders, IncomingMessage } from "http";
 import { CONFIG } from "../config/config";
 
-export class ConnectionGuard {
+export class ConnectionHelper {
 
     public static connectionAllowed(request: IncomingMessage): boolean {
+
         const requestProtocols = this.getProtocols(request.headers);
         if (!requestProtocols || !requestProtocols.length) {
             return false;
         }
         return this.correctProtocols(requestProtocols);
+    }
+
+    public static getUserIdFromURL(request: IncomingMessage): string {
+        const urlParts = request.url.split('user=');
+        return request.headers.userId = urlParts.length > 1 ? urlParts.pop().trim() : undefined;
     }
 
     private static correctProtocols(requestProtocols: string[]): boolean {

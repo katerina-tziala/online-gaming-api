@@ -16,11 +16,14 @@ export class Client {
   private _joinedAt: string;
   private _properties: {};
 
-  constructor(conn: WebSocket) {
-    this._conn = conn;
-    this._id =  "user" + IdGenerator.generate();
+  constructor(id?: string) {
+    this._id = id || "user" + IdGenerator.generate();
     this._username = null;
     this._gameId = null;
+  }
+
+  public set conn(conn: WebSocket) {
+    this._conn = conn;
   }
 
   public get id(): string {

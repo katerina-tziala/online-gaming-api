@@ -11,6 +11,8 @@ import { Chat } from "../chat.interface";
 import { ChatValidator } from "../validators/chat-validator";
 import { HostRoomsController } from "../controllers/host-rooms-controller";
 import { GameConfig } from "../game/game-config/game-config.inteface";
+import { GameRoomInfo } from "./game-room/game.interfaces";
+import { ReportInfo } from "../report-info.interface";
 
 export class HostSession extends Session {
   private _messageHandlingConfig: Map<string, (client: Client, data?: {}) => void> = new Map();
@@ -21,6 +23,12 @@ export class HostSession extends Session {
     super();
     this.setMessageHandling();
     this.setGameMessageHandling();
+  }
+
+  public get info(): ReportInfo {
+    const roomsInfo = this._GameRoomsController.info;
+    roomsInfo.clients = this.clientsInfo;
+    return roomsInfo;
   }
 
   private setMessageHandling(): void {

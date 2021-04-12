@@ -8,16 +8,24 @@ import {
 import { GameRoom } from "../session/game-room/game-room";
 import { GameRoomPrivate } from "../session/game-room/game-room-private";
 import { GameRoomsController } from "./game-rooms-controller";
+import { GameRoomInfo } from "../session/game-room/game.interfaces";
+import { ReportInfo } from "../report-info.interface";
 
 export class HostRoomsController {
   private _gameRooms: GameRoomsController<GameRoom> = new GameRoomsController();
   private _privateGameRooms: GameRoomsController<GameRoomPrivate> = new GameRoomsController();
 
+  public get info(): ReportInfo {
+    const privateGameRooms = this._privateGameRooms.gameRooms.map(room => room.info);
+    const gameRooms = this._gameRooms.gameRooms.map(room => room.info);
+    return { privateGameRooms, gameRooms };
+  }
+
   private set addGameRoom(session: GameRoom) {
     this._gameRooms.addGameRoom = session;
   }
 
-  public set addPrivateGameRoom(session: GameRoomPrivate) {
+  private set addPrivateGameRoom(session: GameRoomPrivate) {
     this._privateGameRooms.addGameRoom = session;
   }
 

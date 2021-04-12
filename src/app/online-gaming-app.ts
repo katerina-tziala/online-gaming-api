@@ -2,9 +2,14 @@ import { IncomingMessage } from "http";
 import { Socket } from "net";
 import { OnlineGamingHost } from "./online-gaming-host";
 import { CONFIG } from '../config/config';
+import { ReportInfo } from "./report-info.interface";
 
 export class OnlineGamingApp {
   private _hosts: Map<string, OnlineGamingHost> = new Map();
+
+  public get info(): ReportInfo[] {
+    return Array.from(this._hosts.values()).map(host => host.info);
+  }
 
   private get generatePort(): number {
     return CONFIG.PORT + this._hosts.size + 1;
