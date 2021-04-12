@@ -1,13 +1,8 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 dotenv.config();
 
 export const CONFIG = {
-    SOCKET_PROTOCOL: "json",
-    PORT: process.env.PORT,
-    APP_PROTOCOL: process.env.APP_PROTOCOL,
-    ALLOWED_HOST: process.env.ALLOWED_HOST,
-    ID_GENERATION: {
-        LENGTH: 32,
-        CHARS: "abcdefghjkmnopqrstvwxyz01234567890ABCDEFGHJKMNOPQRSTVWXYZ"
-    }
+    PORT: parseInt(process.env.PORT, 10),
+    FALLBACK: parseInt(process.env.FALLBACK, 10),
+    PROTOCOLS: [process.env.APP_PROTOCOL, process.env.SOCKET_PROTOCOL]
 }

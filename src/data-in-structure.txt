@@ -1,0 +1,142 @@
+// MESSAGE IN
+
+- JOIN USER
+{
+  "type": "join",
+  "data": {
+    "username": "kate",
+    "properties": {
+      "color" : "#808080"
+    }
+  }
+}
+
+
+- UPDATE USER
+{
+  "type": "user-update",
+  "data": {
+    "username": "kater",
+    "properties": {
+      "testprp" : "232323"
+    }
+  }
+}
+
+
+- PRIVATE CHAT
+{
+  "type": "private-chat",
+  "data": {
+    "recipientId": "",
+    "content": {}
+  }
+}
+
+
+- ENTER GAME / OPEN GAME ROOM
+//open-game-room
+{
+  "type": "enter-game",
+  "data": {
+    "playersAllowed": 2,
+    "startWaitingTime": 2000,
+    "roomType": "type1",
+    "settings": {}
+  }
+}
+
+
+- QUIT GAME
+{
+  "type": "quit-game"
+}
+
+
+- GAME STATE
+{
+  "type": "game-state"
+}
+
+
+- GAME CHAT
+{
+  "type": "game-chat",
+  "data": {
+    "test": "lets chat"
+  }
+}
+
+
+- GAME UPDATE
+{
+  "type": "game-update",
+  "data": {
+    "test": "test"
+  }
+}
+
+
+- GAME OVER
+{
+  "type": "game-over",
+  "data": {
+    "test": "over"
+  }
+}
+
+
+- Player Turn Move
+{
+  "type": "player-turn-move",
+  "data": {
+    "test": "test"
+  }
+}
+
+-  OPEN  PRIVATE GAME ROOM
+{
+  "type": "open-private-game-room",
+  "data": {
+    "playersExpected":[],
+    "settings": {},
+    "playersAllowed": 2,
+    "startWaitingTime": 8000
+  }
+}
+
+
+-  ACCEPT GAME INVITATION
+{
+  "type": "game-invitation-accept",
+  "data": {
+    "gameId": "kN5b2FYh8feY0oH3hjnHr3WBso1kjEYq__1616527071289"
+  }
+}
+
+
+-  REJECT GAME INVITATION
+{
+  "type": "game-invitation-reject",
+  "data": {
+    "gameId": "kN5b2FYh8feY0oH3hjnHr3WBso1kjEYq__1616527071289"
+  }
+}
+
+
+-  GAME RESTART
+{
+  "type": "game-restart"
+}
+
+{
+  "type": "game-restart-reject"
+}
+
+{
+  "type": "game-restart-cancel"
+}
+
+{
+  "type": "game-restart-accept"
+}

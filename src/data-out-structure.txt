@@ -1,0 +1,32 @@
+// MESSAGE OUT
+
+- USER INFO
+{
+  type: "user-info",
+  data ClientData {
+    id: string;
+    username: string;
+    gameRoomId: string;
+    joined: boolean;
+    joinedAt?: string;
+    properties?: {};
+  }
+};
+
+- USER JOINED
+{
+  "type": "user-joined",
+  "data": {
+    "user": ClientData,
+    "peers": [ClientData, ...]
+  }
+}
+
+
+- PEERS UPDATE
+{
+  "type":"peers-update",
+  "data": {
+    "peers":[ClientData, ...]
+  }
+}

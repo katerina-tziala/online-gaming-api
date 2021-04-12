@@ -1,13 +1,35 @@
-import express from "express";
-import cors from "cors";
-import http from "http";
-import { CONFIG } from "./config/config";
-import { OnlineGamingAPI } from "./app/app";
+import express, { Request, Response } from 'express';
+import { IncomingMessage } from 'http';
+import { Socket } from 'net';
+import { ConnectionHelper } from './app/connection-helper';
+import { OnlineGamingApp } from './app/online-gaming-app';
+import { CONFIG } from './config/config';
 
-const appServer = express().use(cors());
-const server = http.createServer(appServer);
+const port = CONFIG.PORT;
+const OnlineGaming = new OnlineGamingApp();
 
-server.listen(CONFIG.PORT, () => {
-    const api = new OnlineGamingAPI(server);
-    console.log(`Server is listening on port ${CONFIG.PORT} :)`);
+const app = express();
+
+let startedAt: Date;
+
+app.get('/', async (req: Request, res: Response, next) => {
+  res.json({
+    API: 'Onlie Gaming API',
+    poweredBy: 'Katerina Tziala',
+    startedAt,
+    info: OnlineGaming.info
+  });
+});
+
+const server = app.listen(port, () => {
+  startedAt = new Date();
+  console.log(`Server is listening on port ${port}!`);
+});
+
+server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
+  if (ConnectionHelper.connectionAllowed(request)) {
+    OnlineGaming.onOriginConnection(request, socket, head);
+  } else {
+    socket.end();
+  }
 });
