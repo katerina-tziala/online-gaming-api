@@ -23,7 +23,7 @@ app.get('/', async (req: Request, res: Response, next) => {
 
 const server = app.listen(port, () => {
   startedAt = new Date();
-  console.log(`Server is listening on port ${port}!`);
+  console.log(`Server is listening on port ${port}...`);
 });
 
 server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
