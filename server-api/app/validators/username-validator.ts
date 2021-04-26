@@ -3,7 +3,7 @@ import { Validation } from './validation-interface';
 
 export class UsernameValidator {
     private static usernameValid(username: string): boolean {
-      return username.length ? new RegExp(/^(\w{4,})$/).test(username) : false;
+      return username.length ? new RegExp(/([0-9_-]*[a-z][0-9_-]*){3}/igm).test(username) : false;
     }
 
     public static getValidationResult(value: any, errorType?: ErrorType): Validation {
