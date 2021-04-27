@@ -1,9 +1,9 @@
 import { IncomingMessage } from 'http';
 import { Socket } from 'net';
+import * as WebSocket from 'ws';
 import { CONFIG } from '../config/config';
 import { OnlineGamingHost } from './online-gaming-host';
 import { ReportInfo } from './report-info.interface';
-
 export class OnlineGamingApp {
   private _hosts: Map<string, OnlineGamingHost> = new Map();
 
@@ -25,7 +25,7 @@ export class OnlineGamingApp {
     if (this._hosts.has(origin)) {
       return this._hosts.get(origin);
     } else {
-      return this.createWebSocket(origin)
+      return this.createWebSocket(origin);
     }
   }
 
@@ -36,7 +36,9 @@ export class OnlineGamingApp {
   }
 
   public onGamingHostClientsLeft(origin: string): void {
-    this._hosts.delete(origin);
+    console.log('delete origin', origin);
+    // const gamingHost = this._hosts.get(origin);
+    // this._hosts.delete(origin);
   }
 
 }

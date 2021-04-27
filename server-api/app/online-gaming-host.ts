@@ -21,7 +21,11 @@ export class OnlineGamingHost {
 
   private _diconnectMap: Map<string, any> = new Map();
 
-  constructor(origin: string, port: number, onAllClientsLeft: (origin: string) => void) {
+  constructor(
+    origin: string,
+    port: number,
+    onAllClientsLeft: (origin: string) => void
+  ) {
     this.origin = origin;
     this.port = port;
     this.onAllClientsLeft = onAllClientsLeft;
@@ -36,15 +40,24 @@ export class OnlineGamingHost {
     return info;
   }
 
+  public get hasClients(): boolean {
+    return this._mainSession.hasClients;
+  }
+
   private initWebSocket(): void {
     this.wsServer = new WebSocket.Server({ port: this.port, noServer: true });
-    this.wsServer.on('connection', (conn: WebSocket, request: IncomingMessage) => this.onConnection(conn, request));
+    this.wsServer.on(
+      'connection',
+      (conn: WebSocket, request: IncomingMessage) =>
+        this.onConnection(conn, request)
+    );
     this.wsServer.on('error', (event) => this.onError(event));
   }
 
   private generateClient(conn: WebSocket, request: IncomingMessage): Client {
     const userId: string = ConnectionHelper.getUserIdFromURL(request);
-    const client = this._mainSession.getClientById(userId) || new Client(userId);
+    const client =
+      this._mainSession.getClientById(userId) || new Client(userId);
     client.conn = conn;
     this.cancelDsconnect(client.id);
     return client;
@@ -57,8 +70,9 @@ export class OnlineGamingHost {
   }
 
   private onError(event: any): void {
-    console.log('websocket error', event);
-    this.onAllClientsLeft(this.origin);
+    console.log('websocket error');
+    // console.log(event);
+    this.onDestroy();
   }
 
   public handleUpgrade(request: IncomingMessage, socket: Socket, head: Buffer) {
@@ -96,7 +110,7 @@ export class OnlineGamingHost {
     const { type } = message;
     if (!type) {
       client.sendErrorMessage(ErrorType.MessageTypeExpected);
-    } else if(!this.messageTypeAllowed(type)) {
+    } else if (!this.messageTypeAllowed(type)) {
       this.sendAllowedMessagesError(client);
     } else {
       this.handleMessage(client, message);
@@ -122,8 +136,8 @@ export class OnlineGamingHost {
 
   private cancelDsconnect(clientId: string): void {
     if (this._diconnectMap.has(clientId)) {
-      clearTimeout( this._diconnectMap.get(clientId));
-      this._diconnectMap.delete(clientId)
+      clearTimeout(this._diconnectMap.get(clientId));
+      this._diconnectMap.delete(clientId);
     }
   }
 
@@ -135,8 +149,11 @@ export class OnlineGamingHost {
 
   private checkClientsExistence(): void {
     if (!this._mainSession.hasClients) {
-      this.onAllClientsLeft(this.origin);
+      this.onDestroy();
     }
   }
 
+  private onDestroy(): void {
+    this.onAllClientsLeft(this.origin);
+  }
 }
