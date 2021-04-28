@@ -5,7 +5,7 @@ import { CONFIG } from '../config/config';
 import { Client } from './client/client';
 import { ConnectionHelper } from './connection-helper';
 import { ErrorType } from './error-type.enum';
-import { MessageInType } from './messages/message-types/message-types';
+import { MessageInType, MessageOutType } from './messages/message-types/message-types';
 import { MessageIn } from './messages/message.interface';
 import { ReportInfo } from './report-info.interface';
 import { HostSession } from './session/host-session';
@@ -21,11 +21,7 @@ export class OnlineGamingHost {
 
   private _diconnectMap: Map<string, any> = new Map();
 
-  constructor(
-    origin: string,
-    port: number,
-    onAllClientsLeft: (origin: string) => void
-  ) {
+  constructor(origin: string, port: number, onAllClientsLeft: (origin: string) => void) {
     this.origin = origin;
     this.port = port;
     this.onAllClientsLeft = onAllClientsLeft;
@@ -46,33 +42,38 @@ export class OnlineGamingHost {
 
   private initWebSocket(): void {
     this.wsServer = new WebSocket.Server({ port: this.port, noServer: true });
-    this.wsServer.on(
-      'connection',
-      (conn: WebSocket, request: IncomingMessage) =>
+    this.wsServer.on('connection', (conn: WebSocket, request: IncomingMessage) =>
         this.onConnection(conn, request)
     );
     this.wsServer.on('error', (event) => this.onError(event));
   }
 
-  private generateClient(conn: WebSocket, request: IncomingMessage): Client {
-    const userId: string = ConnectionHelper.getUserIdFromURL(request);
-    const client =
-      this._mainSession.getClientById(userId) || new Client(userId);
+  private generateClient(conn: WebSocket, userId: string): Client {
+    const client = this._mainSession.getClientById(userId) || new Client(userId);
     client.conn = conn;
-    this.cancelDsconnect(client.id);
+    this.cancelDisconnect(client.id);
     return client;
   }
 
   private onConnection(conn: WebSocket, request: IncomingMessage): void {
-    const client = this.generateClient(conn, request);
+    const userId: string = ConnectionHelper.getUserIdFromURL(request);
+    const client = this.generateClient(conn, userId);
+    if (userId) {
+      this.notifyReconnectedClient(client);
+    }
     conn.on('message', (msg: string) => this.onMessage(client, msg));
     conn.on('close', () => this.onDisconnect(client));
+  }
+
+  private notifyReconnectedClient(client: Client): void {
+    if (client.username && this._mainSession.clientExists(client)) {
+      this._mainSession.notifyJoinedClient(client, MessageOutType.Reconnected);
+    }
   }
 
   private onError(event: any): void {
     console.log('websocket error');
     // console.log(event);
-    this.onDestroy();
   }
 
   public handleUpgrade(request: IncomingMessage, socket: Socket, head: Buffer) {
@@ -130,11 +131,14 @@ export class OnlineGamingHost {
     if (!client) {
       return;
     }
+    // fallback to connection if there is game or invitations
+    // this.disconnect(client);
+    // fallback configurable per host
     const timeout = setTimeout(() => this.disconnect(client), CONFIG.FALLBACK);
     this._diconnectMap.set(client.id, timeout);
   }
 
-  private cancelDsconnect(clientId: string): void {
+  private cancelDisconnect(clientId: string): void {
     if (this._diconnectMap.has(clientId)) {
       clearTimeout(this._diconnectMap.get(clientId));
       this._diconnectMap.delete(clientId);
@@ -144,7 +148,7 @@ export class OnlineGamingHost {
   private disconnect(client: Client): void {
     this._mainSession.disconnectClient(client);
     this.checkClientsExistence();
-    this.cancelDsconnect(client.id);
+    this.cancelDisconnect(client.id);
   }
 
   private checkClientsExistence(): void {

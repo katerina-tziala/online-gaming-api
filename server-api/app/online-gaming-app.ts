@@ -37,6 +37,7 @@ export class OnlineGamingApp {
 
   public onGamingHostClientsLeft(origin: string): void {
     console.log('delete origin', origin);
+    // websocket end???
     // timeout check for fallback - only when user in game/has invitations...
     // const gamingHost = this._hosts.get(origin);
     // this._hosts.delete(origin);

@@ -48,7 +48,7 @@ export class HostSession extends Session {
     this._gameMessages = gameMessages.filter(type => !this._messageHandlingConfig.has(type));
   }
 
-  private notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
+  public notifyJoinedClient(client: Client, type = MessageOutType.Joined): void {
     const user = client.details;
     const peers = this.getPeersDetails(client);
     client.sendMessage(type, { user, peers });

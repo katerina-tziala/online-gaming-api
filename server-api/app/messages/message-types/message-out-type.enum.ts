@@ -2,6 +2,7 @@ export enum MessageOutType {
   Error = 'error',
   UserInfo = 'user-info',
   Joined = 'user-joined',
+  Reconnected = 'user-reconnected',
   Peers = 'peers-update',
   UserUpdated = 'user-updated',
   PrivateChat = 'private-chat',
